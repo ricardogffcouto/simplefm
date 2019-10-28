@@ -1,0 +1,64 @@
+<EndofSeason>:
+    BoxLayout:
+        orientation: 'vertical'
+        FinancesItemHeader:
+            size_hint_y: 0.05
+            name: "[color=ffffff][b]Income[/b][/color]"
+            weekly: ""
+        ScrollableList:
+            id: income
+            viewclass: 'FinancesItem'
+        FinancesItemHeader:
+            size_hint_y: 0.05
+            name: "[color=ffffff][b]Expense[/b][/color]"
+            weekly: ""
+        ScrollableList:
+            id: expense
+            viewclass: 'FinancesItem'
+        FinancesItemHeader:
+            size_hint_y: 0.05
+            id: balance
+            name: "[color=ffffff][b]Balance[/b][/color]"
+            weekly: ""
+        FinancesItemHeader:
+            size_hint_y: 0.05
+            id: money
+            name: "[color=ffffff][b]Money[/b][/color]"
+            weekly: ""
+        Label:
+            size_hint_y: 0.001
+        Label:
+            id: spacing
+        MainHeader:
+            size_hint_y: 0.05
+            id: position_header
+        TeamPositionHeader:
+            size_hint_y: 0.05
+        TeamPosition:
+            bcolor: (0.95, 0.95, 0.95, 1)
+            size_hint_y: 0.05
+            id: team_position
+        Label:
+            size_hint_y: 0.001
+        MainHeader:
+            size_hint_y: 0.05
+            id: goal
+        MainHeader:
+            size_hint_y: 0.05
+            id: goal_accomplishment
+        Label:
+            size_hint_y: 0.001
+        MainHeader:
+            size_hint_y: 0.05
+            text: "FAN HAPPINESS"
+        Label:
+            size_hint_y: 0.05
+            id: fan_happiness
+            color: (0, 0, 0, 0)
+            canvas.before:
+                Color:
+                    rgba: self.color
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+

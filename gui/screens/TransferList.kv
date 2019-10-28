@@ -1,0 +1,28 @@
+<TransferList>:
+    BoxLayout:
+        orientation: 'vertical'
+        Header:
+            id: header
+            size_hint_y: 0.1
+            text: "TRANSFER LIST"
+        PlayerTransferViewHeader:
+            size_hint_y: 0.05
+        PlayersTransferList:
+            id: transfer_list
+            viewclass: 'SelectablePlayerTransferView'
+            swappable: False
+            size_hint_y: 0.75
+        SecondaryFooter:
+            size_hint_y: 0.1
+            ButtonWithImageAndText:
+                source: 'atlas://gui/icons/myatlas/team1'
+                label_text: 'My Team'
+                on_release: root.manager.current = "TransferTeam"
+            Label:
+            Label:
+            Label:
+            ButtonWithImageAndText:
+                id: buy_button
+                source: 'atlas://gui/icons/myatlas/buy'
+                label_text: 'Buy'
+                on_release: root.confirm_buy_player()

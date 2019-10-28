@@ -1,0 +1,96 @@
+#:import help gui.helpers
+<NameTextInput>:
+    multiline: False
+    padding: [20, (self.height-self.line_height)/2.0]
+
+<NewGameScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: "gui/backgrounds/fundo.jpg"
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 1
+        MainHeader:
+            text: "New Game"
+            size_hint_y: 0.1
+        BoxLayout:
+            size_hint_y: 0.1
+            LightHeader:
+                size_hint_x: 0.25
+                text: "Game name"
+            NameTextInput:
+                size_hint_x: 0.75
+                hint_text: "Max 16 char, only letters and numbers"
+                id: game_name
+        BoxLayout:
+            size_hint_y: 0.1
+            LightHeader:
+                size_hint_x: 0.25
+                text: "Manager name"
+            NameTextInput:
+                size_hint_x: 0.75
+                hint_text: "Max 16 char, only letters and numbers"
+                id: manager_name
+        BoxLayout:
+            size_hint_y: 0.1
+            LightHeader:
+                size_hint_x: 0.25
+                text: "Team"
+            Spinner:
+                size_hint_x: 0.75
+                id: teams
+                on_text: root.show_hide_create_new_team()
+        BoxLayout:
+            orientation: 'vertical'
+            id: new_team
+            size_hint_y: 0.4
+            spacing: 1
+            BoxLayout:
+                LightHeader:
+                    text: "Name"
+                    size_hint_x: 0.25
+                NameTextInput:
+                    hint_text: "Max 16 char, only letters and numbers"
+                    id: new_team_name
+                    size_hint_x: 0.75
+            BoxLayout:
+                LightHeader:
+                    text: "Color"
+                    size_hint_x: 0.25
+                Spinner:
+                    id: new_team_color
+                    on_text: self.background_color = help.color(self.text)
+                    size_hint_x: 0.75
+            BoxLayout:
+                LightHeader:
+                    text: "Country"
+                    size_hint_x: 0.25
+                Spinner:
+                    id: new_team_country
+                    size_hint_x: 0.75
+            LightHeader:
+                text: "Division and position"
+            BoxLayout:
+                LightHeader:
+                    text: "Div"
+                Spinner:
+                    id: new_team_prev_div
+                LightHeader:
+                    text: "Pos"
+                Spinner:
+                    id: new_team_prev_pos
+        Label:
+            size_hint_y: 0.1
+            id: spacing
+        BoxLayout:
+            size_hint_y: 0.1
+            Button:
+                text: "Back"
+                on_release: root.manager.current = 'StartScreen'
+                size_hint_x: 0.25
+            Button:
+                text: "Create Game"
+                on_release: root.can_start_new_game()
+                size_hint_x: 0.75

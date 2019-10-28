@@ -1,0 +1,57 @@
+<TopHeader@BoxLayout>:
+    canvas.before:
+        Color:
+            rgba: root.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    screen: None
+    text: ""
+    text_left: ""
+    text_right: ""
+    bcolor: (0.1, 0.1, 0.1, 1)
+    orientation: 'horizontal'
+    padding: [20, 0]
+    ButtonWithImageAndText:
+        source: '' if not root.screen else 'atlas://gui/icons/myatlas/back' if root.screen.name == "ManagerStatsScreen" else 'atlas://gui/icons/myatlas/manager' 
+        bg_color: 1, 1, 1, 1
+        label_text: root.text_left
+        size_hint_x: 0.2
+        size_hint_y: 0.85
+        on_release: root.screen.manager.current = '' if not root.screen else 'MainScreen' if root.screen.name == "ManagerStatsScreen" else 'ManagerStatsScreen'
+    Label:
+        halign: 'center'
+        text_size: self.size
+        valign: 'center'
+        color: 1, 1, 1, 1
+        text: root.text
+        size_hint_x: 0.6
+        bold: True
+    Label:
+        halign: 'right'
+        text_size: self.size
+        valign: 'center'
+        color: 1, 1, 1, 1
+        text: root.text_right
+        size_hint_x: 0.2
+
+<MainScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: "gui/backgrounds/fundo.jpg"
+    BoxLayout:
+        orientation: 'vertical'
+        TopHeader:
+            size_hint_y: 0.08
+            id: myteam
+        TeamScreens:
+            size_hint_y: 0.84
+            id: content
+        Label:
+            size_hint_y: 0.001
+        MainFooter:
+            size_hint_y: 0.08
+            screen_manager: root.ids["content"]
+            id: footer

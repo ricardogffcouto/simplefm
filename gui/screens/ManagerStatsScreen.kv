@@ -1,0 +1,29 @@
+<ManagerStatsScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: "gui/backgrounds/fundo.jpg"
+    BoxLayout:
+        orientation: 'vertical'
+        TopHeader:
+            size_hint_y: 0.08
+            id: myteam
+        MainHeader:
+            size_hint_y: 0.06
+            text: 'CAREER STATS'
+        InfoScrollableList:
+            id: career_stats
+            viewclass: 'ManagerStatView'
+        Spacing:
+            size_hint_y: 0.001
+        MainHeader:
+            size_hint_y: 0.06
+            text: 'YEARLY STATS'
+        TeamPositionManagerStatsHeader:
+            size_hint_y: 0.05
+        InfoScrollableList:
+            id: yearly_stats
+            viewclass: 'TeamPositionManagerStatsView'
+        Label:
+            id: spacing

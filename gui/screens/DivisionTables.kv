@@ -1,0 +1,92 @@
+<MatchResults>:
+    id: match_list
+    content_height: dp(20)
+    viewclass: 'MatchResult'
+
+<LeagueTable>:
+    content_height: dp(20)
+    viewclass: 'TeamPosition'
+
+<AllMatchesScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        MainHeader:
+            id: week
+            size_hint_y: 0.08
+        MatchResults:
+            size_hint_y: 0.82
+            id: match_results
+        SecondaryFooter:
+            size_hint_y: 0.1
+            ButtonWithImageAndText:
+                source: 'atlas://gui/icons/myatlas/cup'
+                label_text: 'Matches/Tables'
+                on_release: root.manager.current = "DivisionAllMatchesTablesScreen"
+                size_hint_x: 0.2
+            Label:
+                size_hint_x: 0.8
+
+<DivisionAllMatchesTablesScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        MainHeader:
+            id: week
+            size_hint_y: 0.08
+        MatchResults:
+            id: match_results
+        MainHeader:
+            size_hint_y: 0.06
+            text: 'LEAGUE TABLE'
+        TeamPositionHeader:
+            size_hint_y: 0.05
+        Label:
+            size_hint_y: 0.001
+        LeagueTable:
+            id: league_table
+        SecondaryFooter:
+            size_hint_y: 0.1
+            ButtonWithImageAndText:
+                source: 'atlas://gui/icons/myatlas/match'
+                label_text: 'My team matches'
+                on_release: root.manager.current = "AllMatchesScreen"
+                size_hint_x: 0.2
+            Label:
+                size_hint_x: 0.8
+
+<DivisionMatchesTablesScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: 0.08
+            canvas.before:
+                Color:
+                    rgba: (0.1, 0.1, 0.1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            ButtonWithImageAndText:
+                bg_color: (1, 1, 1, 1)
+                source: 'atlas://gui/icons/myatlas/play-back'
+                id: next_div
+                on_release: root.next_div()
+                size_hint_x: 0.2
+            MainHeader:
+                id: week
+                size_hint_x: 0.6
+            ButtonWithImageAndText:
+                bg_color: (1, 1, 1, 1)
+                source: 'atlas://gui/icons/myatlas/play'
+                id: prev_div
+                on_release: root.prev_div()
+                size_hint_x: 0.2
+        MatchResults:
+            id: match_results
+        MainHeader:
+            size_hint_y: 0.06
+            text: 'LEAGUE TABLE'
+        TeamPositionHeader:
+            size_hint_y: 0.05
+        Label:
+            size_hint_y: 0.001
+        LeagueTable:
+            id: league_table

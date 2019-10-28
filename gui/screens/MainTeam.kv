@@ -1,0 +1,28 @@
+<MainTeam>:
+    BoxLayout:
+        orientation: 'vertical'
+        PlayerNormalViewHeader:
+            size_hint_y: 0.05
+        TeamPlayersList:
+            id: team_list
+            viewclass: 'SelectablePlayerNormalView'
+            swappable: True
+            size_hint_y: 0.85
+        Label:
+            size_hint_y: 0.001
+        SecondaryFooter:
+            size_hint_y: 0.1
+            TacticsSpinner:
+                on_text: root.change_playing_tactic()
+                on_is_open: self.selected = not self.selected
+                id: tactic
+                size_hint_x: 0.2
+                source: 'atlas://gui/icons/myatlas/tatica'
+            BlackLabel:
+                size_hint_x: 0.6
+                id: game_info
+            ButtonWithImageAndText:
+                on_release: root.confirm_go_to_game()
+                source: 'atlas://gui/icons/myatlas/ball'
+                label_text: 'Play'
+                size_hint_x: 0.2

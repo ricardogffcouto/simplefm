@@ -1,0 +1,338 @@
+<GoalPopup>:
+    size_hint: 0.8, 0.08
+    score: ''
+    minute: ''
+    goalscorer: ''
+    bcolor: (1, 1, 1, 1)
+    border_color: (0.5, 0.5, 0.5, 1)
+    background: ''
+    canvas.before:
+        Color:
+            rgba: root.bcolor
+    canvas:
+        Color:
+            rgba: root.bcolor
+        Ellipse:
+            angle_start:360
+            angle_end:540
+            pos: (self.size[0] + self.pos[0] - self.size[1]/2.0, self.pos[1])
+            size: (self.size[1], self.size[1])
+        Color:
+            rgba: root.border_color
+        Line:
+            points: self.pos[0], self.pos[1], self.pos[0] + self.size[0], self.pos[1]
+            width: 3
+        Line:
+            points: self.pos[0], self.pos[1] + self.size[1], self.pos[0] + self.size[0], self.pos[1] + self.size[1]
+            width: 3
+        Line:
+            ellipse: self.size[0] + self.pos[0] - self.size[1]/2.0, self.pos[1], self.size[1], self.size[1], 360, 540
+            width: 3
+    FloatLayout:
+        Image:
+            source: 'atlas://gui/icons/myatlas/soccer-ball'
+            size_hint: (1, 1.4)
+            pos_hint: {'x': -0.5, 'y' : -0.2}
+        BoxLayout:
+            size_hint: (1, 1)
+            pos_hint: {'x': 0, 'y' : 0}
+            Spacing:
+                bcolor: (0, 0, 0, 0)
+                size_hint_x: 0.15
+            BlackLabel:
+                font_size: dp(18)
+                text: root.minute
+                size_hint_x: 0.125
+                bold: True
+            BlackLabel:
+                font_size: dp(18)
+                text: root.score
+                size_hint_x: 0.125
+            BlackLabel:
+                font_size: dp(18)
+                text: root.goalscorer
+                size_hint_x: 0.6
+
+
+<SubstitutionScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        PlayerNormalViewHeader:
+            size_hint_y: 0.05
+            id: substitution_player_header
+        SwappableList:
+            id: team_list
+            viewclass: 'SelectablePlayerNormalView'
+            content_height: dp(26)
+        MainHeader:
+            text: 'Substitutes'
+            size_hint_y: 0.05
+        SwappableList:
+            id: subs_list
+            viewclass: 'SelectablePlayerNormalView'
+            content_height: dp(26)
+        Footer:
+            canvas.before:
+                Color:
+                    rgba: (1, 1, 1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint_y: 0.08
+            id: footer
+            ButtonWithImageAndText:
+                label_text: "Back"
+                on_release: root.back()
+                source: 'atlas://gui/icons/myatlas/back'
+                size_hint_x: 0.2
+            BlackLabel:
+                size_hint_x: 0.6
+                id: subs_information
+            ButtonWithImageAndText:
+                id: play_pause
+                on_release: root.confirm_substitution()
+                source: 'atlas://gui/icons/myatlas/check'
+                size_hint_x: 0.2
+                label_text: "Confirm"
+
+<InjuredSubstitutionScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        PlayerNormalViewHeader:
+            size_hint_y: 0.05
+            id: substitution_player_header
+        MainHeader:
+            text: 'Injured player'
+            size_hint_y: 0.05
+        PlayerNormalView:
+            id: injured_player
+            size_hint_y: 0.05
+        MainHeader:
+            size_hint_y: 0.01
+        ScrollableList:
+            id: team_list
+            content_height: dp(26)
+            viewclass: 'PlayerNormalView'
+        MainHeader:
+            text: 'Substitutes'
+            size_hint_y: 0.05
+        SwappableList:
+            id: subs_list
+            viewclass: 'SelectablePlayerNormalView'
+            content_height: dp(26)
+        Footer:
+            canvas.before:
+                Color:
+                    rgba: (1, 1, 1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint_y: 0.08
+            id: footer
+            ButtonWithImageAndText:
+                label_text: "Back"
+                on_release: root.back()
+                source: 'atlas://gui/icons/myatlas/back'
+                size_hint_x: 0.2
+            BlackLabel:
+                size_hint_x: 0.6
+                id: subs_information
+            ButtonWithImageAndText:
+                id: play_pause
+                on_release: root.confirm_substitution()
+                source: 'atlas://gui/icons/myatlas/check'
+                size_hint_x: 0.2
+                label_text: "Confirm"
+
+<MatchHeader@BoxLayout>:
+    canvas.before:
+        Color:
+            rgba: (0.1, 0.1, 0.1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    home_team: ''
+    home_goals: ''
+    home_color: (0.5, 0.5, 0.5, 1)
+    away_team: ''
+    away_goals: ''
+    away_color: (1, 1, 1, 1)
+    minutes: ''
+    BoxLayout:
+        padding: [9, 10]
+        size_hint_x: 0.45
+        canvas.before:
+            Color:
+                rgba: root.home_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            size_hint_x: 0.75
+            text: root.home_team
+            align: 'right'
+            font_size: dp(16)
+            bold: True
+        BlackLabel:
+            canvas.before:
+                Color:
+                    rgba: (1, 1, 1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint_x: 0.25
+            text: root.home_goals
+            font_size: dp(16)
+    Label:
+        size_hint_x: 0.1
+        text: root.minutes
+        font_size: dp(16)
+    BoxLayout:
+        padding: [9, 10]
+        size_hint_x: 0.45
+        canvas.before:
+            Color:
+                rgba: root.away_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BlackLabel:
+            canvas.before:
+                Color:
+                    rgba: (1, 1, 1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint_x: 0.25
+            text: root.away_goals
+            font_size: dp(16)
+        Label:
+            size_hint_x: 0.75
+            text: root.away_team
+            align: 'left'
+            font_size: dp(16)
+            bold: True
+
+<Possession@BoxLayout>:
+    label_text: ""
+    home_color: (72/255.0, 92/255.0, 150/255.0, 1)
+    away_color: (0.5, 0, 0, 1)
+    Label:
+        canvas.before:
+            Color:
+                rgba: root.home_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        id: home_possession
+        text: '  ' + root.label_text
+        text_size: self.size
+        halign: 'left'
+        valign: 'center'
+        bold: 'True'
+        font_size: dp(12)
+    Label:
+        canvas.before:
+            Color:
+                rgba: root.away_color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        id: away_possession
+
+<MatchScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: "gui/backgrounds/match.jpg"
+    minutes: ''
+    home_team: ''
+    home_goals: ''
+    away_team: ''
+    away_goals: ''
+    home_possession: 0
+    home_possession_last_5_minutes: 0
+    BoxLayout:
+        orientation: 'vertical'
+        MatchHeader:
+            size_hint_y: 0.06
+            id: match_result
+        Label:
+            canvas.before:
+                Color:
+                    rgba: (0.1, 0.1, 0.1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint_y: 0.04
+            text: "Possession"
+        Possession:
+            id: total_possession
+            size_hint_y: 0.04
+        Label:
+            canvas.before:
+                Color:
+                    rgba: (0.1, 0.1, 0.1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint_y: 0.005
+        Possession:
+            id: last_5_possession
+            size_hint_y: 0.04
+        Label:
+            canvas.before:
+                Color:
+                    rgba: (0.1, 0.1, 0.1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint_y: 0.005
+        MatchScreens:
+            size_hint_y: 0.81
+            id: content
+
+<MainMatchScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            id: goalscorers
+            ScrollableList:
+                id: home_goalscorers
+                content_height: dp(22)
+                viewclass: 'PlayerGoalscorer'
+                size_hint_x: 0.49
+            Label:
+                size_hint_x: 0.02
+            ScrollableList:
+                id: away_goalscorers
+                content_height: dp(22)
+                viewclass: 'PlayerGoalscorer'
+                size_hint_x: 0.49
+        PlayerNormalViewHeader:
+            size_hint_y: 0.05
+            id: main_match_player_header
+        ScrollableList:
+            id: team_list
+            content_height: dp(26)
+            viewclass: 'PlayerNormalView'
+        Footer:
+            canvas.before:
+                Color:
+                    rgba: (1, 1, 1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint_y: 0.08
+            id: footer
+            ButtonWithImageAndText:
+                id: substitution
+                label_text: "Substitution"
+                source: 'atlas://gui/icons/myatlas/transfers'
+                on_release: root.substitution()
+            ButtonWithImageAndText:
+                id: play_pause
+                source: 'atlas://gui/icons/myatlas/ball'
+                label_text: "Play"
+                on_release: root.play_pause()

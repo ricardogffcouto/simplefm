@@ -1,0 +1,33 @@
+
+<LoadGameScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: "gui/backgrounds/fundo.jpg"
+    BoxLayout:
+        orientation: 'vertical'
+        Header:
+            text: "Load Game"
+            size_hint_y: 0.1
+        LoadGameHeader:
+            size_hint_y: 0.05
+        SwappableList:
+            id: games
+            viewclass: 'SelectableLoadGameView'
+            content_height: dp(32)
+            size_hint_y: 0.75
+        BoxLayout:
+            size_hint_y: 0.1
+            Button:
+                text: "Back"
+                on_release: root.manager.current = 'StartScreen'
+                size_hint_x: 0.2
+            Button:
+                text: "Delete Game"
+                on_release: root.delete_game()
+                size_hint_x: 0.2
+            Button:
+                text: "Load Game"
+                on_release: root.load_game()
+                size_hint_x: 0.6

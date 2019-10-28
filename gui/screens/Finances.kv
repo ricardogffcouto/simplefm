@@ -1,0 +1,49 @@
+<Finances>:
+    BoxLayout:
+        orientation: 'vertical'
+        FinancesItemHeader:
+            size_hint_y: 0.04
+            name: "[color=ffffff][b]Income[/b][/color]"
+        InfoScrollableList:
+            id: income
+            viewclass: 'FinancesItem'
+        FinancesItemHeader:
+            size_hint_y: 0.04
+            name: "[color=ffffff][b]Expense[/b][/color]"
+        InfoScrollableList:
+            id: expense
+            viewclass: 'FinancesItem'
+        FinancesItemHeader:
+            size_hint_y: 0.04
+            id: balance
+            name: "[color=ffffff][b]Balance[/b][/color]"
+        FinancesItemHeader:
+            size_hint_y: 0.04
+            id: money
+            name: "[color=ffffff][b]Money[/b][/color]"
+        Label:
+            size_hint_y: 0.001
+        Header:
+            size_hint_y: 0.05
+            text: "WEEKLY NEWS"
+        InfoScrollableList:
+            id: weekly_news
+            viewclass: 'NewsItem'
+        Label:
+            id: spacing
+        MainHeader:
+            size_hint_y: 0.05
+            id: goal
+        MainHeader:
+            size_hint_y: 0.05
+            text: "FAN HAPPINESS"
+        Label:
+            size_hint_y: 0.05
+            id: fan_happiness
+            color: (0, 0, 0, 0)
+            canvas.before:
+                Color:
+                    rgba: self.color
+                Rectangle:
+                    pos: self.pos
+                    size: self.size

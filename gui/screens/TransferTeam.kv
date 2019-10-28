@@ -1,0 +1,32 @@
+<TransferTeam>:
+    BoxLayout:
+        orientation: 'vertical'
+        Header:
+            id: header
+            size_hint_y: 0.1
+            text: "YOUR PLAYERS"
+        PlayerTransferViewHeader:
+            size_hint_y: 0.05
+        YourTeamList:
+            id: team_list
+            viewclass: 'SelectablePlayerTransferView'
+            swappable: False
+            size_hint_y: 0.75
+        SecondaryFooter:
+            size_hint_y: 0.1
+            ButtonWithImageAndText:
+                source: 'atlas://gui/icons/myatlas/buy'
+                label_text: 'Transfer List'
+                on_release: root.manager.current = "TransferList"
+            Label:
+            Label:
+            ButtonWithImageAndText:
+                id: sell_button
+                source: 'atlas://gui/icons/myatlas/sell'
+                label_text: 'Sell'
+                on_release: root.confirm_sell_player()
+            ButtonWithImageAndText:
+                id: renew_button
+                source: 'atlas://gui/icons/myatlas/contrato'
+                label_text: 'Renew'
+                on_release: root.confirm_renew_contract()

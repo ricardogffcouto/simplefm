@@ -1,0 +1,32 @@
+<WeeklyInformationScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: "gui/backgrounds/fundo.jpg"
+    BoxLayout:
+        orientation: 'vertical'
+        Header:
+            size_hint_y: 0.08
+            id: header
+        InformationScreens:
+            size_hint_y: 0.84
+            id: content
+        Label:
+            size_hint_y: 0.001
+        Footer:
+            canvas.before:
+                Color:
+                    rgba: (1, 1, 1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            size_hint_y: 0.08
+            id: footer
+            BlackLabel:
+                size_hint_x: 0.8
+            ButtonWithImageAndText:
+                on_release: root.change_screens_by_order()
+                source: 'atlas://gui/icons/myatlas/check'
+                size_hint_x: 0.2
+                label_text: "Continue"

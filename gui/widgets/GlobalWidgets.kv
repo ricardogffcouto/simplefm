@@ -1,0 +1,714 @@
+#:set default_bcolor (0.2, 0.2, 0.2, 1)
+#:set button_background_color (0.1, 0.1, 0.1, 1)
+#:set button_disabled_background_color (0.5, 0.5, 0.5, 1)
+
+<Popup>:
+    background_color: 0, 0, 0, 0.5
+
+# Place all widgets who are going to be selectable here!
+<TeamPositionManagerStatsView@ColouredBoxLayout>:
+    year: ''
+    division: ''
+    position: ''
+    wins: ''
+    draws: ''
+    losses: ''
+    goals_for: ''
+    goals_against: ''
+    goal_difference: ''
+    points: ''
+    promoted: ''
+    BlackLabelSmall:
+        size_hint_x: 0.12
+        text: root.year
+    BlackLabelSmall:
+        size_hint_x: 0.20
+        text: root.division
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.position
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.wins
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.draws
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.losses
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.goals_for
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.goals_against
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.goal_difference
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.points
+    BlackLabelSmall:
+        size_hint_x: 0.04
+        text: root.promoted
+
+<TeamPositionManagerStatsHeader@TeamPositionManagerStatsView>:
+    bcolor: default_bcolor
+    year: '[color=ffffff][b]Year[/b][/color]'
+    division: '[color=ffffff][b]Div[/b][/color]'
+    position: '[color=ffffff][b]Pos[/b][/color]'
+    wins: '[color=ffffff][b]W[/b][/color]'
+    draws: '[color=ffffff][b]D[/b][/color]'
+    losses: '[color=ffffff][b]L[/b][/color]'
+    goals_for: '[color=ffffff][b]F[/b][/color]'
+    goals_against: '[color=ffffff][b]A[/b][/color]'
+    goal_difference: '[color=ffffff][b]GD[/b][/color]'
+    points: '[color=ffffff][b]Pts[/b][/color]'
+    promoted: '[color=ffffff][b][/b][/color]'
+
+<ManagerStatWidget@Widget>:
+    bcolor: (0.5, 0.5, 0.5, 1)
+    canvas.before:
+        Color:
+            rgba: root.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    name: ''
+    value: ''
+
+<ManagerStatView@ManagerStatWidget>:
+    canvas.before:
+        Color:
+            rgba: self.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        size: self.parent.size
+        x: self.parent.x
+        y: self.parent.y
+        BlackLabelSmall:
+            size_hint_x: 0.8
+            text: root.name
+        BlackLabelSmall:
+            size_hint_x: 0.2
+            text: root.value
+
+<GameWidget@Widget>:
+    bcolor: (0.5, 0.5, 0.5, 1)
+    canvas.before:
+        Color:
+            rgba: root.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    name: ''
+    team_name: ''
+    current_div: ''
+    current_pos: ''
+    week: ''
+    year: ''
+
+<LoadGameView@GameWidget>:
+    canvas.before:
+        Color:
+            rgba: self.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        size: self.parent.size
+        x: self.parent.x
+        y: self.parent.y
+        BlackLabelSmall:
+            size_hint_x: 0.2
+            text: root.name
+            align: 'left'
+        BlackLabelSmall:
+            size_hint_x: 0.3
+            text: root.team_name
+            align: 'left'
+        BlackLabelSmall:
+            size_hint_x: 0.2
+            text: root.current_div
+        BlackLabelSmall:
+            size_hint_x: 0.1
+            text: root.current_pos
+        BlackLabelSmall:
+            size_hint_x: 0.1
+            text: root.week
+        BlackLabelSmall:
+            size_hint_x: 0.1
+            text: root.year
+
+<SelectableLoadGameView@LoadGameView+SelectableLabel>:
+
+<PlayerWidget@Widget>:
+    bcolor: (0.2, 0.2, 0.2, 1)
+    canvas.before:
+        Color:
+            rgba: root.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    position: ''
+    name: ''
+    age: ''
+    skill: ''
+    salary: ''
+    value: ''
+    injury: ''
+    contract: ''
+    goal_minute: ''
+    weekly_training: ''
+    extra_info: ''
+
+<PlayerGoalscorer@PlayerWidget>:
+    BoxLayout:
+        size: self.parent.size
+        x: self.parent.x
+        y: self.parent.y
+        BlackLabel:
+            text: root.goal_minute
+            size_hint_x: 0.2
+        BlackLabel:
+            text: root.name
+            size_hint_x: 0.8
+            align: 'left'
+
+<PlayerNormalView@PlayerWidget>:
+    canvas.before:
+        Color:
+            rgba: self.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        size: self.parent.size
+        x: self.parent.x
+        y: self.parent.y
+        BlackLabel:
+            text: root.position
+            size_hint_x: 0.1
+            id: position
+        BlackLabel:
+            text: root.name
+            id: name
+            size_hint_x: 0.55
+        BlackLabel:
+            text: root.age
+            size_hint_x: 0.15
+        BlackLabel:
+            text: root.skill
+            size_hint_x: 0.15
+        BlackLabel:
+            text: root.extra_info
+            size_hint_x: 0.05
+
+<SelectablePlayerNormalView@SelectableLabel+PlayerNormalView>:
+
+<PlayerNormalViewHeader@PlayerNormalView>:
+    canvas.before:
+        Color:
+            rgba: self.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    position: '[color=ffffff][b]Pos[/b][/color]'
+    name: '[color=ffffff][b]Name[/b][/color]'
+    age: '[color=ffffff][b]Age[/b][/color]'
+    skill: '[color=ffffff][b]Skill[/b][/color]'
+    extra_info: '[color=ffffff][b]Info[/b][/color]'
+
+<PlayerTransferView@PlayerWidget>:
+    BoxLayout:
+        size: self.parent.size
+        x: self.parent.x
+        y: self.parent.y
+        BlackLabel:
+            text: root.position
+            size_hint_x: 0.1
+        BlackLabel:
+            text: root.name
+            size_hint_x: 0.37
+        BlackLabel:
+            text: root.age
+            size_hint_x: 0.1
+        BlackLabel:
+            text: root.skill
+            size_hint_x: 0.1
+        BlackLabel:
+            text: root.value
+            size_hint_x: 0.15
+        BlackLabel:
+            text: root.salary
+            size_hint_x: 0.1
+        BlackLabel:
+            text: root.contract
+            size_hint_x: 0.08
+
+<PlayerTransferViewHeader@PlayerTransferView>:
+    canvas.before:
+        Color:
+            rgba: default_bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    position: '[color=ffffff][b]Pos[/b][/color]'
+    name: '[color=ffffff][b]Name[/b][/color]'
+    age: '[color=ffffff][b]Age[/b][/color]'
+    skill: '[color=ffffff][b]Skill[/b][/color]'
+    value: '[color=ffffff][b]Price[/b][/color]'
+    salary: '[color=ffffff][b]Sal[/b][/color]'
+    contract: '[color=ffffff][b]Ctr[/b][/color]'
+
+<PlayerTrainingView@PlayerWidget>:
+    BoxLayout:
+        size: self.parent.size
+        x: self.parent.x
+        y: self.parent.y
+        BlackLabel:
+            text: root.position
+            size_hint_x: 0.1
+        BlackLabel:
+            text: root.name
+            size_hint_x: 0.5
+        BlackLabel:
+            text: root.age
+            size_hint_x: 0.1
+        BlackLabel:
+            text: root.skill
+            size_hint_x: 0.1
+        BlackLabel:
+            size_hint_x: 0.05
+        Image:
+            source: 'atlas://gui/icons/myatlas/train' + root.weekly_training if root.weekly_training else ""
+            color: (0, 0, 0, 0) if not root.weekly_training else (1, 1, 1, 1)
+            size_hint_x: 0.15
+            size_hint_y: 0.8
+
+<PlayerTrainingHeader@PlayerWidget>:
+    image_change_training: ""
+    BoxLayout:
+        size: self.parent.size
+        x: self.parent.x
+        y: self.parent.y
+        BlackLabel:
+            text: root.position
+            size_hint_x: 0.1
+        BlackLabel:
+            text: root.name
+            size_hint_x: 0.5
+        BlackLabel:
+            text: root.age
+            size_hint_x: 0.1
+        BlackLabel:
+            text: root.skill
+            size_hint_x: 0.1
+        BlackLabel:
+            size_hint_x: 0.05
+        BlackLabel:
+            text: root.weekly_training
+            size_hint_x: 0.15
+
+<SelectablePlayerTransferView@SelectableLabel+PlayerTransferView>:
+
+<PlayerTrainingViewHeader@PlayerTrainingHeader>:
+    canvas.before:
+        Color:
+            rgba: default_bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    position: '[color=ffffff][b]Pos[/b][/color]'
+    name: '[color=ffffff][b]Name[/b][/color]'
+    age: '[color=ffffff][b]Age[/b][/color]'
+    skill: '[color=ffffff][b]Skill[/b][/color]'
+    extra_info: ''
+    weekly_training: '[color=ffffff][b]Training[/b][/color]'
+
+
+<MainFooter@BoxLayout>:
+    screen_manager: None
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    ButtonWithImageAndText:
+        on_release: root.screen_manager.change_screen("MainTeam")
+        source: 'atlas://gui/icons/myatlas/team2'
+        label_text: 'Team'
+        id: MainTeam
+    ButtonWithImageAndText:
+        on_release: root.screen_manager.change_screen("WeeklyTraining")
+        source: 'atlas://gui/icons/myatlas/training'
+        label_text: 'Training'
+        id: WeeklyTraining
+    ButtonWithImageAndText:
+        on_release: root.screen_manager.change_screen("TransferList")
+        source: 'atlas://gui/icons/myatlas/transfers'
+        label_text: 'Transfers'
+        id: TransferList
+    ButtonWithImageAndText:
+        on_release: root.screen_manager.change_screen("Finances")
+        source: 'atlas://gui/icons/myatlas/information-button'
+        label_text: 'Information'
+        id: Finances
+    ButtonWithImageAndText:
+        on_release: root.screen_manager.change_screen("DivisionAllMatchesTablesScreen")
+        source: 'atlas://gui/icons/myatlas/cup'
+        label_text: 'League'
+        id: DivisionAllMatchesTablesScreen
+
+<SecondaryFooter@BoxLayout>:
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<Footer@BoxLayout>:
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<ColouredBoxLayout@BoxLayout>:
+    bcolor: (0.5, 0.5, 0.5, 1)
+    canvas.before:
+        Color:
+            rgba: self.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<Label>:
+    markup: True
+    font_size: dp(14)
+
+<BlackLabel@Label>:
+    color: 0.05, 0.05, 0.05, 1
+
+<BlackLabelSmall@BlackLabel>:
+    font_size: dp(12)
+
+#<Button>:
+#    background_down: "atlas://data/images/defaulttheme/button"
+#    background_color: button_background_color
+#    on_press: self.background_color = button_background_color_on_press
+#    on_release: self.background_color = button_background_color
+
+<ButtonWithImage>:
+    source: ''
+    Image:
+        source: root.source
+        size: self.parent.size
+        pos: self.parent.pos
+        allow_stretch: True
+
+<ButtonWithImageAndText>:
+    source: ''
+    selected: False
+    clickable: True
+    label_text: ''
+    bg_color: button_background_color
+    image_color: (0, 0, 0, 0) if self.disabled else button_disabled_background_color if not self.clickable else app.current_team_color() if self.selected else self.bg_color
+    background_normal: ""
+    background_down: ""
+    background_color: 0, 0, 0, 0
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: 'vertical'
+        Image:
+            source: root.source
+            allow_stretch: True
+            size_hint_y: 0.67
+            color: root.image_color
+        Label:
+            text: root.label_text
+            size_hint_y: 0.25
+            font_size: dp(10)
+            color: root.image_color
+        Label:
+            size_hint_y: 0.08
+
+<ScrollableList>:
+    scroll_type: ['bars', 'content']
+    scroll_wheel_distance: dp(114)
+    bar_width: dp(8)
+    content_height: dp(30)
+    SelectableRecycleBoxLayout:
+        default_size: None, root.content_height
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+        spacing: dp(1)
+
+<InfoScrollableList@ScrollableList>:
+    content_height: dp(26)
+
+<SelectableLabel>:
+    # Draw a background to indicate selection
+    canvas.before:
+        Color:
+            rgba: app.current_team_color(a=0.4) if root.selected else root.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<TeamHeader@BoxLayout>:
+    orientation: 'vertical'
+    week_and_season: ''
+    opponent: ''
+    tactic_and_skill: ''
+    Label:
+        text: root.week_and_season
+    Label:
+        text: root.opponent
+    Label:
+        text: root.tactic_and_skill
+
+<Spacing@Label>:
+    bcolor: (1, 1, 1, 1)
+    canvas.before:
+        Color:
+            rgba: self.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<BlackSpacing@Label>:
+    bcolor: (0.2, 0.2, 0.2, 1)
+    canvas.before:
+        Color:
+            rgba: self.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<Information>:
+    size_hint: 0.75, 0.4
+    information: ''
+    title: 'Info'
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: root.information
+            size_hint_y: 0.6
+        Button:
+            size_hint_y: 0.4
+            text: 'Ok'
+            on_release: root.dismiss()
+
+<Confirmation>:
+    auto_dismiss: False
+    size_hint: 0.75, 0.4
+    confirmed: False
+    yes: None
+    no: self.dismiss
+    text: ""
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: root.text
+            size_hint_y: 0.6
+        BoxLayout:
+            size_hint_y: 0.4
+            Button:
+                text: 'No'
+                on_release: root.no()
+            Button:
+                text: 'Yes'
+                on_release: root.yes()
+
+
+<MatchResult@ColouredBoxLayout>:
+    week: ''
+    home_team: ''
+    home_goals: ''
+    away_team: ''
+    away_goals: ''
+    extra_info: ''
+    BlackLabelSmall:
+        size_hint_x: 0.06
+        text: root.week
+    BlackLabelSmall:
+        size_hint_x: 0.38
+        text: root.home_team
+        align: 'right'
+    BlackLabelSmall:
+        size_hint_x: 0.04
+        text: root.home_goals
+    BlackLabelSmall:
+        size_hint_x: 0.03
+        text: "x"
+    BlackLabelSmall:
+        size_hint_x: 0.04
+        text: root.away_goals
+    BlackLabelSmall:
+        size_hint_x: 0.38
+        text: root.away_team
+        align: 'left'
+    BlackLabelSmall:
+        size_hint_x: 0.06
+        text: root.extra_info
+
+<TeamPosition@ColouredBoxLayout>:
+    position: ''
+    name: ''
+    wins: ''
+    draws: ''
+    losses: ''
+    goals_for: ''
+    goals_against: ''
+    goal_difference: ''
+    points: ''
+    BlackLabelSmall:
+        size_hint_x: 0.05
+        text: root.position
+    BlackLabelSmall:
+        size_hint_x: 0.39
+        text: root.name
+        align: 'left'
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.wins
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.draws
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.losses
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.goals_for
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.goals_against
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.goal_difference
+    BlackLabelSmall:
+        size_hint_x: 0.08
+        text: root.points
+
+<TeamPositionHeader@TeamPosition>:
+    bcolor: default_bcolor
+    position: '[color=ffffff][b][/b][/color]'
+    name: '[color=ffffff][b][/b][/color]'
+    wins: '[color=ffffff][b]W[/b][/color]'
+    draws: '[color=ffffff][b]D[/b][/color]'
+    losses: '[color=ffffff][b]L[/b][/color]'
+    goals_for: '[color=ffffff][b]F[/b][/color]'
+    goals_against: '[color=ffffff][b]A[/b][/color]'
+    goal_difference: '[color=ffffff][b]GD[/b][/color]'
+    points: '[color=ffffff][b]Pts[/b][/color]'
+
+<FinancesItem@ColouredBoxLayout>:
+    name: ''
+    weekly: ''
+    yearly: ''
+    BlackLabelSmall:
+        size_hint_x: 0.6
+        text: root.name
+        align: 'right'
+    BlackLabelSmall:
+        size_hint_x: 0.2
+        text: root.weekly
+    BlackLabelSmall:
+        size_hint_x: 0.2
+        text: root.yearly
+
+<FinancesItemHeader@FinancesItem>:
+    bcolor: default_bcolor
+    name: '[color=ffffff][b][/b][/color]'
+    weekly: '[color=ffffff][b]Week[/b][/color]'
+    yearly: '[color=ffffff][b]Season[/b][/color]'
+
+<NewsItem@ColouredBoxLayout>:
+    text: ''
+    BlackLabelSmall:
+        text: root.text
+        font_size: dp(12)
+
+<LoadGameHeader@LoadGameView>:
+    canvas.before:
+        Color:
+            rgba: default_bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    name: '[color=ffffff][b]Name[/b][/color]'
+    team_name: '[color=ffffff][b]Team[/b][/color]'
+    current_div: '[color=ffffff][b]Div[/b][/color]'
+    current_pos: '[color=ffffff][b]Pos[/b][/color]'
+    week: '[color=ffffff][b]Week[/b][/color]'
+    year: '[color=ffffff][b]Year[/b][/color]'
+
+<Header@BoxLayout>:
+    canvas.before:
+        Color:
+            rgba: root.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    text: ""
+    text_left: ""
+    text_right: ""
+    bcolor: (0.1, 0.1, 0.1, 1)
+    orientation: 'horizontal'
+    padding: [20, 0]
+    Label:
+        halign: 'left'
+        text_size: self.size
+        valign: 'center'
+        color: 1, 1, 1, 1
+        text: root.text_left
+    Label:
+        halign: 'center'
+        text_size: self.size
+        valign: 'center'
+        color: 1, 1, 1, 1
+        text: root.text
+    Label:
+        halign: 'right'
+        text_size: self.size
+        valign: 'center'
+        color: 1, 1, 1, 1
+        text: root.text_right
+
+<MainHeader@BoxLayout>:
+    text: ""
+    bcolor: (0.1, 0.1, 0.1, 1)
+    canvas.before:
+        Color:
+            rgba: root.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: 'horizontal'
+        padding: [20, 0]
+        Label:
+            halign: 'center'
+            text_size: self.size
+            valign: 'center'
+            color: 1, 1, 1, 1
+            text: root.text
+
+<LightHeader@MainHeader>:
+    bcolor: (0.2, 0.2, 0.2, 1)
+    canvas.before:
+        Color:
+            rgba: root.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
