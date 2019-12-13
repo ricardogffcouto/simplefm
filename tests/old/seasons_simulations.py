@@ -12,7 +12,7 @@ GAME = Game()
 amount_of_teams = 16
 weeks = (amount_of_teams - 1) * 2
 divisions = 4
-seasons = 200
+seasons = 30
 
 GAME.start()
 

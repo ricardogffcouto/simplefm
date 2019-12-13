@@ -97,7 +97,8 @@ class Player(object):
 
     def salary_for_skill(self):
         '''Returns the salary that corresponds with the skill the player has'''
-        return int(pow(2, self.skill * sfm_glob.PLAYER['SALARY_FOR_SKILL_POW']) * sfm_glob.PLAYER['MIN_SALARY'])
+        skill01 = helpers.normalize(self.skill, sfm_glob.PLAYER['MIN_SKILL'], sfm_glob.PLAYER['MAX_SKILL'])
+        return int(pow(2, skill01 * sfm_glob.PLAYER['SALARY_SKILL_EXPONENT']) * sfm_glob.PLAYER['MIN_SALARY'])
 
     # CONTRACT
 

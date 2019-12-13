@@ -122,7 +122,7 @@ class Team(object):
 
         has_goalkeeper = True
         if self.human:
-            has_goalkeeper = True if len([p for p in self.players if p.position == 0 and p.playing_status == 0]) > 0 else False
+            has_goalkeeper = True if len([p for p in self.players if p.position == 0 and p.playing_status == 0]) else False
 
         if has_goalkeeper:
             DF = DF + GK * sfm_glob.TEAM['GOALKEEPER BONUS']
@@ -335,7 +335,7 @@ class Team(object):
         def _player_asking_for_new_contract():
             if random.random() <= sfm_glob.PLAYER['WEEKLY_PROBABILITY_OF_ASKING_FOR_NEW_CONTRACT']:
                 player_list = [p for p in self.players if not p.contract and not p.injured()]
-                if len(player_list) > 0:
+                if len(player_list):
                     player = random.choice(player_list)
                     player.set_renew_contract_wanted_salary(asking = True)
                     player.wants_new_contract = True
@@ -429,9 +429,9 @@ class Team(object):
             for player in self.players:
                 player.start_of_season()
 
-            amount = random.randint(
+            amount = int(round(random.uniform(
                 sfm_glob.TEAM['AVG_YOUTH_PLAYERS_PROMOTED_PER_YEAR'] - 1, sfm_glob.TEAM['AVG_YOUTH_PLAYERS_PROMOTED_PER_YEAR'] + 1
-            )
+            ), 0))
 
             places_left_in_team = sfm_glob.TEAM['MAX NUMBER OF PLAYERS'] - len(self.players)
 
