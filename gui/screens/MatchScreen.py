@@ -304,5 +304,5 @@ class InjuredSubstitutionScreen(SubstitutionScreen):
         self.ids['injured_player'].position = p.pos_to_str()
         self.ids['injured_player'].name = p.name
         self.ids['injured_player'].age = str(p.age)
-        self.ids['injured_player'].skill = str(p.skill)
+        self.ids['injured_player'].skill = str(int(p.skill))
         self.refresh()

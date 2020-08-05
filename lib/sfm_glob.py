@@ -1,6 +1,6 @@
 # coding: latin1
 GAME = {
-    'STARTING YEAR' : 2018,
+    'STARTING YEAR' : 2020,
 }
 
 MONEY = {
@@ -46,8 +46,8 @@ TEAM = {
     'BASE TACTICS' : [[3, 5, 2], [4, 3, 3], [4, 4, 2], [4, 5, 1]],
     'TACTICAL_PENALTIES':{
         'DF <= 2': 0.2,
-        'DF == 3': 0.6,
-        'DF == 5': 1.1,
+        'DF == 3': 0.625,
+        'DF == 5': 1.06,
         'MD <= 2': 0.6,
         'AT == 4': 1.1,
         'AT == 1': 0.905,
@@ -56,13 +56,14 @@ TEAM = {
         'MD DF <= 2': 0.75,
         'DF AT MD <= 1': 0.25,
         'MD AT == 0': 0.5,
-        'NO GK': 0.2,
+        'NO GK': 0.1,
     },
-    'GOALKEEPER BONUS' : 1.2,
+    'GOALKEEPER BONUS' : 1.15,
     'MAX NUMBER OF PLAYERS' : 23,
     'AVG_YOUTH_PLAYERS_PROMOTED_PER_YEAR' : 2.5,
     'BENCH_PLAYERS' : 7,
-    "STARTING_AMOUNT_OF_PLAYERS_PER_POS": [2, 6, 6, 4]
+    "STARTING_AMOUNT_OF_PLAYERS_PER_POS": [2, 6, 6, 4],
+    'EXPERIENCED_PLAYER_BONUS': 1.05,
 }
 
 TEAM_GOALS = {
@@ -88,6 +89,7 @@ PLAYER = {
     'MAX_SALARY_INCREASE' : 1.25,
     'MIN_SALARY_INCREASE_NOT_ASKING' : 1,
     'MAX_SALARY_INCREASE_NOT_ASKING' : 1.05,
+    'TRANSFER_LIST_SALARY_INCREASE' : 1.15,
     'WEEKLY_PROBABILITY_OF_ASKING_FOR_NEW_CONTRACT': 0.5,
     'INJURY_TIME_EFFECT_ON_TRAINING' : 0.1,
     'SKILL_DROP_FROM_BEING_YOUTH_PLAYER' : 3,
@@ -95,7 +97,8 @@ PLAYER = {
     'SKILL_DROP_PER_AGE_PER_MINUTE': 0.0008,
     'SKILL_DROP_PER_MINUTE_AI': 0.0295,
     'INJURY_PROB_GK': 0.05,
-    'INJURY_PROB_NOT_GK': 0.2
+    'INJURY_PROB_NOT_GK': 0.2,
+    'HOMEGROWN_BONUS': 0.025
 }
 
 PLAYER_TRAINING = {
@@ -117,8 +120,9 @@ PLAYER_VALUE = {
 MATCH = {
     'GOAL PROB PER POSITION' : (0, 0.03, 0.09, 0.88),
     'MAX_GOAL_PROB_PER_POSS' : 0.108,
-    'INJURY_PROBABILITY_PER_MINUTE' : 0.005,
+    'INJURY_PROBABILITY_PER_MINUTE' : 0.0075,
     'MINIMUM_PLAYERS' : 7,
     'MAX_POSS' : 0.65,
-    'MIN_SKILL_BALANCE': 0.0425
+    'MIN_SKILL_BALANCE': 0.0425,
+    'HOME_ADVANTAGE': 1.025
 }

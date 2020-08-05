@@ -80,7 +80,7 @@ class MatchScreenSubstitution(Screen):
             'position': p.pos_to_str(),
             'name': p.name,
             'age': str(p.age),
-            'skill': str(p.skill)}
+            'skill': str(int(p.skill))}
             for p in ACTIVE_TEAM.players if p.playing_status == 0])
 
         self.ids['subs_list'].data = [{
@@ -88,7 +88,7 @@ class MatchScreenSubstitution(Screen):
             'position': p.pos_to_str(),
             'name': p.name,
             'age': str(p.age),
-            'skill': str(p.skill)}
+            'skill': str(int(p.skill))}
             for p in ACTIVE_TEAM.players if p.playing_status == 1]
 
     def on_pre_enter(self):

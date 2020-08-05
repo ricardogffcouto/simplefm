@@ -39,23 +39,20 @@ GUI:
 
 Gameplay:
     [] More incentive for bigger squads (more injuries, yellow/red cards, energy...)
-    [] Injury probability increases with game time
-    [] Store information if player is from youth team
-    [] Small boost for youth team players
-    [] Small boost for having old player in each sector
-    [] More incentive for contract renewal
+    [x] Injury probability increases with game time
+    [x] Store information if player is from youth team
+    [x] Small boost for youth team players
+    [x] Small boost for having old player in each sector
     [] Add manager accomplishments
     [] Add different game modes (for example online leagues, draft modes (like FM), etc)
     [] Add easter eggs (real players with fake names as superstars or youngsters)
     [] Be fired if fan happiness below certain level (but be able to save/regain your team)
     [] Bigger probability of GK injury or card
-    [] No GK - Sure probability of losing
+    [x] No GK - Sure probability of losing
     [] Add weak GK when no GK
-    [] Training focus - DEF, MID, ATK
     [] Tutorial to start the game :)
-    [] Bigger increase in salary in case of asked new contract
-    [] Home advantage
-    [] More incentive to keep players between seasons - Transfer listed players asking for higher salaries
+    [x] Home advantage
+    [x] More incentive to keep players between seasons - Transfer listed players asking for higher salaries
 
 
 Other:

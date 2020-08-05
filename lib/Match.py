@@ -2,6 +2,7 @@
 from . import sfm_glob
 from . import helpers
 import random
+import operator
 from .Player import Player
 
 
@@ -120,12 +121,16 @@ class Match(object):
             return False
 
         self.minutes += 1
+        
         for team in self.teams:
             for player in team.players:
                 if player.playing_status == 0:
                     player.match_minutes += 1
         team_0_skills = self.teams[0].tactical_skill(match = True, minutes = self.minutes)
         team_1_skills = self.teams[1].tactical_skill(match = True, minutes = self.minutes)
+
+        if not self.is_neutral_field:
+            team_0_skills = [x * sfm_glob.MATCH['HOME_ADVANTAGE'] for x in team_0_skills]
 
         # Probability of team 0 having possession
         team_0_attack_prob = helpers.min_max(helpers.balance(team_0_skills[1], team_1_skills[1]), 1 - sfm_glob.MATCH['MAX_POSS'], sfm_glob.MATCH['MAX_POSS'])
@@ -146,7 +151,7 @@ class Match(object):
         else:
             for team in self.teams:
                 if team.human:
-                    if random.random() <= sfm_glob.MATCH['INJURY_PROBABILITY_PER_MINUTE']:
+                    if random.random() <= sfm_glob.MATCH['INJURY_PROBABILITY_PER_MINUTE'] * (self.minutes / 90):
                         self.injured_player_out = self.player_injured(team)
                         if self.injured_player_out is not None:
                             self.injured_player_out.set_injury()
@@ -241,7 +246,7 @@ class Match(object):
         else:
             return None
 
-    def __init__(self, teams, minutes = None, score = None, possession = None, possession_last_5_minutes = None, tactical_changes = None, finished = False, substitutions = None, goalscorers = None, injured_player_out = None):
+    def __init__(self, teams, minutes = None, score = None, possession = None, possession_last_5_minutes = None, tactical_changes = None, finished = False, substitutions = None, goalscorers = None, injured_player_out = None, is_neutral_field = False):
         self.teams = teams
 
         if minutes is None:
@@ -275,3 +280,5 @@ class Match(object):
         self.goalscorers = goalscorers
 
         self.injured_player_out = injured_player_out
+
+        self.is_neutral_field = is_neutral_field

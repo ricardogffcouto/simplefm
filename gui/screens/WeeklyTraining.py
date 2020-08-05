@@ -18,7 +18,7 @@ class WeeklyTraining(Screen):
             'position': p.pos_to_str(),
             'name': p.name,
             'age': str(p.age),
-            'skill': str(p.skill),
+            'skill': str(int(p.skill)),
             'weekly_training': gui.helpers.training_to_int(p.weekly_training)}
             for p in players]
 

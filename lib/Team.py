@@ -77,7 +77,12 @@ class Team(object):
                     players_in_position = [p.match_skill() for p in self.players if p.playing_status == 0 and p.position == pos]
                 else:
                     players_in_position = [p.skill for p in self.players if p.playing_status == 0 and p.position == pos]
+                
                 total_skill[pos] += sum(players_in_position)
+
+                if sum([p.age >= (sfm_glob.PLAYER["RETIREMENT AGE"] - 2) for p in self.players if p.playing_status == 0 and p.position == pos]) > 0:
+                    total_skill[pos] *= sfm_glob.TEAM["EXPERIENCED_PLAYER_BONUS"] 
+
             else:
                 if pos == 0:
                     total_skill[pos] = self.avg_skill - minutes * sfm_glob.PLAYER["SKILL_DROP_PER_MINUTE_AI"]
@@ -278,7 +283,13 @@ class Team(object):
 
     def set_transfer_list(self):
         def _player_skill(team_avg_skill, division_avg_skill):
-            max_skill_choices = {16: 5, 17: 4, 18: 3, 19: 2, 20: 1}
+            max_skill_choices = {
+                sfm_glob.PLAYER['MAX_SKILL'] - 4: 5, 
+                sfm_glob.PLAYER['MAX_SKILL'] - 3: 4, 
+                sfm_glob.PLAYER['MAX_SKILL'] - 2: 3, 
+                sfm_glob.PLAYER['MAX_SKILL'] - 1: 2, 
+                sfm_glob.PLAYER['MAX_SKILL']: 1
+            }
             max_skill_limit = random.choice([x for x in max_skill_choices for y in range(max_skill_choices[x])])
 
             min_skill = min(max_skill_limit - sfm_glob.TRANSFERS["SKILL VARIATION ON TRANSFER LIST"], (team_avg_skill + division_avg_skill) * 0.5 - sfm_glob.TRANSFERS["SKILL VARIATION ON TRANSFER LIST"])
@@ -286,6 +297,7 @@ class Team(object):
 
             skill_temp = random.uniform(min_skill, max_skill)
             skill = int(round(helpers.min_max(skill_temp, sfm_glob.PLAYER['MIN_SKILL'], sfm_glob.PLAYER['MAX_SKILL']), 0))
+
             return skill
 
         def _player_country():
@@ -306,6 +318,8 @@ class Team(object):
 
         for p in range(amount_of_players_in_transfer_list):
             player = Player(country = _player_country(), skill = _player_skill(self.average_skill(), self.division.average_skill()))
+            player.salary *= sfm_glob.PLAYER['TRANSFER_LIST_SALARY_INCREASE']
+
             while player.skill >= sfm_glob.PLAYER["MIN_SKILL"]:
                 if player.current_value() <= money_available:
                     player_list.append(player)
@@ -408,7 +422,7 @@ class Team(object):
             max_skill = self.average_skill() - int(self.average_skill() / 5.0)
             skill = helpers.min_max(random.uniform(min_skill, max_skill), sfm_glob.PLAYER['MIN_SKILL'], sfm_glob.PLAYER['MAX_YOUTH_PLAYER_SKILL'])
             skill = int(round(skill, 0))
-            player = Player(country = self.country, skill = skill, age = random.choice([18, 19]), team = self)
+            player = Player(country = self.country, skill = skill, age = random.choice([18, 19]), team = self, is_homegrown=True)
             self.weekly_news.news.append(News('Juniors', player.name))
             self.players.append(player)
 

@@ -20,7 +20,7 @@ class PlayersTransferList(SwappableList):
                 'position': p.pos_to_str(),
                 'name': p.name,
                 'age': str(p.age),
-                'skill': str(p.skill),
+                'skill': str(int(p.skill)),
                 'salary': gui.helpers.money_to_str(p.salary),
                 'value': gui.helpers.money_to_str(p.current_value()),
                 'contract': "*" if p.contract else ""}
@@ -52,7 +52,7 @@ class TransferList(Screen):
                 if ACTIVE_TEAM.has_money_to_buy_player(player):
                     popup = Confirmation()
                     popup.title = 'Buy player'
-                    popup.text = 'Do you want to buy\n{} {}?\nSkill: {}\nValue: {}'.format(player.pos_to_str(), player.name, player.skill, gui.helpers.money_to_str(player.current_value()))
+                    popup.text = 'Do you want to buy\n{} {}?\nSkill: {}\nValue: {}'.format(player.pos_to_str(), player.name, int(player.skill), gui.helpers.money_to_str(player.current_value()))
                     popup.yes = _buy_player
                     popup.open()
                 else:

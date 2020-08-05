@@ -79,7 +79,7 @@ def generate_player_list_data(widget, players, playing_status, match_minutes = N
             'position': p.pos_to_str(),
             'name': p.name,
             'age': str(p.age),
-            'skill': str(p.skill),
+            'skill': str(int(p.skill)),
             'extra_info':  _extra_info(p)}
             for index, p in enumerate(players) if p.playing_status == ps])
 

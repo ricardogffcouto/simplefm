@@ -207,7 +207,7 @@ class Player(object):
         else:
             return 0
 
-    def __init__(self, skill, country, team = None, training = None, weekly_training = None, name = None, age = None, salary = None, position = None, playing_status = None, league_stats = None, retired = False, contract = False, wants_new_contract = False, weekly_stats = None, wanted_salary = None, injury = None, match_minutes = None, sub_minutes = None):
+    def __init__(self, skill, country, team = None, training = None, weekly_training = None, name = None, age = None, salary = None, position = None, playing_status = None, league_stats = None, retired = False, contract = False, wants_new_contract = False, weekly_stats = None, wanted_salary = None, injury = None, match_minutes = None, sub_minutes = None, is_homegrown = False):
         def random_name(country = None):
             if not country:
                 countries = [(country['id'], int(pow(len(db.COUNTRIES) - i, 1.3))) for i, country in enumerate(db.COUNTRIES)]
@@ -224,7 +224,7 @@ class Player(object):
             age = int(helpers.min_max(random.gauss(sfm_glob.PLAYER['AVG AGE'], sfm_glob.PLAYER['AGE STD DEV']), sfm_glob.PLAYER['MIN AGE'], sfm_glob.PLAYER['MAX AGE']))
             return age
 
-        self.skill = skill
+        self.skill = skill + skill * sfm_glob.PLAYER['HOMEGROWN_BONUS'] * is_homegrown
 
         self.team = team
 
@@ -253,6 +253,8 @@ class Player(object):
         if playing_status is None:
             playing_status = 2
         self.playing_status = playing_status
+
+        self.is_homegrown = is_homegrown
 
         self.league_stats = league_stats
 
