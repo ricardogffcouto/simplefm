@@ -62,6 +62,7 @@ class SwappableList(ScrollableList):
     selected = None
     swappable = False
     widget_selected = None
+    methods_selection_changed = []
 
     def clear_selection(self):
         self.previously_selected = None
@@ -70,6 +71,7 @@ class SwappableList(ScrollableList):
 
     def selection_changed(self, index):
         self.previously_selected = self.selected
+
         for widget in self.children[0].children:
             if widget.selected:
                 self.selected = widget.object
@@ -89,6 +91,9 @@ class SwappableList(ScrollableList):
             self.screen.selection_changed(self.children[0].selected_nodes)
         except:
             pass
+        
+        for method in self.methods_selection_changed:
+            method()
 
     def selection_removed(self, index):
         pass

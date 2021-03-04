@@ -2,13 +2,12 @@
 from . import sfm_glob
 from . import helpers
 import random
+import pickle
 from .Player import Player
 from .Team import Team
 from .Division import Division
 from operator import attrgetter
-import pickle
 from . import db
-import copy
 from .Manager import Manager
 
 class Game(object):

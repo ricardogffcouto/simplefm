@@ -192,6 +192,14 @@ class MainMatchScreen(Screen):
 class SubstitutionScreen(Screen):
     def back(self):
         self.parent.current = "MainMatchScreen"
+    
+    def show_hide_confirm(self, *args):
+        self.ids['play_pause'].disabled = not self.can_make_substitution()
+
+    def can_make_substitution(self):
+        player_out = self.ids["team_list"].selected
+        player_in = self.ids["subs_list"].selected
+        return self.ids["team_list"].selected is not None and self.ids["subs_list"].selected is not None and MATCH.allow_substitution(ACTIVE_TEAM) and ACTIVE_TEAM.can_substitute_player(player_in, player_out)
 
     def confirm_substitution(self):
         def _substitution(self):
@@ -246,7 +254,11 @@ class SubstitutionScreen(Screen):
 
         self.ids["substitution_player_header"].bcolor = gui.helpers.match_team_color(MATCH.teams, home = True) if MATCH.teams[0].human else gui.helpers.match_team_color(MATCH.teams, home = False)
 
+        self.show_hide_confirm()
+
     def on_pre_enter(self):
+        self.ids['team_list'].methods_selection_changed.append(self.show_hide_confirm)
+        self.ids['subs_list'].methods_selection_changed.append(self.show_hide_confirm)
         self.refresh()
 
 class InjuredSubstitutionScreen(SubstitutionScreen):

@@ -47,21 +47,24 @@ class LoadGameScreen(Screen):
         games_file_names = os.listdir(folder)
 
         for file_name in games_file_names:
-            f = open('{}/{}'.format(folder, file_name), 'rb')
-            game_dict = pickle.load(f)
-            f.close()
-            game = Game()
-            game.__dict__.update(game_dict)
-            team = game.human_teams[0]
+            file_path = os.path.join(folder, file_name)
+            if os.path.getsize(file_path) > 0:      
+                with open(file_path, "rb") as f:
+                    unpickler = pickle.Unpickler(f)
+                    game_dict = unpickler.load()
+                    f.close()
+                    game = Game()
+                    game.__dict__.update(game_dict)
+                    team = game.human_teams[0]
 
-            data += [{
-                'object': game,
-                'name': str(game.name),
-                'team_name': team.name,
-                'current_div': team.division.name,
-                'current_pos': str(team.division.team_position(team)),
-                'week': str(game.week + 1) if game.week < 30 else "End of ",
-                'year': str(game.year())}]
+                    data += [{
+                        'object': game,
+                        'name': str(game.name),
+                        'team_name': team.name,
+                        'current_div': team.division.name,
+                        'current_pos': str(team.division.team_position(team)),
+                        'week': str(game.week + 1) if game.week < 30 else "End of ",
+                        'year': str(game.year())}]
 
         self.ids['games'].data = data
         self.ids['games'].color_label_background()
