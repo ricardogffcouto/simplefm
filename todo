@@ -2,12 +2,12 @@
 GUI:
     MatchScreen:
         Substitution:
-            [] Transparent confirm button when 2 players are not selected
-            [] Confirm button only when 2 players selected
-            [] Change confirm button to replace button (2 arrows)
-            [] Match continues if there is a goal right when you press substitution [BUG]
+            [x] Transparent confirm button when 2 players are not selected
+            [x] Confirm button only when 2 players selected
+            [x] Change confirm button to replace button (2 arrows)
+            [x] Match continues if there is a goal right when you press substitution [BUG]
         [] Header, change info to sub
-        [] When goal happens after injury, injury popup repeats itself
+        [x] When goal happens after injury, injury popup repeats itself
         [] Goal on last minute button shows play instead of continue
         [] Weird transition from MatchScreen to LeagueTable
         [] Show substitution button in beginning (whitened out)

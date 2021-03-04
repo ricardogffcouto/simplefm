@@ -27,6 +27,7 @@ class ImageButton(ButtonBehavior, Image):
     pass
 
 class ScrollableList(RecycleView):
+    selected = None
     '''RecycleView that scrolls'''
     def adjust_height_to_window(self, size = None):
         if not size:

@@ -194,12 +194,12 @@ class SubstitutionScreen(Screen):
         self.parent.current = "MainMatchScreen"
     
     def show_hide_confirm(self, *args):
-        self.ids['play_pause'].disabled = not self.can_make_substitution()
+        self.ids['play_pause'].opacity = 1 if self.can_make_substitution() else 0.5
 
     def can_make_substitution(self):
-        player_out = self.ids["team_list"].selected
+        player_out = self.ids["team_list"].selected or MATCH.injured_player_out
         player_in = self.ids["subs_list"].selected
-        return self.ids["team_list"].selected is not None and self.ids["subs_list"].selected is not None and MATCH.allow_substitution(ACTIVE_TEAM) and ACTIVE_TEAM.can_substitute_player(player_in, player_out)
+        return player_out is not None and player_in is not None and MATCH.allow_substitution(ACTIVE_TEAM) and ACTIVE_TEAM.can_substitute_player(player_in, player_out)
 
     def confirm_substitution(self):
         def _substitution(self):
@@ -217,24 +217,13 @@ class SubstitutionScreen(Screen):
             popup.dismiss()
             self.refresh()
 
-        if self.ids["team_list"].selected is not None and self.ids["subs_list"].selected is not None:
-            if MATCH.allow_substitution(ACTIVE_TEAM):
-                player_out = self.ids["team_list"].selected
-                player_in = self.ids["subs_list"].selected
-                if ACTIVE_TEAM.can_substitute_player(player_in, player_out):
-                    popup = Confirmation()
-                    popup.title = 'Replace player'
-                    popup.text = 'Do you want to replace\n{} {} by\n{} {}?'.format(player_out.pos_to_str(), player_out.name, player_in.pos_to_str(), player_in.name)
-                    popup.yes = functools.partial(_substitution, self)
-                    popup.open()
-                else:
-                    Information().show(title = 'Substitution not valid', information = "You can't replace" + player_out.name + "\nfor" + player_in.name)
-            else:
-                Information().show(title = '3 substitutions made', information = "You already made the maximum\nnumber of substitutions.")
-        else:
-            popup = Information()
-            popup.title = 'Select 2 players'
-            popup.information = "You need to select 2 players\nto make a substitution."
+        if self.can_make_substitution():
+            player_out = self.ids["team_list"].selected
+            player_in = self.ids["subs_list"].selected
+            popup = Confirmation()
+            popup.title = 'Replace player'
+            popup.text = 'Do you want to replace\n{} {} by\n{} {}?'.format(player_out.pos_to_str(), player_out.name, player_in.pos_to_str(), player_in.name)
+            popup.yes = functools.partial(_substitution, self)
             popup.open()
 
     def refresh(self):
@@ -289,25 +278,16 @@ class InjuredSubstitutionScreen(SubstitutionScreen):
             self.parent.current = "MainMatchScreen"
             self.parent.get_screen("MainMatchScreen").disable_play = False
 
-        if self.ids["subs_list"].selected is not None:
-            if MATCH.allow_substitution(ACTIVE_TEAM):
-                player_out = MATCH.injured_player_out
-                player_in = self.ids["subs_list"].selected
-                if ACTIVE_TEAM.can_substitute_player(player_in, player_out):
-                    popup = Confirmation()
-                    popup.title = 'Replace player'
-                    popup.text = 'Do you want to replace\n{} {} by\n{} {}?'.format(player_out.pos_to_str(), player_out.name, player_in.pos_to_str(), player_in.name)
-                    popup.yes = functools.partial(_substitution, self)
-                    popup.open()
-                else:
-                    Information().show(title = 'Substitution not valid', information = "You can't replace " + player_out.name + "\nfor " + player_in.name)
-            else:
-                Information().show(title = '3 substitutions made', information = "You already made the maximum\nnumber of substitutions.")
-        else:
-            popup = Information()
-            popup.title = 'Select 2 players'
-            popup.information = "You need to select 2 players\nto make a substitution."
+        if self.can_make_substitution():
+            player_out = MATCH.injured_player_out
+            player_in = self.ids["subs_list"].selected
+            popup = Confirmation()
+            popup.title = 'Replace player'
+            popup.text = 'Do you want to replace\n{} {} by\n{} {}?'.format(player_out.pos_to_str(), player_out.name, player_in.pos_to_str(), player_in.name)
+            popup.yes = functools.partial(_substitution, self)
             popup.open()
+
+        self.show_hide_confirm()
 
     def on_pre_enter(self):
         p = MATCH.injured_player_out
@@ -317,4 +297,5 @@ class InjuredSubstitutionScreen(SubstitutionScreen):
         self.ids['injured_player'].name = p.name
         self.ids['injured_player'].age = str(p.age)
         self.ids['injured_player'].skill = str(int(p.skill))
+        self.ids['subs_list'].methods_selection_changed.append(self.show_hide_confirm)
         self.refresh()

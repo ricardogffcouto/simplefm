@@ -108,6 +108,8 @@ class Match(object):
         self.goalscorers.append({'player' : goalscorer, 'team' : self.teams[team_id], 'minute' : self.minutes})
 
     def minute(self):
+        self.injured_player_out = None
+
         if self.teams[0] is None:
             self.end()
             return False
@@ -151,12 +153,10 @@ class Match(object):
         else:
             for team in self.teams:
                 if team.human:
-                    if random.random() <= sfm_glob.MATCH['INJURY_PROBABILITY_PER_MINUTE'] * (self.minutes / 90):
+                    if random.random() <= sfm_glob.MATCH['INJURY_PROBABILITY_PER_MINUTE']: #* (self.minutes / 90):
                         self.injured_player_out = self.player_injured(team)
                         if self.injured_player_out is not None:
-                            self.injured_player_out.set_injury()
-                    else:
-                        self.injured_player_out = None
+                            self.injured_player_out.set_injury()                        
 
         if self.teams[0].human:
             tits = [p for p in self.teams[0].players if p.playing_status == 0]
