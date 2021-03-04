@@ -9,12 +9,13 @@ GUI:
         [] Header, change info to sub
         [x] When goal happens after injury, injury popup repeats itself
         [] Goal on last minute button shows play instead of continue
-        [] Weird transition from MatchScreen to LeagueTable
-        [] Show substitution button in beginning (whitened out)
-        [] Do not go to substitution screen after injury if there are no players to go in
+        [?] Weird transition from MatchScreen to LeagueTable
+        [x] Show substitution button in beginning (whitened out)
+        [x] Do not go to substitution screen after injury if there are no players to go in
+        [] On pause show pause icon
 
     LeagueTable:
-        [] F and A header change to G+ G- or GF GA (see what's the standard)
+        [x] F and A header change to G+ G- or GF GA (see what's the standard)
         [] League table scroll to place where I am
 
     TeamScreen:
