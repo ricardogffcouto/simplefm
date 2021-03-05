@@ -5,7 +5,10 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from gui.widgets.GlobalWidgets import ScrollableList
 from kivy.uix.boxlayout import BoxLayout
+from kivy.metrics import dp
+from kivy.properties import BooleanProperty
 import gui.helpers
+
 
 class MatchResults(ScrollableList):
     current_week = None
@@ -47,10 +50,13 @@ class LeagueTable(ScrollableList):
 
         highlight_data = [data for data in self.data if data['name'] == ACTIVE_TEAM.name]
 
+        self.color_label_background()
+
+        self.scroll_y = 1
+
         if len(highlight_data):
             self.color_label_background(highlight_data=highlight_data[0], highlight_color=gui.helpers.color(col=ACTIVE_TEAM.color, tint=0.6), bolden = True)
-        else:
-            self.color_label_background()
+            self.scroll_y = 1 - self.current_division.teams.index(ACTIVE_TEAM) / (len(self.current_division.teams) - 1)
 
 class DivisionMatchesTablesScreen(Screen):
     current_division = None
