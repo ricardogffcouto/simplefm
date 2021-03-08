@@ -102,6 +102,7 @@ class MainTeam(Screen):
         ACTIVE_TEAM = GAME.human_teams[0]
 
         self.ids['team_list'].screen = self
+        print(self.ids['player_header'].extra_info)
         self.ids['tactic'].screen = self
         self.ids['tactic'].option_cls.on_release = self.change_playing_tactic
         self.tactic_spinner_update()

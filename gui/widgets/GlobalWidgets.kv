@@ -209,6 +209,7 @@
 <SelectablePlayerNormalView@SelectableLabel+PlayerNormalView>:
 
 <PlayerNormalViewHeader@PlayerNormalView>:
+    is_substitution: False
     canvas.before:
         Color:
             rgba: self.bcolor
@@ -219,7 +220,7 @@
     name: '[color=ffffff][b]Name[/b][/color]'
     age: '[color=ffffff][b]Age[/b][/color]'
     skill: '[color=ffffff][b]Skill[/b][/color]'
-    extra_info: '[color=ffffff][b]Info[/b][/color]'
+    extra_info: '[color=ffffff][b]' + ('Sub' if self.is_substitution else 'Info') + '[/b][/color]'
 
 <PlayerTransferView@PlayerWidget>:
     BoxLayout:

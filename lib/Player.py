@@ -52,6 +52,7 @@ class Player(object):
     def change_training(self, training):
         self.training += training
         self.weekly_training = training
+        self.skill_change_last_week = 0
 
         increase = 0
         decrease = 0
@@ -59,13 +60,13 @@ class Player(object):
         while self.training > 1:
             if self.increase_skill():
                 increase += 1
-                if self.team:
-                    self.team
+                self.skill_change_last_week = 1
             return (increase, training)
 
         while self.training < 0:
             if self.decrease_skill():
                 decrease -= 1
+                self.skill_change_last_week = -1
             return (decrease, training)
 
         if helpers.training_to_str(training) != '':
@@ -207,7 +208,7 @@ class Player(object):
         else:
             return 0
 
-    def __init__(self, skill, country, team = None, training = None, weekly_training = None, name = None, age = None, salary = None, position = None, playing_status = None, league_stats = None, retired = False, contract = False, wants_new_contract = False, weekly_stats = None, wanted_salary = None, injury = None, match_minutes = None, sub_minutes = None, is_homegrown = False):
+    def __init__(self, skill, country, team = None, training = None, weekly_training = None, name = None, age = None, salary = None, position = None, playing_status = None, league_stats = None, retired = False, contract = False, wants_new_contract = False, weekly_stats = None, wanted_salary = None, injury = None, match_minutes = None, sub_minutes = None, is_homegrown = False, skill_change_last_week = 0):
         def random_name(country = None):
             if not country:
                 countries = [(country['id'], int(pow(len(db.COUNTRIES) - i, 1.3))) for i, country in enumerate(db.COUNTRIES)]
@@ -281,3 +282,5 @@ class Player(object):
         if sub_minutes is None:
             sub_minutes = 0
         self.sub_minutes = sub_minutes
+
+        self.skill_change_last_week = skill_change_last_week

@@ -6,7 +6,7 @@ GUI:
             [x] Confirm button only when 2 players selected
             [x] Change confirm button to replace button (2 arrows)
             [x] Match continues if there is a goal right when you press substitution [BUG]
-        [] Header, change info to sub
+        [x] Header, change info to sub
         [x] When goal happens after injury, injury popup repeats itself
         [] Goal on last minute button shows play instead of continue
         [?] Weird transition from MatchScreen to LeagueTable
@@ -20,11 +20,11 @@ GUI:
 
     TeamScreen:
         [] Injury or contract requests more clear in info column (icons)
-        [] Put all available players automatically in bench
+        [?] Put all available players automatically in bench
         [x] Selecting same tactic should redo team
         [x] Show my team position
         [x] Changing tactics sometimes does not work (5-3-2 to 4-5-1)
-        [] Show when player changes skill
+        [x] Show when player changes skill
 
     Transfers:
         MyTeam:

@@ -60,6 +60,7 @@
         PlayerNormalViewHeader:
             size_hint_y: 0.05
             id: substitution_player_header
+            is_substitution: True
         SwappableList:
             id: team_list
             viewclass: 'SelectablePlayerNormalView'
@@ -101,6 +102,7 @@
         PlayerNormalViewHeader:
             size_hint_y: 0.05
             id: substitution_player_header
+            is_substitution: True
         MainHeader:
             text: 'Injured player'
             size_hint_y: 0.05
@@ -313,6 +315,7 @@
         PlayerNormalViewHeader:
             size_hint_y: 0.05
             id: main_match_player_header
+            is_substitution: True
         ScrollableList:
             id: team_list
             content_height: dp(26)
