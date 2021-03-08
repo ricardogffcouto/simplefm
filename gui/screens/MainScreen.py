@@ -3,6 +3,7 @@
 
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.app import App
+import gui.helpers
 
 class TeamScreens(ScreenManager):
     def change_screen(self, screen_name):
@@ -29,7 +30,7 @@ class MainScreen(Screen):
             if i == self.ids["content"].current:
                 footer.ids[i].selected = True
 
-        self.ids['myteam'].text = ACTIVE_TEAM.name
+        self.ids['myteam'].text = '{} ({})'.format(ACTIVE_TEAM.name, gui.helpers.table_position_to_str(ACTIVE_TEAM.league_position()))
         self.ids['myteam'].bcolor = App.get_running_app().current_team_color()
         self.ids['myteam'].screen = self
         self.ids["content"].get_screen("DivisionAllMatchesTablesScreen").results = False

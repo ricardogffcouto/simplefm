@@ -16,14 +16,14 @@ GUI:
 
     LeagueTable:
         [x] F and A header change to G+ G- or GF GA (see what's the standard)
-        [] League table scroll to place where I am
+        [x] League table scroll to place where I am
 
     TeamScreen:
         [] Injury or contract requests more clear in info column (icons)
         [] Put all available players automatically in bench
-        [] Selecting same tactic should redo team
-        [] Show my team position
-        [] Changing tactics sometimes does not work (5-3-2 to 4-5-1)
+        [x] Selecting same tactic should redo team
+        [x] Show my team position
+        [x] Changing tactics sometimes does not work (5-3-2 to 4-5-1)
         [] Show when player changes skill
 
     Transfers:

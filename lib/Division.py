@@ -231,6 +231,9 @@ class Division(object):
     def order_table_by_position(self):
         self.teams.sort(key=lambda x: (x.league_points(), x.goal_difference(), x.league_stats['Wins'], x.league_stats['Goals For'], -x.league_stats['Losses']), reverse = True)
 
+    def ordered_table_by_position(self):
+        return sorted(self.teams, key=lambda x: (x.league_points(), x.goal_difference(), x.league_stats['Wins'], x.league_stats['Goals For'], -x.league_stats['Losses']), reverse = True)
+
     def order_table_by_name(self):
         self.teams.sort(key=attrgetter('name'))
 

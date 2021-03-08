@@ -87,12 +87,13 @@ class MainTeam(Screen):
 
     def change_playing_tactic(self):
         tactic = self.ids['tactic'].text
-        if tactic != 'Top skill':
-            ACTIVE_TEAM.set_playing_tactic(lib.helpers.str_to_tactic(tactic))
-        else:
-            ACTIVE_TEAM.set_playing_tactic()
-        self.ids['team_list'].refresh()
-        self.ids['tactic'].label_text = gui.helpers.tactic_to_str(ACTIVE_TEAM.current_tactic())
+        if tactic:
+            if tactic != 'Top skill':
+                ACTIVE_TEAM.set_playing_tactic(lib.helpers.str_to_tactic(tactic))
+            else:
+                ACTIVE_TEAM.set_playing_tactic()
+            self.ids['team_list'].refresh()
+            self.ids['tactic'].label_text = gui.helpers.tactic_to_str(ACTIVE_TEAM.current_tactic())
 
     def on_pre_enter(self):
         global GAME
@@ -102,6 +103,7 @@ class MainTeam(Screen):
 
         self.ids['team_list'].screen = self
         self.ids['tactic'].screen = self
+        self.ids['tactic'].option_cls.on_release = self.change_playing_tactic
         self.tactic_spinner_update()
         self.ids['team_list'].refresh()
         opponent = ACTIVE_TEAM.next_opponent(GAME.week)

@@ -504,6 +504,9 @@ class Team(object):
     def league_points(self):
         return self.league_stats['Wins'] * 3 + self.league_stats['Draws'] * 1
 
+    def league_position(self):
+        return self.division.ordered_table_by_position().index(self) + 1
+
     # PLAYER ORDERING
     def order_players_by_skill(self, only_allowed = True):
         if only_allowed:
