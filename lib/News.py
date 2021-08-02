@@ -48,6 +48,10 @@ class NewsList(object):
             {
                 'category': "Retired",
                 'string': '{} has retired from playing football.'
+            },
+            {
+                'category': "Tired",
+                'string': '{} is tired and needs 1 game to rest.'
             }
         ]
 
@@ -56,7 +60,7 @@ class NewsList(object):
         ]
 
         categories = [
-            "New contract", "Fans", "Training ++", "Training +", "Training -", "Training --", "Skill +", "Skill -", "Retired", "Juniors", "Forced sold player"
+            "New contract", "Fans", "Training ++", "Training +", "Training -", "Training --", "Skill +", "Skill -", "Retired", "Juniors", "Forced sold player", "Tired"
         ]
 
         news_strings = []

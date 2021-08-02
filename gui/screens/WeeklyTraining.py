@@ -18,7 +18,7 @@ class WeeklyTraining(Screen):
             'position': p.pos_to_str(),
             'name': p.name,
             'age': str(p.age),
-            'skill': str(int(p.skill)),
+            'skill': str(int(p.skill)) + (' (+1)' if p.skill_change_last_week > 0 else ' (-1)' if p.skill_change_last_week < 0 else ''),
             'weekly_training': gui.helpers.training_to_int(p.weekly_training)}
             for p in players]
 

@@ -208,7 +208,7 @@ class Player(object):
         else:
             return 0
 
-    def __init__(self, skill, country, team = None, training = None, weekly_training = None, name = None, age = None, salary = None, position = None, playing_status = None, league_stats = None, retired = False, contract = False, wants_new_contract = False, weekly_stats = None, wanted_salary = None, injury = None, match_minutes = None, sub_minutes = None, is_homegrown = False, skill_change_last_week = 0):
+    def __init__(self, skill, country = None, team = None, training = None, weekly_training = None, name = None, age = None, salary = None, position = None, playing_status = None, league_stats = None, retired = False, contract = False, wants_new_contract = False, weekly_stats = None, wanted_salary = None, injury = None, match_minutes = None, sub_minutes = None, is_homegrown = False, skill_change_last_week = 0):
         def random_name(country = None):
             if not country:
                 countries = [(country['id'], int(pow(len(db.COUNTRIES) - i, 1.3))) for i, country in enumerate(db.COUNTRIES)]

@@ -8,6 +8,7 @@ from lib.Game import Game
 import pickle
 import os
 
+
 class LoadGameScreen(Screen):
     def delete_game(self):
         def _delete_game():
@@ -29,19 +30,25 @@ class LoadGameScreen(Screen):
             popup.information = "You need to select a game."
             popup.open()
 
+
+    def setup_game(self, game):
+        App.get_running_app().GAME = game
+        App.get_running_app().setup_game_gui()
+        self.manager.current = game.last_screen
+
+    def load_last_game(self):
+        self.setup_game(self.get_saved_games_data()[-1])
+
     def load_game(self):
         if self.ids['games'].selected:
-            APP = App.get_running_app()
-            APP.GAME = self.ids['games'].selected
-            APP.setup_game_gui()
-            self.manager.current = APP.GAME.last_screen
+            self.setup_game(self.ids['games'].selected)
         else:
             popup = Information()
             popup.title = 'No game selected'
             popup.information = "You need to select a game."
             popup.open()
 
-    def refresh(self):
+    def get_saved_games_data(self):
         data = []
         folder = App.get_running_app().get_games_folder()
         games_file_names = os.listdir(folder)
@@ -66,7 +73,10 @@ class LoadGameScreen(Screen):
                         'week': str(game.week + 1) if game.week < 30 else "End of ",
                         'year': str(game.year())}]
 
-        self.ids['games'].data = data
+        return data
+
+    def refresh(self):
+        self.ids['games'].data = self.get_saved_games_data()
         self.ids['games'].color_label_background()
 
     def on_pre_enter(self):

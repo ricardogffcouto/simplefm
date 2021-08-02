@@ -356,6 +356,15 @@ class Team(object):
                     player.playing_status = 2
                     self.weekly_news.news.append(News('New contract', player.name))
 
+        def _player_tired():
+            if random.random() <= sfm_glob.PLAYER['WEEKLY_PROBABILITY_OF_TIREDNESS']:
+                player_list = [p for p in self.players if not p.injured() and not p.wants_new_contract and p.match_minutes >= 75]
+                if len(player_list):
+                    player = random.choice(player_list)
+                    player.injury = 1
+                    player.playing_status = 2
+                    self.weekly_news.news.append(News('Tired', player.name))
+
         def _set_training():
             for player in self.players:
                 player.set_weekly_training()
@@ -394,6 +403,7 @@ class Team(object):
         _reduce_injury()
         _set_training()
         _player_asking_for_new_contract()
+        _player_tired()
         self.set_transfer_list()
         self.set_playing_tactic()
 
@@ -422,7 +432,7 @@ class Team(object):
             max_skill = self.average_skill() - int(self.average_skill() / 5.0)
             skill = helpers.min_max(random.uniform(min_skill, max_skill), sfm_glob.PLAYER['MIN_SKILL'], sfm_glob.PLAYER['MAX_YOUTH_PLAYER_SKILL'])
             skill = int(round(skill, 0))
-            player = Player(country = self.country, skill = skill, age = random.choice([18, 19]), team = self, is_homegrown=True)
+            player = Player(country = self.country, skill = skill, age = random.choice([18, 19]), team = self, is_homegrown=True, contract=True)
             self.weekly_news.news.append(News('Juniors', player.name))
             self.players.append(player)
 

@@ -8,7 +8,7 @@ GUI:
             [x] Match continues if there is a goal right when you press substitution [BUG]
         [x] Header, change info to sub
         [x] When goal happens after injury, injury popup repeats itself
-        [] Goal on last minute button shows play instead of continue
+        [?] Goal on last minute button shows play instead of continue
         [?] Weird transition from MatchScreen to LeagueTable
         [x] Show substitution button in beginning (whitened out)
         [x] Do not go to substitution screen after injury if there are no players to go in
@@ -31,7 +31,7 @@ GUI:
             [] Instead of 0 show + in price when player injured
 
     Training:
-        [] Show when player changes skill
+        [x] Show when player changes skill
 
     [] Beautify popups
     [] Beautify buttons
@@ -39,23 +39,36 @@ GUI:
     [] Better bottom icons (information)
 
 Gameplay:
-    [] More incentive for bigger squads (more injuries, yellow/red cards, energy...)
+    [x] More incentive for bigger squads (more injuries, yellow/red cards, energy...) -> Random tired players (injury 1 week)
     [x] Injury probability increases with game time
     [x] Store information if player is from youth team
     [x] Small boost for youth team players
     [x] Small boost for having old player in each sector
     [] Add manager accomplishments
-    [] Add different game modes (for example online leagues, draft modes (like FM), etc)
-    [] Add easter eggs (real players with fake names as superstars or youngsters)
-    [] Be fired if fan happiness below certain level (but be able to save/regain your team)
-    [] Bigger probability of GK injury or card
+    [] Contract lasts for full year (30 weeks)
+
+    [x] Bigger probability of GK injury or card
     [x] No GK - Sure probability of losing
     [] Add weak GK when no GK
     [] Tutorial to start the game :)
     [x] Home advantage
     [x] More incentive to keep players between seasons - Transfer listed players asking for higher salaries
+    
 
 
-Other:
-    [] Add support for other languages
+Next version:
+
+    Gameplay:
+        [] Extra competition like "Champions League" with teams with all 20
+        [] Multiple leagues and possibility of changing teams (like a career)
+        [] Add different game modes (for example online leagues, draft modes (like FM), etc)
+        [] Add easter eggs (real players with fake names as superstars or youngsters)
+        [] Be fired if fan happiness below certain level (but be able to save/regain your team)
+        [] Yellow/red cards (suspensions)
+        [] Dynamic prices
+        [] Set amount of youth players
+        [] Player stats
+
+    Other:
+        [] Add support for other languages
 

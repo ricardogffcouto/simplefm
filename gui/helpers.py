@@ -13,6 +13,36 @@ COLORS = {
     'Green' : '#228B22'
 }
 
+SKILL_COLORS = (
+    (1.0, 0.39, 0.09, 1.0),
+    (0.99, 0.47, 0.12, 1.0),
+    (0.99, 0.55, 0.15, 1.0),
+    (0.98, 0.64, 0.17, 1.0),
+    (0.98, 0.72, 0.2, 1.0),
+    (0.92, 0.71, 0.2, 1.0),
+    (0.86, 0.71, 0.2, 1.0),
+    (0.8, 0.71, 0.2, 1.0),
+    (0.74, 0.71, 0.2, 1.0),
+    (0.67, 0.7, 0.2, 1.0),
+    (0.62, 0.7, 0.22, 1.0),
+    (0.57, 0.7, 0.24, 1.0),
+    (0.52, 0.7, 0.26, 1.0),
+    (0.46, 0.7, 0.28, 1.0),
+    (0.41, 0.7, 0.3, 1.0),
+    (0.4, 0.67, 0.29, 1.0),
+    (0.38, 0.65, 0.27, 1.0),
+    (0.36, 0.62, 0.26, 1.0),
+    (0.35, 0.59, 0.25, 1.0),
+    (0.33, 0.56, 0.24, 1.0),
+)
+
+POSITION_COLORS = (
+    (1.0, 0.39, 0.09, 1.0),
+    (0.4, 0.67, 0.29, 1.0),
+    (0.16, 0.65, 0.74, 1.0),
+    (0.67, 0.7, 0.2, 1.0),
+)
+
 def recycle_view_adjust_size_hint_y_to_window(rv, size_hint_y_available = 1):
     rv.size_hint_y = (rv.content_height * len(rv.data)) / (float(Window.height) * size_hint_y_available) + (0.0015 * len(rv.data))
     return rv.size_hint_y
@@ -59,8 +89,10 @@ def money_to_str(number):
     else:
         return str(int(round(sign * number, 0)))
 
+
 def tactic_to_str(tactic):
     return str(tactic[0]) + '-' + str(tactic[1]) + '-' + str(tactic[2])
+
 
 def generate_player_list_data(widget, players, playing_status, match_minutes = None):
     def _extra_info(p):
@@ -75,6 +107,8 @@ def generate_player_list_data(widget, players, playing_status, match_minutes = N
     for ps in playing_status:
         widget.data.extend([{
             'bcolor': [bcolor[p.playing_status]] * 3 + [1],
+            'skill_color': SKILL_COLORS[int(p.skill - 1)],
+            'position_color': POSITION_COLORS[p.position],
             'object': p,
             'position': p.pos_to_str(),
             'name': p.name,

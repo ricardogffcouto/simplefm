@@ -114,7 +114,7 @@ class SimpleFMApp(App):
             MainScreen(name='MainScreen'),
             MatchScreen(name='MatchScreen'),
             ManagerStatsScreen(name='ManagerStatsScreen'),
-            WeeklyInformationScreen(name='WeeklyInformationScreen')
+            WeeklyInformationScreen(name='WeeklyInformationScreen'),
         ]
 
         sm = SimpleFMScreenManager()
@@ -123,6 +123,7 @@ class SimpleFMApp(App):
             sm.add_widget(screen)
 
         sm.current = 'StartScreen'
+        
         return sm
 
     def build(self):

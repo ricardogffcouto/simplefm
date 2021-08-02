@@ -178,6 +178,8 @@
             align: 'left'
 
 <PlayerNormalView@PlayerWidget>:
+    skill_color: (0, 0, 0, 1)
+    position_color: (0, 0, 0, 1)
     canvas.before:
         Color:
             rgba: self.bcolor
@@ -188,23 +190,49 @@
         size: self.parent.size
         x: self.parent.x
         y: self.parent.y
-        BlackLabel:
+        Label:
+            color: root.position_color
             text: root.position
             size_hint_x: 0.1
             id: position
         BlackLabel:
             text: root.name
             id: name
-            size_hint_x: 0.55
+            size_hint_x: 0.5
         BlackLabel:
             text: root.age
             size_hint_x: 0.15
-        BlackLabel:
+        BgColorLabel:
+            bcolor: root.skill_color
             text: root.skill
             size_hint_x: 0.15
         BlackLabel:
             text: root.extra_info
-            size_hint_x: 0.05
+            size_hint_x: 0.10
+
+
+<BgColorLabel@BlackLabel>:
+    bcolor: (0, 0, 0, 1)
+    canvas.before:
+        Color:
+            rgba: self.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    text: root.text
+
+
+<SkillLabel@BgColorLabel>:
+    skill: 1
+    bcolor: 
+    canvas.before:
+        Color:
+            rgba: self.bcolor
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    text: root.text
+
 
 <SelectablePlayerNormalView@SelectableLabel+PlayerNormalView>:
 
