@@ -93,8 +93,7 @@ def money_to_str(number):
 def tactic_to_str(tactic):
     return str(tactic[0]) + '-' + str(tactic[1]) + '-' + str(tactic[2])
 
-
-def generate_player_list_data(widget, players, playing_status, match_minutes = None):
+def generate_player_list_data(widget, players, playing_status = [2], match_minutes = None):
     def _extra_info(p):
         if match_minutes:
             return "" if p.playing_status == 1 else str(p.sub_minutes) + "'" if p.sub_minutes != 0 else ""
@@ -102,7 +101,6 @@ def generate_player_list_data(widget, players, playing_status, match_minutes = N
 
     bcolor = [1, 0.8, 0.7]
     widget.data = []
-
 
     for ps in playing_status:
         widget.data.extend([{
@@ -114,6 +112,9 @@ def generate_player_list_data(widget, players, playing_status, match_minutes = N
             'name': p.name,
             'age': str(p.age),
             'skill': str(int(p.skill)),
+            'value': money_to_str(p.current_value()),
+            'salary': money_to_str(p.salary),
+            'wanted_salary': money_to_str(p.salary_for_skill()),
             'extra_info':  _extra_info(p)}
             for index, p in enumerate(players) if p.playing_status == ps])
 

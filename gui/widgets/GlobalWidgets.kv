@@ -163,6 +163,7 @@
     goal_minute: ''
     weekly_training: ''
     extra_info: ''
+    skill_color: (0,0,0,1)
 
 <PlayerGoalscorer@PlayerWidget>:
     BoxLayout:
@@ -264,7 +265,8 @@
         BlackLabel:
             text: root.age
             size_hint_x: 0.1
-        BlackLabel:
+        BgColorLabel:
+            bcolor: root.skill_color
             text: root.skill
             size_hint_x: 0.1
         BlackLabel:

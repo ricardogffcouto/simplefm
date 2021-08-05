@@ -50,7 +50,7 @@ class MatchScreen(Screen):
 
 class MainMatchScreen(Screen):
     playing = False
-    seconds_per_minute = 0.01 #0.15
+    seconds_per_minute = 0.15
     disable_play = False
 
     def pause(self, *args):

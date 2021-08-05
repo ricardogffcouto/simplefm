@@ -12,3 +12,4 @@ class StartScreen(Screen):
 
     def load_game(self):
         self.manager.current = "LoadGameScreen"
+        self.manager.get_screen("LoadGameScreen").load_last_game()

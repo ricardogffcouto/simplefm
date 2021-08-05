@@ -12,20 +12,11 @@ class PlayersTransferList(SwappableList):
     screen = None
 
     def refresh(self):
-        players = ACTIVE_TEAM.players_to_buy
-
-        if len(players) > 0:
-            self.data = [{
-                'object': p,
-                'position': p.pos_to_str(),
-                'name': p.name,
-                'age': str(p.age),
-                'skill': str(int(p.skill)),
-                'salary': gui.helpers.money_to_str(p.salary),
-                'value': gui.helpers.money_to_str(p.current_value()),
-                'contract': "*" if p.contract else ""}
-                for index, p in enumerate(sorted(players, key=lambda player: (-player.skill, player.current_value(), player.position)))]
-        else:
+        players = sorted(ACTIVE_TEAM.players_to_buy, key=lambda player: (-player.skill, player.current_value(), player.position))
+        
+        gui.helpers.generate_player_list_data(self, players)
+            
+        if len(players) == 0:
             self.data = [{'object': None, 'name': "No players in the transfer list", "position": "", "age":"", "skill":"", "salary":"", "value":"", "contract":""}]
 
         self.color_label_background()

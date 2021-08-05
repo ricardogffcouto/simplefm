@@ -37,7 +37,8 @@ class LoadGameScreen(Screen):
         self.manager.current = game.last_screen
 
     def load_last_game(self):
-        self.setup_game(self.get_saved_games_data()[-1])
+        last_game = self.ids['games'].data[0]['object']
+        self.setup_game(last_game)
 
     def load_game(self):
         if self.ids['games'].selected:
