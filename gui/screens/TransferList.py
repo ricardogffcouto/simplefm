@@ -17,7 +17,16 @@ class PlayersTransferList(SwappableList):
         gui.helpers.generate_player_list_data(self, players)
             
         if len(players) == 0:
-            self.data = [{'object': None, 'name': "No players in the transfer list", "position": "", "age":"", "skill":"", "salary":"", "value":"", "contract":""}]
+            self.data = [{
+                'object': None, 
+                'name': "No players in the transfer list", 
+                "position": "", 
+                "age":"", 
+                "skill":"", 
+                "salary":"", 
+                "value":"", 
+                "contract":""
+                }]
 
         self.color_label_background()
         self.screen.selection_changed(self.children[0].selected_nodes)

@@ -204,9 +204,9 @@ class Player(object):
 
     def match_skill(self):
         if self.injury == 0:
-            return max(self.skill - self.match_minutes * max(sfm_glob.PLAYER['AVG AGE'], self.age) * sfm_glob.PLAYER["SKILL_DROP_PER_AGE_PER_MINUTE"], 0)
-        else:
-            return 0
+            stamina_drop = self.match_minutes * max(sfm_glob.PLAYER['AVG AGE'], self.age) * sfm_glob.PLAYER["SKILL_DROP_PER_AGE_PER_MINUTE"] * (1 + 0.025 * (not self.team.human))
+            return max(self.skill - stamina_drop, 0)
+        return 0
 
     def __init__(self, skill, country = None, team = None, training = None, weekly_training = None, name = None, age = None, salary = None, position = None, playing_status = None, league_stats = None, retired = False, contract = False, wants_new_contract = False, weekly_stats = None, wanted_salary = None, injury = None, match_minutes = None, sub_minutes = None, is_homegrown = False, skill_change_last_week = 0):
         def random_name(country = None):

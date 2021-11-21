@@ -131,11 +131,14 @@ class Match(object):
         team_0_skills = self.teams[0].tactical_skill(match = True, minutes = self.minutes)
         team_1_skills = self.teams[1].tactical_skill(match = True, minutes = self.minutes)
 
-        if not self.is_neutral_field:
+        if not self.is_neutral_field and self.teams[0].human:
             team_0_skills = [x * sfm_glob.MATCH['HOME_ADVANTAGE'] for x in team_0_skills]
 
+        team_0_possession = team_0_skills[1]
+        team_1_possession = team_1_skills[1]
+
         # Probability of team 0 having possession
-        team_0_attack_prob = helpers.min_max(helpers.balance(team_0_skills[1], team_1_skills[1]), 1 - sfm_glob.MATCH['MAX_POSS'], sfm_glob.MATCH['MAX_POSS'])
+        team_0_attack_prob = helpers.min_max(helpers.balance(team_0_possession, team_1_possession), 1 - sfm_glob.MATCH['MAX_POSS'], sfm_glob.MATCH['MAX_POSS'])
 
         if random.random() <= team_0_attack_prob:
             # attack team 0

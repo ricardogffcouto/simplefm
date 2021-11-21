@@ -11,10 +11,12 @@ def test_tactics():
         new_team = Team.Team(name=str(tactic), tactic=tactic, avg_skill=10, country='Eng', color='Black')
         division.teams.append(new_team)
 
-    for season in range(200):
+    for season in range(50):
         print('Season {}'.format(season))
         division._create_matches()
         for week in range((len(division.teams) - 1) * 2):
+            # for match in division.matches[week]:
+            #     print('y')
             division.simulate_weekly_matches(week)
     division.print_table()
 

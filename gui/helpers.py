@@ -13,6 +13,8 @@ COLORS = {
     'Green' : '#228B22'
 }
 
+PLAYING_STATUS_BCOLORS = (1, 0.8, 0.7)
+
 SKILL_COLORS = (
     (1.0, 0.39, 0.09, 1.0),
     (0.99, 0.47, 0.12, 1.0),
@@ -93,33 +95,38 @@ def money_to_str(number):
 def tactic_to_str(tactic):
     return str(tactic[0]) + '-' + str(tactic[1]) + '-' + str(tactic[2])
 
-def generate_player_list_data(widget, players, playing_status = [2], match_minutes = None):
+def player_data(p, match_minutes):
     def _extra_info(p):
         if match_minutes:
             return "" if p.playing_status == 1 else str(p.sub_minutes) + "'" if p.sub_minutes != 0 else ""
         return str(p.injury) if p.injured() else "X" if p.wants_new_contract else '+1' if p.skill_change_last_week > 0 else "-1" if p.skill_change_last_week < 0 else ""
 
-    bcolor = [1, 0.8, 0.7]
+    return {
+        'bcolor': [PLAYING_STATUS_BCOLORS[p.playing_status]] * 3 + [1],
+        'skill_color': SKILL_COLORS[int(p.skill - 1)],
+        'position_color': POSITION_COLORS[p.position],
+        'object': p,
+        'position': p.pos_to_str(),
+        'name': p.name,
+        'age': str(p.age),
+        'skill': str(int(p.skill)),
+        'value': money_to_str(p.current_value()),
+        'salary': money_to_str(p.salary),
+        'contract': '*' if p.contract else 'X' if p.wants_new_contract else '',
+        'extra_info':  _extra_info(p)
+    }
+
+def generate_player_list_data(widget, players, playing_status = [0, 1, 2], match_minutes = None):
     widget.data = []
 
-    for ps in playing_status:
-        widget.data.extend([{
-            'bcolor': [bcolor[p.playing_status]] * 3 + [1],
-            'skill_color': SKILL_COLORS[int(p.skill - 1)],
-            'position_color': POSITION_COLORS[p.position],
-            'object': p,
-            'position': p.pos_to_str(),
-            'name': p.name,
-            'age': str(p.age),
-            'skill': str(int(p.skill)),
-            'value': money_to_str(p.current_value()),
-            'salary': money_to_str(p.salary),
-            'wanted_salary': money_to_str(p.salary_for_skill()),
-            'extra_info':  _extra_info(p)}
-            for index, p in enumerate(players) if p.playing_status == ps])
+    if not playing_status:
+        widget.data.extend([player_data(p, match_minutes) for p in players])
+    else:
+        for ps in playing_status:
+            widget.data.extend([player_data(p, match_minutes) for p in players if p.playing_status == ps])
 
-        if ps == 0:
-            widget.color_label_background()
+            if ps == 0:
+                widget.color_label_background()
 
 def season_points_per_week_to_text(pos):
     if pos == 13:

@@ -11,17 +11,9 @@ class YourTeamList(SwappableList):
     screen = None
 
     def refresh(self):
-        players = ACTIVE_TEAM.players
-        self.data = [{
-            'object': p,
-            'position': p.pos_to_str(),
-            'name': p.name,
-            'age': str(p.age),
-            'skill': str(int(p.skill)),
-            'salary': gui.helpers.money_to_str(p.salary),
-            'value': gui.helpers.money_to_str(p.current_value()),
-            'contract': "*" if p.contract else gui.helpers.money_to_str(p.wanted_salary) if p.wants_new_contract else ""}
-            for index, p in enumerate(sorted(players, key=lambda player: (player.position, -player.current_value())))]
+        players = sorted(ACTIVE_TEAM.players, key=lambda player: (player.position, -player.current_value()))
+
+        gui.helpers.generate_player_list_data(self, players, None)
 
         self.color_label_background()
         self.screen.selection_changed(self.children[0].selected_nodes)

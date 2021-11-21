@@ -3,7 +3,7 @@ from . import sfm_glob
 from . import helpers
 import random
 from .Player import Player
-from operator import attrgetter
+import operator
 from .News import News, NewsList
 
 
@@ -98,43 +98,50 @@ class Team(object):
         skill = self.tits_avg_skill(match, minutes)
         tactic = self.current_tactic()
 
-        GK = _tactical_skill_balance(skill[0])
-        DF = _tactical_skill_balance(skill[1])
-        MD = _tactical_skill_balance(skill[2])
-        AT = _tactical_skill_balance(skill[3])
+        # GK = _tactical_skill_balance(skill[0])
+        # DF = _tactical_skill_balance(skill[1])
+        # MD = _tactical_skill_balance(skill[2])
+        # AT = _tactical_skill_balance(skill[3])
 
-        if tactic[0] <= 2:
-            DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF <= 2']
-            MD = MD * sfm_glob.TEAM['TACTICAL_PENALTIES']['MD DF <= 2']
-        if tactic[0] == 3:
-            DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF == 3']
-        if tactic[0] == 5:
-            DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF == 5']
-        if tactic[1] <= 1:
-            DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF AT MD <= 1']
-            AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF AT MD <= 1']
-        if tactic[1] <= 2:
-            MD = MD * sfm_glob.TEAM['TACTICAL_PENALTIES']['MD <= 2']
-        if tactic[2] == 1:
-            AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 1']
-        if tactic[2] == 2:
-            AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 2']
-        if tactic[2] == 0:
-            MD = MD * sfm_glob.TEAM['TACTICAL_PENALTIES']['MD AT == 0']
-            AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 0']
-        if tactic[2] == 4:
-            AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 4']
+
+        for pos, position in enumerate(sfm_glob.TEAM['TACTICAL_PENALTIES']):
+            for penalty in position:
+                if getattr(operator, penalty[0])(tactic[pos], penalty[1]):
+                    skill[pos] *= penalty[2]
+                    break
+
+        # if tactic[0] <= 2:
+        #     DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF <= 2']
+        #     MD = MD * sfm_glob.TEAM['TACTICAL_PENALTIES']['MD DF <= 2']
+        # if tactic[0] == 3:
+        #     DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF == 3']
+        # if tactic[0] == 5:
+        #     DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF == 5']
+        # if tactic[1] <= 1:
+        #     DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF AT MD <= 1']
+        #     AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF AT MD <= 1']
+        # if tactic[1] < 2:
+        #     MD = MD * sfm_glob.TEAM['TACTICAL_PENALTIES']['MD < 2']
+        # if tactic[2] == 1:
+        #     AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 1']
+        # if tactic[2] == 2:
+        #     AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 2']
+        # if tactic[2] == 0:
+        #     MD = MD * sfm_glob.TEAM['TACTICAL_PENALTIES']['MD AT == 0']
+        #     AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 0']
+        # if tactic[2] == 4:
+        #     AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 4']
 
         has_goalkeeper = True
         if self.human:
             has_goalkeeper = True if len([p for p in self.players if p.position == 0 and p.playing_status == 0]) else False
 
         if has_goalkeeper:
-            DF = DF + GK * sfm_glob.TEAM['GOALKEEPER BONUS']
+            skill[1] += skill[0] * sfm_glob.TEAM['GOALKEEPER BONUS']
         else:
-            DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['NO GK']
+            skill[1] *= 0.2
 
-        return (DF, MD, AT)
+        return [_tactical_skill_balance(skill[i + 1]) for i in range(3)]
 
     # MATCH INFORMATION
     def next_match(self, week):
@@ -160,6 +167,9 @@ class Team(object):
 
     # SQUAD
     def can_substitute_player(self, player_in, player_out):
+        if not player_in or not player_out:
+            return False
+
         if player_in.position == 0:
             if player_out.position != 0:
                 return False
