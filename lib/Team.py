@@ -91,6 +91,15 @@ class Team(object):
 
         return total_skill
 
+
+    def _no_penalties_tactical_skill(self):
+        def _tactical_skill_balance(skill):
+            return pow(2, skill * 0.625)
+
+        skill = self.tits_avg_skill(True, 0)
+
+        return [_tactical_skill_balance(skill[i + 1]) for i in range(3)]
+
     def tactical_skill(self, match, minutes = 0):
         def _tactical_skill_balance(skill):
             return pow(2, skill * 0.625)
@@ -98,39 +107,11 @@ class Team(object):
         skill = self.tits_avg_skill(match, minutes)
         tactic = self.current_tactic()
 
-        # GK = _tactical_skill_balance(skill[0])
-        # DF = _tactical_skill_balance(skill[1])
-        # MD = _tactical_skill_balance(skill[2])
-        # AT = _tactical_skill_balance(skill[3])
-
-
         for pos, position in enumerate(sfm_glob.TEAM['TACTICAL_PENALTIES']):
             for penalty in position:
                 if getattr(operator, penalty[0])(tactic[pos], penalty[1]):
-                    skill[pos] *= penalty[2]
+                    skill[pos + 1] *= penalty[2]
                     break
-
-        # if tactic[0] <= 2:
-        #     DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF <= 2']
-        #     MD = MD * sfm_glob.TEAM['TACTICAL_PENALTIES']['MD DF <= 2']
-        # if tactic[0] == 3:
-        #     DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF == 3']
-        # if tactic[0] == 5:
-        #     DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF == 5']
-        # if tactic[1] <= 1:
-        #     DF = DF * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF AT MD <= 1']
-        #     AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['DF AT MD <= 1']
-        # if tactic[1] < 2:
-        #     MD = MD * sfm_glob.TEAM['TACTICAL_PENALTIES']['MD < 2']
-        # if tactic[2] == 1:
-        #     AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 1']
-        # if tactic[2] == 2:
-        #     AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 2']
-        # if tactic[2] == 0:
-        #     MD = MD * sfm_glob.TEAM['TACTICAL_PENALTIES']['MD AT == 0']
-        #     AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 0']
-        # if tactic[2] == 4:
-        #     AT = AT * sfm_glob.TEAM['TACTICAL_PENALTIES']['AT == 4']
 
         has_goalkeeper = True
         if self.human:

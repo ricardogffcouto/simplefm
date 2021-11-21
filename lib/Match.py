@@ -144,19 +144,19 @@ class Match(object):
             # attack team 0
             possession = 0
             SKILL_BAL = helpers.balance(team_0_skills[2], team_1_skills[0])
-            goal_prob = helpers.min_max(SKILL_BAL, sfm_glob.MATCH['MIN_SKILL_BALANCE'], 1) * sfm_glob.MATCH['MAX_GOAL_PROB_PER_POSS']
         else:
             # attack team 1
             possession = 1
             SKILL_BAL = helpers.balance(team_1_skills[2], team_0_skills[0])
-            goal_prob = helpers.min_max(SKILL_BAL, sfm_glob.MATCH['MIN_SKILL_BALANCE'], 1) * sfm_glob.MATCH['MAX_GOAL_PROB_PER_POSS']
+        
+        goal_prob = helpers.min_max(SKILL_BAL, sfm_glob.MATCH['MIN_SKILL_BALANCE'], 1) * sfm_glob.MATCH['MAX_GOAL_PROB_PER_POSS']
 
         if random.random() <= goal_prob:
             self.goal(team_id = possession)
         else:
             for team in self.teams:
                 if team.human:
-                    if random.random() <= sfm_glob.MATCH['INJURY_PROBABILITY_PER_MINUTE']: #* (self.minutes / 90):
+                    if random.random() <= sfm_glob.MATCH['INJURY_PROBABILITY_PER_MINUTE'] * (self.minutes / 90):
                         self.injured_player_out = self.player_injured(team)
                         if self.injured_player_out is not None:
                             self.injured_player_out.set_injury()                        
