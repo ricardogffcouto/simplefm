@@ -2,35 +2,21 @@
 GUI:
     MatchScreen:
         Substitution:
-            [] Skill on top is black
-        [] On pause show pause icon
-
-    LeagueTable:
+            [] Skill on top is black 
+        *[] On pause show pause icon
 
 
     TeamScreen:
-        [] Injury or contract requests more clear in info column (icons)
+        *[] Injury or contract requests more clear in info column (icons)
         [?] Put all available players automatically in bench
 
     Transfers:
         MyTeam:
-            [] Instead of 0 show + in price when player injured
+            *[] Instead of 0 show + in price when player injured
 
-
-    [] Beautify popups
-    [] Beautify buttons
-    [] Show feedback on button press
-    [] Better bottom icons (information)
-    [] Allow sorting
 
 Gameplay:
-    [] Contracts last for minimum 30 matches (1 year)
-    [] Add manager accomplishments
-    [] Contract lasts for full year (30 weeks)
-    [] Possession depending also on def and mid
-
-    [] Add weak GK when no GK
-    [] Tutorial to start the game :)
+    *[] Contracts last for minimum 30 matches (1 year)
 
 
 Next version:
@@ -45,7 +31,17 @@ Next version:
         [] Dynamic prices
         [] Set amount of youth players
         [] Player stats
+        [] Add weak GK when no GK
+        [] Tutorial to start the game :)
+        [] Add manager accomplishments
+        [] Possession depending also on def and mid
+
 
     Other:
         [] Add support for other languages
+        [] Beautify popups
+        [] Beautify buttons
+        [] Show feedback on button press
+        [] Better bottom icons (information)
+        [] Allow sorting
 

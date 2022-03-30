@@ -99,7 +99,7 @@ def player_data(p, match_minutes):
     def _extra_info(p):
         if match_minutes:
             return "" if p.playing_status == 1 else str(p.sub_minutes) + "'" if p.sub_minutes != 0 else ""
-        return str(p.injury) if p.injured() else "X" if p.wants_new_contract else '+1' if p.skill_change_last_week > 0 else "-1" if p.skill_change_last_week < 0 else ""
+        return "I("+str(p.injury) + ")" if p.injured() else "X" if p.wants_new_contract else '+1' if p.skill_change_last_week > 0 else "-1" if p.skill_change_last_week < 0 else ""
 
     return {
         'bcolor': [PLAYING_STATUS_BCOLORS[p.playing_status]] * 3 + [1],
