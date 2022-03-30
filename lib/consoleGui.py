@@ -219,7 +219,7 @@ class ConsoleGUI(object):
         elif self.screen == 'Sell Player':
             if self.HUMAN_TEAM.has_place_to_sell_player():
                 print('\nSELL PLAYER:')
-                players = [p for p in self.HUMAN.team.players if not p.contract] + ['No']
+                players = [p for p in self.HUMAN.team.players if p.contract <= 0] + ['No']
                 player = self.get_choice(players)
                 if player == 'No':
                     self.screen = 'Team'

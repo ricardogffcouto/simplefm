@@ -115,7 +115,7 @@ class Player(object):
 
     def renew_contract(self):
         self.salary = self.wanted_salary
-        self.contract = True
+        self.contract = sfm_glob.COMPETITION['TOTAL GAMES'] 
         self.wants_new_contract = False
 
     def calculate_salary(self):
@@ -142,7 +142,7 @@ class Player(object):
         return self.change_training(training)
 
     def can_be_sold(self):
-        if not self.injured() and not self.contract:
+        if not self.injured() and self.contract <= 0:
             return True
         return False
 
@@ -166,7 +166,6 @@ class Player(object):
     def end_of_season(self):
         self.yearly_age_increase()
         self.yearly_check_if_will_retire()
-        self.contract = False
 
     def start_of_season(self):
         self.league_stats = {'Games' : 0, 'Goals' : 0}
@@ -208,7 +207,7 @@ class Player(object):
             return max(self.skill - stamina_drop, 0)
         return 0
 
-    def __init__(self, skill, country = None, team = None, training = None, weekly_training = None, name = None, age = None, salary = None, position = None, playing_status = None, league_stats = None, retired = False, contract = False, wants_new_contract = False, weekly_stats = None, wanted_salary = None, injury = None, match_minutes = None, sub_minutes = None, is_homegrown = False, skill_change_last_week = 0):
+    def __init__(self, skill, country = None, team = None, training = None, weekly_training = None, name = None, age = None, salary = None, position = None, playing_status = None, league_stats = None, retired = False, contract = 0, wants_new_contract = False, weekly_stats = None, wanted_salary = None, injury = None, match_minutes = None, sub_minutes = None, is_homegrown = False, skill_change_last_week = 0):
         def random_name(country = None):
             if not country:
                 countries = [(country['id'], int(pow(len(db.COUNTRIES) - i, 1.3))) for i, country in enumerate(db.COUNTRIES)]

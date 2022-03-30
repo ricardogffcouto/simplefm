@@ -112,7 +112,7 @@ def player_data(p, match_minutes):
         'skill': str(int(p.skill)),
         'value': money_to_str(p.current_value()),
         'salary': money_to_str(p.salary),
-        'contract': '*' if p.contract else 'X' if p.wants_new_contract else '',
+        'contract': str(p.contract) if p.contract > 0 else 'X' if p.wants_new_contract else '',
         'extra_info':  _extra_info(p)
     }
 

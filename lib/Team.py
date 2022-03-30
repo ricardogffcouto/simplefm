@@ -218,7 +218,7 @@ class Team(object):
         if self.has_money_to_buy_player(player):
             if self.has_place_to_buy_player:
                 self.players.append(player)
-                player.contract = True
+                player.contract = sfm_glob.COMPETITION['TOTAL GAMES']
                 player.playing_status = 2
                 player.team = self
                 self.change_finances('Bought Players', -player.current_value())
@@ -228,7 +228,7 @@ class Team(object):
 
     # CONTRACT
     def renew_contract(self, player):
-        if not player.contract:
+        if player.contract <= 0:
             player.renew_contract()
             return True
         return False
@@ -298,7 +298,7 @@ class Team(object):
                 country = self.country
             return country
 
-        money_available = self.money + sum([p.current_value() for p in self.players if not p.contract])
+        money_available = self.money + sum([p.current_value() for p in self.players if p.contract <= 0])
         if money_available < 0:
             self.players_to_buy = []
             return True
@@ -337,9 +337,14 @@ class Team(object):
             for player in injured_players:
                 player.reduce_injury()
 
+        def _reduce_contract():
+            players_with_contract = [p for p in self.players if p.contract > 0]
+            for player in injured_players:
+                player.contract -= 1
+
         def _player_asking_for_new_contract():
             if random.random() <= sfm_glob.PLAYER['WEEKLY_PROBABILITY_OF_ASKING_FOR_NEW_CONTRACT']:
-                player_list = [p for p in self.players if not p.contract and not p.injured()]
+                player_list = [p for p in self.players if p.contract <= 0 and not p.injured()]
                 if len(player_list):
                     player = random.choice(player_list)
                     player.set_renew_contract_wanted_salary(asking = True)
@@ -423,7 +428,7 @@ class Team(object):
             max_skill = self.average_skill() - int(self.average_skill() / 5.0)
             skill = helpers.min_max(random.uniform(min_skill, max_skill), sfm_glob.PLAYER['MIN_SKILL'], sfm_glob.PLAYER['MAX_YOUTH_PLAYER_SKILL'])
             skill = int(round(skill, 0))
-            player = Player(country = self.country, skill = skill, age = random.choice([18, 19]), team = self, is_homegrown=True, contract=True)
+            player = Player(country = self.country, skill = skill, age = random.choice([18, 19]), team = self, is_homegrown=True, contract=sfm_glob.COMPETITION['TOTAL GAMES'])
             self.weekly_news.news.append(News('Juniors', player.name))
             self.players.append(player)
 
