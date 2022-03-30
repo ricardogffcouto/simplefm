@@ -339,7 +339,7 @@ class Team(object):
 
         def _reduce_contract():
             players_with_contract = [p for p in self.players if p.contract > 0]
-            for player in injured_players:
+            for player in players_with_contract:
                 player.contract -= 1
 
         def _player_asking_for_new_contract():
@@ -395,8 +395,9 @@ class Team(object):
 
         self.weekly_news.news = []
         _set_finances()
-        _sell_player_if_money_below_0()
         _reduce_injury()
+        _reduce_contract()
+        _sell_player_if_money_below_0()
         _set_training()
         _player_asking_for_new_contract()
         _player_tired()
