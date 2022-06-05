@@ -86,6 +86,8 @@ class SimpleFMApp(App):
 
         Builder.load_file(path + '/gui/widgets/GlobalWidgets.kv')
 
+        Builder.load_file(path + '/gui/widgets/GlobalButtons.kv')
+
         Builder.load_file(path + '/gui/widgets/GlobalLabels.kv')
 
         kv_files = ["MainScreen",

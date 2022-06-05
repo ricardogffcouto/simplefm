@@ -9,6 +9,8 @@ verify_ssl = true
 cython = "*"
 kivy = "*"
 scipy = "*"
+watchdog = "*"
+kaki = "*"
 
 [requires]
 python_version = "3.8"

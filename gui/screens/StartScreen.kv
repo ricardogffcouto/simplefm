@@ -1,17 +1,25 @@
 <StartScreen>:
-    canvas.before:
-        Rectangle:
-            pos: self.pos
-            size: self.size
-            source: "gui/backgrounds/fundo.jpg"
     BoxLayout:
+        canvas.before:
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source: "gui/backgrounds/fundo.jpg"
         orientation: 'vertical'
+        padding: 20
         Label:
             text: "Simple FM"
             font_size: dp(36)
+            size_hint_y: 0.4
         Button:
             text: "New Game"
             on_release: root.new_game()
+            size_hint_y: 0.2
+        Label:
+            size_hint_y: 0.05
         Button:
             text: "Load Game"
             on_release: root.load_game()
+            size_hint_y: 0.2
+        Label:
+            size_hint_y: 0.15

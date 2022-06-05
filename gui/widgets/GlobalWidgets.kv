@@ -1,5 +1,6 @@
 #:set default_bcolor (0.2, 0.2, 0.2, 1)
-#:set button_background_color (0.1, 0.1, 0.1, 1)
+#:set button_background_color (0.95, 0.95, 0.95, 1)
+#:set button_text_color (0.05, 0.05, 0.05, 1)
 #:set button_disabled_background_color (0.5, 0.5, 0.5, 1)
 
 <Popup>:
@@ -430,11 +431,11 @@
 <BlackLabelSmall@BlackLabel>:
     font_size: dp(12)
 
-#<Button>:
-#    background_down: "atlas://data/images/defaulttheme/button"
-#    background_color: button_background_color
-#    on_press: self.background_color = button_background_color_on_press
-#    on_release: self.background_color = button_background_color
+<Button>:
+    background_normal: ""
+    background_down: ""
+    background_color: button_background_color
+    color: button_text_color
 
 <ButtonWithImage>:
     source: ''
@@ -444,16 +445,13 @@
         pos: self.parent.pos
         allow_stretch: True
 
-<ButtonWithImageAndText>:
+<ButtonWithImageAndText@Button>:
     source: ''
     selected: False
     clickable: True
     label_text: ''
-    bg_color: button_background_color
+    bg_color: button_text_color
     image_color: (0, 0, 0, 0) if self.disabled else button_disabled_background_color if not self.clickable else app.current_team_color() if self.selected else self.bg_color
-    background_normal: ""
-    background_down: ""
-    background_color: 0, 0, 0, 0
     BoxLayout:
         size: root.size
         pos: root.pos
@@ -461,12 +459,12 @@
         Image:
             source: root.source
             allow_stretch: True
-            size_hint_y: 0.67
+            size_hint_y: 0.5
             color: root.image_color
         Label:
             text: root.label_text
-            size_hint_y: 0.25
-            font_size: dp(10)
+            size_hint_y: 0.42
+            font_size: dp(12)
             color: root.image_color
         Label:
             size_hint_y: 0.08
