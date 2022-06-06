@@ -2,7 +2,7 @@
 GUI:
     MatchScreen:
         Substitution:
-            [] Skill on top is black 
+            [x] Skill on top is black 
         *[] On pause show pause icon
 
 
@@ -12,7 +12,7 @@ GUI:
 
     Transfers:
         MyTeam:
-            *[] Instead of 0 show + in price when player injured
+            *[x] Instead of 0 show + in price when player injured
 
 
 Gameplay:

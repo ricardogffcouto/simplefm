@@ -129,7 +129,7 @@ class SimpleFMApp(App):
         for screen in screens:
             sm.add_widget(screen)
 
-        sm.current = 'LoadGameScreen'
+        sm.current = 'StartScreen'
 
         return sm
 
