@@ -72,10 +72,18 @@ class KvViewerApp(App):
     @mainthread
     def update(self, *args):
         Builder.unload_file(join(PATH, TARGET))
+        path = os.path.dirname(os.path.abspath(__file__))
+
+        Builder.load_file(path + '/gui/widgets/GlobalWidgets.kv')
+
+        Builder.load_file(path + '/gui/widgets/GlobalButtons.kv')
+
+        Builder.load_file(path + '/gui/widgets/GlobalLabels.kv')
         for w in Window.children[:]:
             Window.remove_widget(w)
         try:
-            Window.add_widget(Builder.load_string(self.file_to_kv(join(PATH, TARGET))))
+            Window.add_widget(Builder.load_string(
+                self.file_to_kv(join(PATH, TARGET))))
         except Exception as e:
             Window.add_widget(Label(text=(
                 e.message if getattr(e, r'message', None) else str(e)

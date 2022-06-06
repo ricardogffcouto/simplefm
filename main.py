@@ -30,15 +30,16 @@ class SimpleFMScreenManager(ScreenManager):
         self.previous_screen = self.current
         self.current = screen
 
+
 class SimpleFMApp(App):
     GAME = None
+
     def get_games_folder(self):
         root_folder = self.user_data_dir
         games_folder = os.path.join(root_folder, 'games')
         if not os.path.exists(games_folder):
             os.makedirs(games_folder)
         return games_folder
-
 
     def current_team_color(self, a=None):
         color = gui.helpers.color('')
@@ -55,7 +56,8 @@ class SimpleFMApp(App):
             TransferList(name='TransferList'),
             TransferTeam(name='TransferTeam'),
             WeeklyTraining(name='WeeklyTraining'),
-            DivisionAllMatchesTablesScreen(name='DivisionAllMatchesTablesScreen'),
+            DivisionAllMatchesTablesScreen(
+                name='DivisionAllMatchesTablesScreen'),
             AllMatchesScreen(name='AllMatchesScreen')
         ]
 
@@ -73,13 +75,16 @@ class SimpleFMApp(App):
         ]
 
         for screen in main_team_screens:
-            self.root.get_screen('MainScreen').ids["content"].add_widget(screen)
+            self.root.get_screen(
+                'MainScreen').ids["content"].add_widget(screen)
 
         for screen in match_screens:
-            self.root.get_screen('MatchScreen').ids["content"].add_widget(screen)
+            self.root.get_screen(
+                'MatchScreen').ids["content"].add_widget(screen)
 
         for screen in weekly_screens:
-            self.root.get_screen('WeeklyInformationScreen').ids["content"].add_widget(screen)
+            self.root.get_screen(
+                'WeeklyInformationScreen').ids["content"].add_widget(screen)
 
     def setup_gui(self):
         path = os.path.dirname(os.path.abspath(__file__))
@@ -124,8 +129,8 @@ class SimpleFMApp(App):
         for screen in screens:
             sm.add_widget(screen)
 
-        sm.current = 'StartScreen'
-        
+        sm.current = 'LoadGameScreen'
+
         return sm
 
     def build(self):

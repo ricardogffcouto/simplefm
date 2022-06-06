@@ -9,11 +9,14 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.modalview import ModalView
 import functools
 
+
 class GoalPopup(ModalView):
     pass
 
+
 class MatchScreens(ScreenManager):
     pass
+
 
 class MatchScreen(Screen):
     def refresh(self):
@@ -22,21 +25,30 @@ class MatchScreen(Screen):
         self.ids['match_result'].home_goals = str(MATCH.score[0])
         self.ids['match_result'].away_team = MATCH.teams[1].name
         self.ids['match_result'].away_goals = str(MATCH.score[1])
-        self.ids['match_result'].home_color = gui.helpers.match_team_color(MATCH.teams, home = True)
-        self.ids['match_result'].away_color = gui.helpers.match_team_color(MATCH.teams, home = False)
+        self.ids['match_result'].home_color = gui.helpers.match_team_color(
+            MATCH.teams, home=True)
+        self.ids['match_result'].away_color = gui.helpers.match_team_color(
+            MATCH.teams, home=False)
 
-
-        self.ids['total_possession'].ids['home_possession'].size_hint_x = MATCH.ball_possession()[0] * 0.01
-        self.ids['total_possession'].ids['away_possession'].size_hint_x = 1 - MATCH.ball_possession()[0] * 0.01
+        self.ids['total_possession'].ids['home_possession'].size_hint_x = MATCH.ball_possession()[
+            0] * 0.01
+        self.ids['total_possession'].ids['away_possession'].size_hint_x = 1 - \
+            MATCH.ball_possession()[0] * 0.01
         self.ids['total_possession'].label_text = "Total"
-        self.ids['total_possession'].home_color = gui.helpers.match_team_color(MATCH.teams, home = True)
-        self.ids['total_possession'].away_color = gui.helpers.match_team_color(MATCH.teams, home = False)
+        self.ids['total_possession'].home_color = gui.helpers.match_team_color(
+            MATCH.teams, home=True)
+        self.ids['total_possession'].away_color = gui.helpers.match_team_color(
+            MATCH.teams, home=False)
 
-        self.ids['last_5_possession'].ids['home_possession'].size_hint_x = MATCH.ball_possession_last_5_minutes()[0] * 0.01
-        self.ids['last_5_possession'].ids['away_possession'].size_hint_x = 1 - MATCH.ball_possession_last_5_minutes()[0] * 0.01
+        self.ids['last_5_possession'].ids['home_possession'].size_hint_x = MATCH.ball_possession_last_5_minutes()[
+            0] * 0.01
+        self.ids['last_5_possession'].ids['away_possession'].size_hint_x = 1 - \
+            MATCH.ball_possession_last_5_minutes()[0] * 0.01
         self.ids['last_5_possession'].label_text = "Last 5'"
-        self.ids['last_5_possession'].home_color = gui.helpers.match_team_color(MATCH.teams, home = True)
-        self.ids['last_5_possession'].away_color = gui.helpers.match_team_color(MATCH.teams, home = False)
+        self.ids['last_5_possession'].home_color = gui.helpers.match_team_color(
+            MATCH.teams, home=True)
+        self.ids['last_5_possession'].away_color = gui.helpers.match_team_color(
+            MATCH.teams, home=False)
         self.ids["content"].current_screen.refresh()
 
     def on_pre_enter(self):
@@ -47,6 +59,7 @@ class MatchScreen(Screen):
         global MATCH
         MATCH = ACTIVE_TEAM.next_match(GAME.week)
         self.refresh()
+
 
 class MainMatchScreen(Screen):
     playing = False
@@ -102,11 +115,13 @@ class MainMatchScreen(Screen):
 
     def goal_celebration(self):
         goal_popup_time = 2
-        border_color = gui.helpers.match_team_color(MATCH.teams, home = True) if MATCH.goalscorers[-1]['team'] == MATCH.teams[0] else gui.helpers.match_team_color(MATCH.teams, home = False)
-        popup = GoalPopup(border_color = border_color, auto_dismiss=False)
+        border_color = gui.helpers.match_team_color(
+            MATCH.teams, home=True) if MATCH.goalscorers[-1]['team'] == MATCH.teams[0] else gui.helpers.match_team_color(MATCH.teams, home=False)
+        popup = GoalPopup(border_color=border_color, auto_dismiss=False)
         popup.minute = str(MATCH.goalscorers[-1]['minute']) + "'"
         popup.goalscorer = MATCH.goalscorers[-1]['player'].name
-        popup.score = "[b]{}[/b]-{}".format(MATCH.score[0], MATCH.score[1]) if MATCH.goalscorers[-1]['team'] == MATCH.teams[0] else "{}-[b]{}[/b]".format(MATCH.score[0], MATCH.score[1])
+        popup.score = "[b]{}[/b]-{}".format(MATCH.score[0], MATCH.score[1]
+                                            ) if MATCH.goalscorers[-1]['team'] == MATCH.teams[0] else "{}-[b]{}[/b]".format(MATCH.score[0], MATCH.score[1])
         popup.open()
         Clock.schedule_once(popup.dismiss, goal_popup_time)
         Clock.schedule_once(self.enable_play_after_goal, goal_popup_time)
@@ -124,7 +139,8 @@ class MainMatchScreen(Screen):
                     self.goal_celebration()
 
                 if MATCH.injured_player_out is not None and not MATCH.finished:
-                    Information().show(title = 'Player injured', information = MATCH.injured_player_out.name + " is injured.")
+                    Information().show(title='Player injured',
+                                       information=MATCH.injured_player_out.name + " is injured.")
                     if not MATCH.finished:
                         self.disable_play = True
                         self.injured_substitution()
@@ -152,13 +168,17 @@ class MainMatchScreen(Screen):
             self.ids["away_goalscorers"].color_label_background()
 
             ACTIVE_TEAM.order_players_by_playing_status()
-            gui.helpers.generate_player_list_data(self.ids['team_list'], ACTIVE_TEAM.players, [0], MATCH.minutes)
+            gui.helpers.generate_player_list_data(
+                self.ids['team_list'], ACTIVE_TEAM.players, [0], MATCH.minutes)
 
-            gui.helpers.recycle_view_adjust_size_hint_y_to_window(self.ids["team_list"], 0.81)
+            gui.helpers.recycle_view_adjust_size_hint_y_to_window(
+                self.ids["team_list"], 0.81)
 
-            self.ids["goalscorers"].size_hint_y = 0.87 - (self.ids["team_list"].size_hint_y)
+            self.ids["goalscorers"].size_hint_y = 0.87 - \
+                (self.ids["team_list"].size_hint_y)
 
-            self.ids["main_match_player_header"].bcolor = gui.helpers.match_team_color(MATCH.teams, home = True) if MATCH.teams[0].human else gui.helpers.match_team_color(MATCH.teams, home = False)
+            self.ids["main_match_player_header"].bcolor = gui.helpers.match_team_color(
+                MATCH.teams, home=True) if MATCH.teams[0].human else gui.helpers.match_team_color(MATCH.teams, home=False)
 
             if not MATCH.finished:
                 if MATCH.minutes > 0:
@@ -192,7 +212,7 @@ class MainMatchScreen(Screen):
 class SubstitutionScreen(Screen):
     def back(self):
         self.parent.current = "MainMatchScreen"
-    
+
     def show_hide_confirm(self, *args):
         self.ids['play_pause'].opacity = 1 if self.can_make_substitution() else 0.5
 
@@ -205,7 +225,8 @@ class SubstitutionScreen(Screen):
         def _substitution(self):
             player_out = self.ids["team_list"].selected
             player_in = self.ids["subs_list"].selected
-            ACTIVE_TEAM.replace_player(player_in = player_in, player_out = player_out, in_match = True, match_minutes = MATCH.minutes)
+            ACTIVE_TEAM.replace_player(
+                player_in=player_in, player_out=player_out, in_match=True, match_minutes=MATCH.minutes)
             if MATCH.injured_player_out == player_out:
                 MATCH.injured_player_out = None
             MATCH.substitution_made_by_team(ACTIVE_TEAM)
@@ -222,33 +243,43 @@ class SubstitutionScreen(Screen):
             player_in = self.ids["subs_list"].selected
             popup = Confirmation()
             popup.title = 'Replace player'
-            popup.text = 'Do you want to replace\n{} {} by\n{} {}?'.format(player_out.pos_to_str(), player_out.name, player_in.pos_to_str(), player_in.name)
+            popup.text = 'Do you want to replace\n{} {} by\n{} {}?'.format(
+                player_out.pos_to_str(), player_out.name, player_in.pos_to_str(), player_in.name)
             popup.yes = functools.partial(_substitution, self)
             popup.open()
 
     def refresh(self):
-        gui.helpers.generate_player_list_data(self.ids['team_list'], ACTIVE_TEAM.players, [0], MATCH.minutes)
-        gui.helpers.generate_player_list_data(self.ids['subs_list'], ACTIVE_TEAM.players, [1], MATCH.minutes)
+        gui.helpers.generate_player_list_data(
+            self.ids['team_list'], ACTIVE_TEAM.players, [0], MATCH.minutes)
+        gui.helpers.generate_player_list_data(
+            self.ids['subs_list'], ACTIVE_TEAM.players, [1], MATCH.minutes)
 
-        gui.helpers.recycle_view_adjust_size_hint_y_to_window(self.ids["team_list"], self.manager.size_hint_y)
+        gui.helpers.recycle_view_adjust_size_hint_y_to_window(
+            self.ids["team_list"], self.manager.size_hint_y)
         if self.name == 'InjuredSubstitutionScreen':
             filler = 0.71
         else:
             filler = 0.82
 
-        self.ids['subs_list'].size_hint_y = max(0.001, filler - (self.ids["team_list"].size_hint_y))
+        self.ids['subs_list'].size_hint_y = max(
+            0.001, filler - (self.ids["team_list"].size_hint_y))
 
         self.ids["subs_information"].text = 'Substitutions left: '
-        self.ids["subs_information"].text += str(3 - MATCH.substitutions[0]) if ACTIVE_TEAM == MATCH.teams[0] else str(3 - MATCH.substitutions[1])
+        self.ids["subs_information"].text += str(3 - MATCH.substitutions[0]
+                                                 ) if ACTIVE_TEAM == MATCH.teams[0] else str(3 - MATCH.substitutions[1])
 
-        self.ids["substitution_player_header"].bcolor = gui.helpers.match_team_color(MATCH.teams, home = True) if MATCH.teams[0].human else gui.helpers.match_team_color(MATCH.teams, home = False)
+        self.ids["substitution_player_header"].bcolor = gui.helpers.match_team_color(
+            MATCH.teams, home=True) if MATCH.teams[0].human else gui.helpers.match_team_color(MATCH.teams, home=False)
 
         self.show_hide_confirm()
 
     def on_pre_enter(self):
-        self.ids['team_list'].methods_selection_changed.append(self.show_hide_confirm)
-        self.ids['subs_list'].methods_selection_changed.append(self.show_hide_confirm)
+        self.ids['team_list'].methods_selection_changed.append(
+            self.show_hide_confirm)
+        self.ids['subs_list'].methods_selection_changed.append(
+            self.show_hide_confirm)
         self.refresh()
+
 
 class InjuredSubstitutionScreen(SubstitutionScreen):
     def back(self):
@@ -267,7 +298,8 @@ class InjuredSubstitutionScreen(SubstitutionScreen):
         def _substitution(self):
             player_out = MATCH.injured_player_out
             player_in = self.ids["subs_list"].selected
-            ACTIVE_TEAM.replace_player(player_in = player_in, player_out = player_out, in_match = True, match_minutes = MATCH.minutes)
+            ACTIVE_TEAM.replace_player(
+                player_in=player_in, player_out=player_out, in_match=True, match_minutes=MATCH.minutes)
             if MATCH.injured_player_out == player_out:
                 MATCH.injured_player_out = None
             MATCH.substitution_made_by_team(ACTIVE_TEAM)
@@ -283,7 +315,8 @@ class InjuredSubstitutionScreen(SubstitutionScreen):
             player_in = self.ids["subs_list"].selected
             popup = Confirmation()
             popup.title = 'Replace player'
-            popup.text = 'Do you want to replace\n{} {} by\n{} {}?'.format(player_out.pos_to_str(), player_out.name, player_in.pos_to_str(), player_in.name)
+            popup.text = 'Do you want to replace\n{} {} by\n{} {}?'.format(
+                player_out.pos_to_str(), player_out.name, player_in.pos_to_str(), player_in.name)
             popup.yes = functools.partial(_substitution, self)
             popup.open()
 
@@ -297,5 +330,6 @@ class InjuredSubstitutionScreen(SubstitutionScreen):
         self.ids['injured_player'].name = p.name
         self.ids['injured_player'].age = str(p.age)
         self.ids['injured_player'].skill = str(int(p.skill))
-        self.ids['subs_list'].methods_selection_changed.append(self.show_hide_confirm)
+        self.ids['subs_list'].methods_selection_changed.append(
+            self.show_hide_confirm)
         self.refresh()

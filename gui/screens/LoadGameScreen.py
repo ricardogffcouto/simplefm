@@ -14,7 +14,8 @@ class LoadGameScreen(Screen):
     def delete_game(self):
         def _delete_game():
             folder = App.get_running_app().get_games_folder()
-            os.remove("{}/{}.sfm".format(folder, self.ids['games'].selected.name))
+            os.remove("{}/{}.sfm".format(folder,
+                      self.ids['games'].selected.name))
             popup.dismiss()
             self.ids['games'].selected = None
             self.refresh()
@@ -22,7 +23,8 @@ class LoadGameScreen(Screen):
         if self.ids['games'].selected:
             popup = Confirmation()
             popup.title = 'Delete game'
-            popup.text = 'Delete game {}?'.format(self.ids['games'].selected.name)
+            popup.text = 'Delete game {}?'.format(
+                self.ids['games'].selected.name)
             popup.yes = _delete_game
             popup.open()
         else:
@@ -30,7 +32,6 @@ class LoadGameScreen(Screen):
             popup.title = 'No game selected'
             popup.information = "You need to select a game."
             popup.open()
-
 
     def setup_game(self, game):
         App.get_running_app().GAME = game
@@ -57,7 +58,7 @@ class LoadGameScreen(Screen):
 
         for file_name in games_file_names:
             file_path = os.path.join(folder, file_name)
-            if os.path.getsize(file_path) > 0:      
+            if os.path.getsize(file_path) > 0:
                 with open(file_path, "rb") as f:
                     unpickler = pickle.Unpickler(f)
                     game_dict = unpickler.load()
@@ -81,7 +82,8 @@ class LoadGameScreen(Screen):
         self.ids['delete_button'].disabled = False if self.ids['games'].selected else True
 
     def refresh(self):
-        self.ids['games'].bind(on_touch_up=Clock.schedule_once(self.set_delete_button_status))
+        self.ids['games'].bind(on_touch_up=Clock.schedule_once(
+            self.set_delete_button_status))
         self.ids['games'].data = self.get_saved_games_data()
         self.ids['games'].color_label_background()
 

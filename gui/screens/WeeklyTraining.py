@@ -5,6 +5,7 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen
 import gui.helpers
 
+
 class WeeklyTraining(Screen):
     def refresh(self):
         global GAME
@@ -24,7 +25,7 @@ class WeeklyTraining(Screen):
 
         if not self.ids["team_list"].data:
             self.ids["team_list"].data = [{
-            'name': "No changes in training this week."}]
+                'name': "No changes in training this week."}]
 
         self.ids["team_list"].color_label_background()
 

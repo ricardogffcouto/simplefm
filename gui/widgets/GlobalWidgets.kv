@@ -1,5 +1,5 @@
 #:set default_bcolor (0.2, 0.2, 0.2, 1)
-#:set button_background_color (0.95, 0.95, 0.95, 1)
+#:set button_background_color (1, 1, 1, 1)
 #:set button_text_color (0.05, 0.05, 0.05, 1)
 #:set button_disabled_background_color (0.5, 0.5, 0.5, 1)
 
@@ -185,7 +185,7 @@
             align: 'left'
 
 <PlayerNormalView@PlayerWidget>:
-    skill_color: (0.2, 0.2, 0.2, 1)
+    skill_color: (0.5, 0.5, 0.5, 1)
     position_color: (0, 0, 0, 1)
     canvas.before:
         Color:
@@ -333,7 +333,7 @@
         BlackLabel:
             size_hint_x: 0.05
         Image:
-            source: 'atlas://gui/icons/myatlas/train' + root.weekly_training if root.weekly_training else ""
+            source: 'atlas://gui/icons/myatlas/train' + root.weekly_training if abs(root.weekly_training) else ""
             color: (0, 0, 0, 0) if not root.weekly_training else (1, 1, 1, 1)
             size_hint_x: 0.15
             size_hint_y: 0.8
@@ -491,6 +491,7 @@
     scroll_wheel_distance: dp(114)
     bar_width: dp(8)
     content_height: dp(32)
+    effect_cls: 'ScrollEffect'
     SelectableRecycleBoxLayout:
         default_size: None, root.content_height
         default_size_hint: 1, None
