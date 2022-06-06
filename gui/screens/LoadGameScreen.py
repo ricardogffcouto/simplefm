@@ -7,6 +7,7 @@ from gui.widgets.GlobalWidgets import Information, Confirmation
 from lib.Game import Game
 import pickle
 import os
+from kivy.clock import Clock
 
 
 class LoadGameScreen(Screen):
@@ -20,7 +21,7 @@ class LoadGameScreen(Screen):
 
         if self.ids['games'].selected:
             popup = Confirmation()
-            popup.title = 'Game'
+            popup.title = 'Delete game'
             popup.text = 'Delete game {}?'.format(self.ids['games'].selected.name)
             popup.yes = _delete_game
             popup.open()
@@ -76,7 +77,11 @@ class LoadGameScreen(Screen):
 
         return data
 
+    def set_delete_button_status(self, *args):
+        self.ids['delete_button'].disabled = False if self.ids['games'].selected else True
+
     def refresh(self):
+        self.ids['games'].bind(on_touch_up=Clock.schedule_once(self.set_delete_button_status))
         self.ids['games'].data = self.get_saved_games_data()
         self.ids['games'].color_label_background()
 

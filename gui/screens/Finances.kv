@@ -35,15 +35,17 @@
             size_hint_y: 0.05
             id: goal
         MainHeader:
+            id: fan_happiness_header
             size_hint_y: 0.05
-            text: "FAN HAPPINESS"
         Label:
             size_hint_y: 0.05
             id: fan_happiness
-            color: (0, 0, 0, 0)
+            color: (0.05, 0.05, 0.05, 1)
+            bar_color: (0, 0, 0, 0)
+            happiness: 0
             canvas.before:
                 Color:
-                    rgba: self.color
+                    rgba: self.bar_color
                 Rectangle:
                     pos: self.pos
-                    size: self.size
+                    size: (self.width * self.happiness, self.height)

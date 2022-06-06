@@ -81,18 +81,15 @@
                     size: self.size
             size_hint_y: 0.08
             id: footer
-            ButtonWithImageAndText:
-                label_text: "Back"
+            BackButton:
                 on_release: root.back()
-                source: 'atlas://gui/icons/myatlas/back'
                 size_hint_x: 0.2
             BlackLabel:
                 size_hint_x: 0.6
                 id: subs_information
-            ButtonWithImageAndText:
+            OKButton:
                 id: play_pause
                 on_release: root.confirm_substitution()
-                source: 'atlas://gui/icons/myatlas/check'
                 size_hint_x: 0.2
                 label_text: "Substitution"
 

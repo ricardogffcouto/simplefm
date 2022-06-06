@@ -71,9 +71,14 @@ class Finances(Screen):
 
         self.ids["goal"].text = 'SEASON GOAL: {}'.format(gui.helpers.season_points_per_week_to_text(ACTIVE_TEAM.min_pos_per_season_points_per_week()))
 
-        self.ids["fan_happiness"].size_hint_x = min(1, (ACTIVE_TEAM.fan_happiness + 1) / 100.0)
+        self.ids["fan_happiness"].happiness = min(1, (ACTIVE_TEAM.fan_happiness + 1) / 100.0)
 
-        self.ids["fan_happiness"].color = gui.helpers.get_color_red_to_green(ACTIVE_TEAM.fan_happiness, 0, 100)
+        self.ids["fan_happiness"].bar_color = gui.helpers.get_color_red_to_green(ACTIVE_TEAM.fan_happiness, 0, 100)
+
+        fan_happiness = tuple(filter(lambda n: n.category == 'Fans', ACTIVE_TEAM.weekly_news.news))
+        if len(fan_happiness):
+            self.ids["fan_happiness_header"].text = "FAN HAPPINESS: " + ("+" if fan_happiness[0].data >= 0 else "")
+            self.ids["fan_happiness_header"].text += str(int(round(fan_happiness[0].data, 0))) + "%"
 
         self.ids["weekly_news"].data = [{"text" : n} for n in ACTIVE_TEAM.weekly_news.str_list()]
 

@@ -32,5 +32,4 @@ for i, color in enumerate(colors):
 for color in new_colors:
     c = list(color)
     c.append(255)
-    print(str(tuple_01(c)) + ',')
             

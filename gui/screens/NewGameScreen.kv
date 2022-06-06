@@ -86,11 +86,11 @@
             id: spacing
         BoxLayout:
             size_hint_y: 0.1
-            spacing: 20
+            spacing: 10
             BackButton:
                 on_release: root.manager.current = 'StartScreen'
                 size_hint_x: 0.25
-            Button:
-                text: "Create Game"
+            OKButton:
+                label_text: "Create Game"
                 on_release: root.can_start_new_game()
                 size_hint_x: 0.75

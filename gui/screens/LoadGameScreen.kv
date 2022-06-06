@@ -1,4 +1,3 @@
-
 <LoadGameScreen>:
     canvas.before:
         Rectangle:
@@ -19,15 +18,17 @@
             size_hint_y: 0.75
         BoxLayout:
             size_hint_y: 0.1
-            Button:
-                text: "Back"
+            spacing: 10
+            BackButton:
                 on_release: root.manager.current = 'StartScreen'
-                size_hint_x: 0.2
+                size_hint_x: 0.25
             Button:
+                id: delete_button
+                disabled: True
                 text: "Delete Game"
                 on_release: root.delete_game()
-                size_hint_x: 0.2
-            Button:
-                text: "Load Game"
+                size_hint_x: 0.25
+            OKButton:
+                label_text: "Load Game"
                 on_release: root.load_game()
-                size_hint_x: 0.6
+                size_hint_x: 0.5
