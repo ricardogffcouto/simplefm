@@ -1,2 +1,4 @@
 bin/
 .buildozer/
+.tests
+Pipfile.lock
