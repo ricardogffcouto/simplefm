@@ -1,6 +1,6 @@
 # coding: latin1
 GAME = {
-    'STARTING YEAR' : 2021,
+    'STARTING YEAR' : 2023,
 }
 
 MONEY = {

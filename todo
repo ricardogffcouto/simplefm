@@ -14,6 +14,8 @@ GUI:
         MyTeam:
             *[x] Instead of 0 show + in price when player injured
 
+Bugs:
+    [x] Game stops when team promoted
 
 Gameplay:
     *[] Contracts last for minimum 30 matches (1 year)

@@ -377,7 +377,7 @@ class Team(object):
         def _sell_player_if_money_below_0():
             if self.money < 0:
                 sellable_players = [p for p in self.players if p.can_be_sold()]
-                if len(sellable_players) <= 0 or self.players <= 11:
+                if len(sellable_players) <= 0 or len(self.players) <= 11:
                     return False
 
                 sellable_players.sort(key=lambda x: x.current_value())

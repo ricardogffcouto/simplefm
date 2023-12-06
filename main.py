@@ -33,6 +33,7 @@ class SimpleFMScreenManager(ScreenManager):
 
 class SimpleFMApp(App):
     GAME = None
+    start_screen = None
 
     def get_games_folder(self):
         root_folder = self.user_data_dir
@@ -71,7 +72,6 @@ class SimpleFMApp(App):
             DivisionMatchesTablesScreen(name='DivisionMatchesTablesScreen'),
             Finances(name='Finances'),
             EndofSeason(name='EndofSeason')
-
         ]
 
         for screen in main_team_screens:
@@ -129,7 +129,11 @@ class SimpleFMApp(App):
         for screen in screens:
             sm.add_widget(screen)
 
-        sm.current = 'StartScreen'
+
+        sm.current = self.start_screen
+
+        if not self.start_screen:
+            sm.current = 'StartScreen'
 
         return sm
 

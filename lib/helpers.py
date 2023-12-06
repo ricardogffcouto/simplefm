@@ -63,11 +63,11 @@ def training_to_str(training):
     if training >= 0.03:
         return "++"
     elif training >= 0.015:
-            return "+"
+        return "+"
     elif training <= -0.015:
-            return "-"
+        return "-"
     elif training <= -0.03:
-            return "--"
+        return "--"
     return ""
 
 def value01(value, min_v, max_v):
