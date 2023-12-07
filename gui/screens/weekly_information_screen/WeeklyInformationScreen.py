@@ -4,7 +4,7 @@
 from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager
 from gui.widgets.GlobalWidgets import Information
-import gui.helpers
+import gui.utils
 
 class InformationScreens(ScreenManager):
     def change_screen(self, screen_name):

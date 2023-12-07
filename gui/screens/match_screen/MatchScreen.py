@@ -4,7 +4,7 @@
 from kivy.app import App
 from kivy.clock import Clock
 from gui.widgets.GlobalWidgets import Information, Confirmation
-import gui.helpers
+import gui.utils
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.modalview import ModalView
 import functools

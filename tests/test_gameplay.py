@@ -14,7 +14,7 @@ class TestGameplay(unittest.TestCase):
         # GAME = Game()
         # manager = {'name' : 'Ricardo'}
         # human_team = {'name' : 'Test', 'color': 'Blue', 'country': 'Por', 'prev_pos': 4, 'prev_div': 4}
-        # GAME.start(human_team = human_team, manager = manager)
+        # GAME.start_screen(human_team = human_team, manager = manager)
         # GAME.start_of_season()
         #
         # for i in range(29):

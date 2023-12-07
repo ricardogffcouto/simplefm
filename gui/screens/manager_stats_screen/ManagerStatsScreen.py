@@ -3,7 +3,7 @@
 
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.app import App
-import gui.helpers
+import gui.utils
 
 class ManagerStatsScreen(Screen):
     def on_pre_enter(self):

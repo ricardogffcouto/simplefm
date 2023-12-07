@@ -3,7 +3,7 @@
 
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
-import gui.helpers
+import gui.utils
 
 
 class WeeklyTraining(Screen):

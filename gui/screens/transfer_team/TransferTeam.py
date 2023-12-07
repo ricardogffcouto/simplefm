@@ -2,7 +2,7 @@
 #encoding: utf-8
 
 
-import gui.helpers
+import gui.utils
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from gui.widgets.GlobalWidgets import SwappableList, Information, Confirmation

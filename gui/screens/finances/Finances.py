@@ -2,7 +2,7 @@
 #encoding: utf-8
 
 
-import gui.helpers
+import gui.utils
 from kivy.uix.screenmanager import Screen
 from kivy.app import App
 

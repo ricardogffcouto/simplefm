@@ -170,7 +170,7 @@ def get_color_red_to_green(value, min_v, max_v):
     return (red, green, blue, 1)
 
 
-def color(col=None, a=1, tint=0):
+def adjust_color_shade_and_opacity(col=None, a=1, tint=0):
     if not col:
         col = 'White'
 

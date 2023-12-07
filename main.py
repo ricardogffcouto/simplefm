@@ -1,35 +1,36 @@
 #!/usr/bin/python
 #encoding: utf-8
 
-from gui.screens.StartScreen import StartScreen
-from gui.screens.LoadGameScreen import LoadGameScreen
-from gui.screens.NewGameScreen import NewGameScreen
+from gui.screens.start_screen.StartScreen import StartScreen
+from gui.screens.load_game_screen.LoadGameScreen import LoadGameScreen
+from gui.screens.new_game_screen.NewGameScreen import NewGameScreen
 
-from gui.screens.MainScreen import MainScreen
-from gui.screens.MatchScreen import MatchScreen, MainMatchScreen, SubstitutionScreen, InjuredSubstitutionScreen
-from gui.screens.WeeklyInformationScreen import WeeklyInformationScreen
+from gui.screens.main_screen.MainScreen import MainScreen
+from gui.screens.match_screen.MatchScreen import MatchScreen, MainMatchScreen, SubstitutionScreen, InjuredSubstitutionScreen
+from gui.screens.weekly_information_screen.WeeklyInformationScreen import WeeklyInformationScreen
 
-from gui.screens.MainTeam import MainTeam
-from gui.screens.WeeklyTraining import WeeklyTraining
-from gui.screens.DivisionTables import DivisionMatchesTablesScreen, DivisionAllMatchesTablesScreen, AllMatchesScreen
-from gui.screens.Finances import Finances
-from gui.screens.TransferList import TransferList
-from gui.screens.TransferTeam import TransferTeam
-from gui.screens.EndofSeason import EndofSeason
-from gui.screens.ManagerStatsScreen import ManagerStatsScreen
+from gui.screens.main_team.MainTeam import MainTeam
+from gui.screens.weekly_training.WeeklyTraining import WeeklyTraining
+from gui.screens.division_tables.DivisionTables import DivisionMatchesTablesScreen, DivisionAllMatchesTablesScreen, AllMatchesScreen
+from gui.screens.finances.Finances import Finances
+from gui.screens.transfer_list.TransferList import TransferList
+from gui.screens.transfer_team.TransferTeam import TransferTeam
+from gui.screens.end_of_season.EndofSeason import EndofSeason
+from gui.screens.manager_stats_screen.ManagerStatsScreen import ManagerStatsScreen
 
 import os
 from kivy.lang import Builder
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
-import gui.helpers
+import gui.utils
+from gui.screens.constants import ScreenName
+from gui.utils import camel_to_snake
 
 
 class SimpleFMScreenManager(ScreenManager):
     def change_screen(self, screen):
         self.previous_screen = self.current
         self.current = screen
-
 
 class SimpleFMApp(App):
     GAME = None
@@ -52,7 +53,7 @@ class SimpleFMApp(App):
 
     def setup_game_gui(self):
         main_team_screens = [
-            MainTeam(name='MainTeam'),
+            MainTeam(name=ScreenName.TEAM),
             Finances(name='Finances'),
             TransferList(name='TransferList'),
             TransferTeam(name='TransferTeam'),
@@ -95,24 +96,10 @@ class SimpleFMApp(App):
 
         Builder.load_file(path + '/gui/widgets/GlobalLabels.kv')
 
-        kv_files = ["MainScreen",
-                    "MainTeam",
-                    "TransferList",
-                    "MatchScreen",
-                    "WeeklyTraining",
-                    "DivisionTables",
-                    "StartScreen",
-                    "Finances",
-                    "TransferTeam",
-                    "WeeklyInformationScreen",
-                    "EndofSeason",
-                    "LoadGameScreen",
-                    "NewGameScreen",
-                    "ManagerStatsScreen"
-                    ]
-
-        for name in kv_files:
-            Builder.load_file(path + '/gui/screens/' + name + '.kv')
+        for screen in ScreenName:
+            name = screen.value
+            folder = camel_to_snake(name)
+            Builder.load_file(f"{path}/gui/screens/{folder}/{name}.kv")
 
         screens = [
             StartScreen(name='StartScreen'),

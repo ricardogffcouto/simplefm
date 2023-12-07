@@ -1,13 +1,7 @@
-#!/usr/bin/python
-#encoding: utf-8
-
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from gui.widgets.GlobalWidgets import ScrollableList
-from kivy.uix.boxlayout import BoxLayout
-from kivy.metrics import dp
-from kivy.properties import BooleanProperty
-import gui.helpers
+import gui.utils
 
 
 class MatchResults(ScrollableList):
