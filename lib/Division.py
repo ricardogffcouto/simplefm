@@ -1,7 +1,7 @@
 # coding: latin1
 from .Match import Match
 from operator import attrgetter
-from . import sfm_glob
+from . import constants
 import random
 
 

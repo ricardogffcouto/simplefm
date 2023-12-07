@@ -7,7 +7,7 @@ from kivy.uix.textinput import TextInput
 from gui.widgets.GlobalWidgets import Information
 from lib.Game import Game
 import lib.db
-import lib.sfm_glob
+import lib.constants
 import os
 import re
 

@@ -1,6 +1,6 @@
 # coding: latin1
 import copy
-import lib.sfm_glob as sfm_glob
+import lib.constants as sfm_glob
 
 class Manager(object):
     def achievements(self):

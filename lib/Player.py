@@ -1,5 +1,5 @@
 #encoding: utf-8
-from . import sfm_glob
+from . import constants
 from . import helpers
 import random
 import string

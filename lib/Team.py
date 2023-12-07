@@ -1,5 +1,5 @@
 # coding: latin1
-from . import sfm_glob
+from . import constants
 from . import helpers
 import random
 from .Player import Player
