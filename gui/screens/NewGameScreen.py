@@ -1,15 +1,18 @@
 #!/usr/bin/python
 #encoding: utf-8
 
+import os
+import re
+
+import lib.constants
+import lib.db
+from gui import constants
+from gui.widgets.GlobalWidgets import Information
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
-from gui.widgets.GlobalWidgets import Information
 from lib.Game import Game
-import lib.db
-import lib.constants
-import os
-import re
+
 
 class NameTextInput(TextInput):
     def insert_text(self, substring, from_undo=False):
@@ -22,42 +25,42 @@ class NameTextInput(TextInput):
 
 class NewGameScreen(Screen):
     def show_hide_create_new_team(self):
-        if self.ids['teams'].text == "Create new team":
-            self.ids['new_team'].size_hint_y = 0.4
-            self.ids['spacing'].size_hint_y = 0.1
-            self.ids['new_team'].opacity = 1
-        else:
-            self.ids['new_team'].size_hint_y = 0.001
-            self.ids['new_team'].opacity = 0
-            self.ids['spacing'].size_hint_y = 0.5
+        if self.ids[constants.IdNames.TEAMS.value].text == constants.CREATE_NEW_TEAM:
+                    self.ids[constants.IdNames.NEW_TEAM.value].size_hint_y = 0.4
+                    self.ids[constants.IdNames.SPACING.value].size_hint_y = 0.1
+                    self.ids[constants.IdNames.NEW_TEAM.value].opacity = 1
+                else:
+                    self.ids[constants.IdNames.NEW_TEAM.value].size_hint_y = 0.001
+                    self.ids[constants.IdNames.NEW_TEAM.value].opacity = 0
+                    self.ids[constants.IdNames.SPACING.value].size_hint_y = 0.5
 
     def can_start_new_game(self):
-        if self.ids['game_name'].text == "" or "{}.sfm".format(self.ids['game_name'].text) in os.listdir(App.get_running_app().get_games_folder()):
-            popup = Information()
-            popup.title = 'Invalid game name'
-            popup.information = "Your game name is empty or already exists."
-            popup.open()
-            return False
-
-        if self.ids['manager_name'].text == "":
-            popup = Information()
-            popup.title = 'Invalid manager name'
-            popup.information = "Your manager name is empty."
-            popup.open()
-            return False
-
-        if self.ids['teams'].text == "Create new team":
-            if self.ids['new_team_name'].text not in [team['name'] for team in lib.db.TEAMS]:
-                if len(self.ids['new_team_name'].text) > 0:
-                    self.new_game()
-                    return True
-                else:
+        if self.ids[constants.IdNames.GAME_NAME.value].text == "" or "{}.sfm".format(self.ids[constants.IdNames.GAME_NAME.value].text) in os.listdir(App.get_running_app().get_games_folder()):
                     popup = Information()
-                    popup.title = 'Invalid team'
-                    popup.information = "Your team name can't be empty."
+                    popup.title = constants.INVALID_GAME_NAME
+                    popup.information = constants.GAME_NAME_EMPTY_OR_EXISTS
                     popup.open()
                     return False
-            else:
+        
+                if self.ids[constants.IdNames.MANAGER_NAME.value].text == "":
+                    popup = Information()
+                    popup.title = constants.INVALID_MANAGER_NAME
+                    popup.information = constants.MANAGER_NAME_EMPTY
+                    popup.open()
+                    return False
+        
+                if self.ids[constants.IdNames.TEAMS.value].text == constants.CREATE_NEW_TEAM:
+                    if self.ids[constants.IdNames.NEW_TEAM_NAME.value].text not in [team['name'] for team in lib.db.TEAMS]:
+                        if len(self.ids[constants.IdNames.NEW_TEAM_NAME.value].text) > 0:
+                            self.new_game()
+                            return True
+                        else:
+                            popup = Information()
+                            popup.title = constants.INVALID_TEAM
+                            popup.information = constants.TEAM_NAME_EMPTY
+                            popup.open()
+                            return False
+                    else:
                 popup = Information()
                 popup.title = 'Invalid team'
                 popup.information = 'You should choose a name different from the current teams.'
