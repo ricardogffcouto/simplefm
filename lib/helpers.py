@@ -70,5 +70,6 @@ def training_to_str(training):
         return "--"
     return ""
 
+
 def value01(value, min_v, max_v):
     return value / float(max_v - min_v)
