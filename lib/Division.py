@@ -13,10 +13,10 @@ class Division(object):
         Returns:
             tuple: (float: value for win, float: value for draw, float: value for loss)
         '''
-        division_level = sfm_glob.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] - self.level
-        division_level_multiplier = pow(sfm_glob.MONEY['DIVISION_INFLUENCE_ON_MATCH_RESULT_PRIZE_MONEY'], division_level)
-        win = int(sfm_glob.MONEY['MIN PER WIN'] * division_level_multiplier)
-        draw = int(sfm_glob.MONEY['MIN PER DRAW'] * division_level_multiplier)
+        division_level = constants.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] - self.level
+        division_level_multiplier = pow(constants.MONEY['DIVISION_INFLUENCE_ON_MATCH_RESULT_PRIZE_MONEY'], division_level)
+        win = int(constants.MONEY['MIN PER WIN'] * division_level_multiplier)
+        draw = int(constants.MONEY['MIN PER DRAW'] * division_level_multiplier)
         money = {'Win' : win, 'Draw' : draw, 'Loss' : 0}
         return money
 
@@ -27,11 +27,11 @@ class Division(object):
             float: amount the team gets
         '''
         pos -= 1
-        division_level = sfm_glob.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] - self.level
-        division_level_multiplier = pow(sfm_glob.MONEY['DIVISION_INFLUENCE_ON_END_OF_SEASON_PRIZE_MONEY'], division_level)
-        division_min_prize_money = sfm_glob.MONEY['MIN END OF SEASON'] * division_level_multiplier
-        position = sfm_glob.COMPETITION['TEAMS PER DIVISION'] - pos
-        increase_per_pos = division_min_prize_money * pow(position * sfm_glob.MONEY['POS_INFLUENCE_ON_END_OF_SEASON_PRIZE_MONEY'], 2)
+        division_level = constants.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] - self.level
+        division_level_multiplier = pow(constants.MONEY['DIVISION_INFLUENCE_ON_END_OF_SEASON_PRIZE_MONEY'], division_level)
+        division_min_prize_money = constants.MONEY['MIN END OF SEASON'] * division_level_multiplier
+        position = constants.COMPETITION['TEAMS PER DIVISION'] - pos
+        increase_per_pos = division_min_prize_money * pow(position * constants.MONEY['POS_INFLUENCE_ON_END_OF_SEASON_PRIZE_MONEY'], 2)
         eos_money = division_min_prize_money + increase_per_pos
         return int(eos_money)
 
@@ -42,16 +42,16 @@ class Division(object):
             float: amount the team gets
         '''
         pos -= 1
-        division_level = sfm_glob.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] - self.level - 1
-        division_level_multiplier = pow(sfm_glob.MONEY['DIVISION_INFLUENCE_ON_SPONSORSHIP'], division_level)
-        division_min_sponsors_money = sfm_glob.MONEY['MIN_SPONSORS'] * division_level_multiplier
-        position = sfm_glob.COMPETITION['TEAMS PER DIVISION'] - pos
-        increase_per_pos = division_min_sponsors_money * pow(position * sfm_glob.MONEY['POS_INFLUENCE_ON_SPONSORSHIP'], 2)
+        division_level = constants.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] - self.level - 1
+        division_level_multiplier = pow(constants.MONEY['DIVISION_INFLUENCE_ON_SPONSORSHIP'], division_level)
+        division_min_sponsors_money = constants.MONEY['MIN_SPONSORS'] * division_level_multiplier
+        position = constants.COMPETITION['TEAMS PER DIVISION'] - pos
+        increase_per_pos = division_min_sponsors_money * pow(position * constants.MONEY['POS_INFLUENCE_ON_SPONSORSHIP'], 2)
         sponsorship = int(division_min_sponsors_money + increase_per_pos)
         if pos <= 2:
-            sponsorship *= sfm_glob.MONEY['TOP_3_MULTI'][pos]
+            sponsorship *= constants.MONEY['TOP_3_MULTI'][pos]
         if pos >= 13:
-            sponsorship *= sfm_glob.MONEY['BOT_3_MULTI'][pos - 13]
+            sponsorship *= constants.MONEY['BOT_3_MULTI'][pos - 13]
         return int(sponsorship)
 
     def _create_matches(self):
@@ -153,9 +153,9 @@ class Division(object):
 
         def _set_season_points_per_week():
             teams = sorted(self.teams, key=lambda x: -x.average_skill())
-            step = (sfm_glob.TEAM_GOALS['MAX_POINTS_PER_WEEK'] - sfm_glob.TEAM_GOALS['MIN_POINTS_PER_WEEK']) / float(sfm_glob.COMPETITION['TEAMS PER DIVISION'] - 1)
+            step = (constants.TEAM_GOALS['MAX_POINTS_PER_WEEK'] - constants.TEAM_GOALS['MIN_POINTS_PER_WEEK']) / float(constants.COMPETITION['TEAMS PER DIVISION'] - 1)
             for i, team in enumerate(teams):
-                team.season_points_per_week = sfm_glob.TEAM_GOALS['MAX_POINTS_PER_WEEK'] - i * step
+                team.season_points_per_week = constants.TEAM_GOALS['MAX_POINTS_PER_WEEK'] - i * step
 
         _create_matches()
         for team in self.teams:

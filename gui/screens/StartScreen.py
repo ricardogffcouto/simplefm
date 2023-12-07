@@ -1,14 +1,11 @@
-#!/usr/bin/python
-#encoding: utf-8
-
-from kivy.app import App
 from kivy.uix.screenmanager import Screen
-from lib.Game import Game
-import pickle
+
+from gui.screens.constants import ScreenName
+
 
 class StartScreen(Screen):
-    def new_game(self):
-        self.manager.current = "NewGameScreen"
+    def go_to_new_game_screen(self):
+        self.manager.current = ScreenName.NEW_GAME.value
 
-    def load_game(self):
-        self.manager.current = "LoadGameScreen"
+    def go_to_load_game_screen(self):
+        self.manager.current = ScreenName.LOAD_GAME.value

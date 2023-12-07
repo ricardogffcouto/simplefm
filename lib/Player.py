@@ -22,12 +22,12 @@ class Player(object):
         ''' Sets how much time a player is injured, and its effect on training and playing status.
         '''
         def _injury_time(age):
-            age_factor = helpers.normalize(age, sfm_glob.PLAYER['MIN AGE'], sfm_glob.PLAYER['MAX AGE'])
+            age_factor = helpers.normalize(age, constants.PLAYER['MIN AGE'], constants.PLAYER['MAX AGE'])
             average_injury_time_factor = 1 - (age_factor * 0.7)
             return int(round(random.expovariate(average_injury_time_factor), 0) + 1)
 
         def _injury_effect_on_training(injury):
-            return -injury * sfm_glob.PLAYER['INJURY_TIME_EFFECT_ON_TRAINING']
+            return -injury * constants.PLAYER['INJURY_TIME_EFFECT_ON_TRAINING']
 
         self.playing_status = 2
         self.injury = _injury_time(self.age)
@@ -76,8 +76,8 @@ class Player(object):
 
     def increase_skill(self):
         self.skill += 1
-        if self.skill > sfm_glob.PLAYER['MAX_SKILL']:
-            self.skill = sfm_glob.PLAYER['MAX_SKILL']
+        if self.skill > constants.PLAYER['MAX_SKILL']:
+            self.skill = constants.PLAYER['MAX_SKILL']
             self.training = 1
             return False
         else:
@@ -87,8 +87,8 @@ class Player(object):
 
     def decrease_skill(self):
         self.skill -= 1
-        if self.skill < sfm_glob.PLAYER['MIN_SKILL']:
-            self.skill = sfm_glob.PLAYER['MIN_SKILL']
+        if self.skill < constants.PLAYER['MIN_SKILL']:
+            self.skill = constants.PLAYER['MIN_SKILL']
             self.training = 0
             return False
         else:
@@ -98,24 +98,24 @@ class Player(object):
 
     def salary_for_skill(self):
         '''Returns the salary that corresponds with the skill the player has'''
-        skill01 = helpers.normalize(self.skill, sfm_glob.PLAYER['MIN_SKILL'], sfm_glob.PLAYER['MAX_SKILL'])
-        return int(pow(2, skill01 * sfm_glob.PLAYER['SALARY_SKILL_EXPONENT']) * sfm_glob.PLAYER['MIN_SALARY'])
+        skill01 = helpers.normalize(self.skill, constants.PLAYER['MIN_SKILL'], constants.PLAYER['MAX_SKILL'])
+        return int(pow(2, skill01 * constants.PLAYER['SALARY_SKILL_EXPONENT']) * constants.PLAYER['MIN_SALARY'])
 
     # CONTRACT
 
     def set_renew_contract_wanted_salary(self, asking = False):
         if not self.wanted_salary:
             wanted_salary = max(self.salary, self.salary_for_skill())
-            min_increase = sfm_glob.PLAYER['MIN_SALARY_INCREASE_NOT_ASKING']
-            max_increase = sfm_glob.PLAYER['MAX_SALARY_INCREASE_NOT_ASKING']
+            min_increase = constants.PLAYER['MIN_SALARY_INCREASE_NOT_ASKING']
+            max_increase = constants.PLAYER['MAX_SALARY_INCREASE_NOT_ASKING']
             if asking:
-                min_increase = sfm_glob.PLAYER['MIN_SALARY_INCREASE']
-                max_increase = sfm_glob.PLAYER['MAX_SALARY_INCREASE']
+                min_increase = constants.PLAYER['MIN_SALARY_INCREASE']
+                max_increase = constants.PLAYER['MAX_SALARY_INCREASE']
             self.wanted_salary = helpers.int_to_money(wanted_salary * random.uniform(min_increase, max_increase))
 
     def renew_contract(self):
         self.salary = self.wanted_salary
-        self.contract = sfm_glob.COMPETITION['TOTAL GAMES'] 
+        self.contract = constants.COMPETITION['TOTAL GAMES'] 
         self.wants_new_contract = False
 
     def calculate_salary(self):
@@ -125,15 +125,15 @@ class Player(object):
 
     def set_weekly_training(self):
         randomness = random.uniform(0.6, 1.5)
-        playing_status_influence = min(sfm_glob.PLAYER_TRAINING['TRAINING_0_MINUTES_PLAYING'] + (1 - sfm_glob.PLAYER_TRAINING['TRAINING_0_MINUTES_PLAYING']) * helpers.normalize(min(self.match_minutes, sfm_glob.PLAYER_TRAINING['MIN_PLAYING_TIME_FOR_FULL_TRAINING']), 0, sfm_glob.PLAYER_TRAINING['MIN_PLAYING_TIME_FOR_FULL_TRAINING']), 1)
+        playing_status_influence = min(constants.PLAYER_TRAINING['TRAINING_0_MINUTES_PLAYING'] + (1 - constants.PLAYER_TRAINING['TRAINING_0_MINUTES_PLAYING']) * helpers.normalize(min(self.match_minutes, constants.PLAYER_TRAINING['MIN_PLAYING_TIME_FOR_FULL_TRAINING']), 0, constants.PLAYER_TRAINING['MIN_PLAYING_TIME_FOR_FULL_TRAINING']), 1)
 
         if self.injury <= 0:
-            if self.age < sfm_glob.PLAYER_TRAINING['STOP AGE']:
-                training_for_age = 1 - helpers.normalize(self.age, sfm_glob.PLAYER['MIN AGE'], sfm_glob.PLAYER_TRAINING['STOP AGE'])
-                training = sfm_glob.PLAYER_TRAINING['MAX'] * training_for_age * playing_status_influence * randomness
-            elif self.age > sfm_glob.PLAYER_TRAINING['DECREASE AGE']:
-                training_for_age = helpers.normalize(self.age, sfm_glob.PLAYER_TRAINING['DECREASE AGE'], sfm_glob.PLAYER['MAX AGE'])
-                training = -sfm_glob.PLAYER_TRAINING['MAX'] * training_for_age * randomness
+            if self.age < constants.PLAYER_TRAINING['STOP AGE']:
+                training_for_age = 1 - helpers.normalize(self.age, constants.PLAYER['MIN AGE'], constants.PLAYER_TRAINING['STOP AGE'])
+                training = constants.PLAYER_TRAINING['MAX'] * training_for_age * playing_status_influence * randomness
+            elif self.age > constants.PLAYER_TRAINING['DECREASE AGE']:
+                training_for_age = helpers.normalize(self.age, constants.PLAYER_TRAINING['DECREASE AGE'], constants.PLAYER['MAX AGE'])
+                training = -constants.PLAYER_TRAINING['MAX'] * training_for_age * randomness
             else:
                 training = 0
         else:
@@ -150,10 +150,10 @@ class Player(object):
         self.age = self.age + 1
 
     def yearly_check_if_will_retire(self):
-        if self.age >= sfm_glob.PLAYER['MAX AGE']:
+        if self.age >= constants.PLAYER['MAX AGE']:
             self.retired = True
             return True
-        elif self.age >= sfm_glob.PLAYER['RETIREMENT AGE']:
+        elif self.age >= constants.PLAYER['RETIREMENT AGE']:
             if random.random() <= 0.5:
                 self.retired = True
                 return True
@@ -185,16 +185,16 @@ class Player(object):
 
     def current_value(self):
         if self.injury <= 0:
-            age01 = helpers.normalize(self.age, sfm_glob.PLAYER['MIN AGE'], sfm_glob.PLAYER['MAX AGE'])
-            skill01 = helpers.normalize(self.skill, 0, sfm_glob.PLAYER['MAX_SKILL'])
+            age01 = helpers.normalize(self.age, constants.PLAYER['MIN AGE'], constants.PLAYER['MAX AGE'])
+            skill01 = helpers.normalize(self.skill, 0, constants.PLAYER['MAX_SKILL'])
 
-            stop_potential_age01 = helpers.normalize(sfm_glob.PLAYER['RETIREMENT AGE'], sfm_glob.PLAYER['MIN AGE'], sfm_glob.PLAYER['MAX AGE'])
-            max_skill_increase01 = sfm_glob.PLAYER_TRAINING['MAXIMUM_SKILL_INCREASE']
+            stop_potential_age01 = helpers.normalize(constants.PLAYER['RETIREMENT AGE'], constants.PLAYER['MIN AGE'], constants.PLAYER['MAX AGE'])
+            max_skill_increase01 = constants.PLAYER_TRAINING['MAXIMUM_SKILL_INCREASE']
             potential_skill01 = (max_skill_increase01 * ((stop_potential_age01) - age01) / stop_potential_age01) * 2
 
-            base = max(skill01 * sfm_glob.PLAYER_VALUE['CURRENT_SKILL_INFLUENCE'] + potential_skill01 * sfm_glob.PLAYER_VALUE['POTENTIAL_SKILL_INFLUENCE'], 0)
+            base = max(skill01 * constants.PLAYER_VALUE['CURRENT_SKILL_INFLUENCE'] + potential_skill01 * constants.PLAYER_VALUE['POTENTIAL_SKILL_INFLUENCE'], 0)
 
-            power = sfm_glob.PLAYER_VALUE['DIFFERENCE_BETWEEN_SKILLS']
+            power = constants.PLAYER_VALUE['DIFFERENCE_BETWEEN_SKILLS']
             value_small = pow(base, power)
             value = helpers.int_to_money(value_small * 1000000)
         else:
@@ -203,7 +203,7 @@ class Player(object):
 
     def match_skill(self):
         if self.injury == 0:
-            stamina_drop = self.match_minutes * max(sfm_glob.PLAYER['AVG AGE'], self.age) * sfm_glob.PLAYER["SKILL_DROP_PER_AGE_PER_MINUTE"] * (1 + 0.025 * (not self.team.human))
+            stamina_drop = self.match_minutes * max(constants.PLAYER['AVG AGE'], self.age) * constants.PLAYER["SKILL_DROP_PER_AGE_PER_MINUTE"] * (1 + 0.025 * (not self.team.human))
             return max(self.skill - stamina_drop, 0)
         return 0
 
@@ -221,10 +221,10 @@ class Player(object):
                 return random.randint(1, 3)
 
         def random_age():
-            age = int(helpers.min_max(random.gauss(sfm_glob.PLAYER['AVG AGE'], sfm_glob.PLAYER['AGE STD DEV']), sfm_glob.PLAYER['MIN AGE'], sfm_glob.PLAYER['MAX AGE']))
+            age = int(helpers.min_max(random.gauss(constants.PLAYER['AVG AGE'], constants.PLAYER['AGE STD DEV']), constants.PLAYER['MIN AGE'], constants.PLAYER['MAX AGE']))
             return age
 
-        self.skill = skill + skill * sfm_glob.PLAYER['HOMEGROWN_BONUS'] * is_homegrown
+        self.skill = skill + skill * constants.PLAYER['HOMEGROWN_BONUS'] * is_homegrown
 
         self.team = team
 

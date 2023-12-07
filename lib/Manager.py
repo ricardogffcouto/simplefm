@@ -1,6 +1,6 @@
 # coding: latin1
 import copy
-import lib.constants as sfm_glob
+import lib.constants as constants
 
 class Manager(object):
     def achievements(self):
@@ -37,18 +37,18 @@ class Manager(object):
     def points(self):
         points = 0
         for year, year_stats in enumerate(self.yearly_stats):
-            div_multi = sfm_glob.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] - year_stats['div_level']
+            div_multi = constants.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] - year_stats['div_level']
             points += year_stats['pts'] * div_multi
             if year_stats['pos'] <= 3:
-                points += sfm_glob.MANAGER['POINTS_PER_TOP_3_POS'] * (4 - year_stats['pos']) * div_multi
+                points += constants.MANAGER['POINTS_PER_TOP_3_POS'] * (4 - year_stats['pos']) * div_multi
             if year_stats['pos'] == 1:
-                points += sfm_glob.MANAGER['POINTS_PER_CHAMPIONSHIP'] * div_multi
+                points += constants.MANAGER['POINTS_PER_CHAMPIONSHIP'] * div_multi
 
         return points
 
 
     def championships(self):
-        championships = [0] * sfm_glob.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS']
+        championships = [0] * constants.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS']
         for year in self.yearly_stats:
             if year['pos'] == 1:
                 championships[year['div_level']] += 1

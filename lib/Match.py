@@ -83,7 +83,7 @@ class Match(object):
         if self.teams[team_id].human:
             tits = [p for p in self.teams[team_id].players if p.playing_status == 0]
             for player in tits:
-                probability = sfm_glob.MATCH['GOAL PROB PER POSITION'][player.position]
+                probability = constants.MATCH['GOAL PROB PER POSITION'][player.position]
                 choices.append((player, probability))
 
             return helpers.weighted_choice(choices)
@@ -132,13 +132,13 @@ class Match(object):
         team_1_skills = self.teams[1].tactical_skill(match = True, minutes = self.minutes)
 
         if not self.is_neutral_field and self.teams[0].human:
-            team_0_skills = [x * sfm_glob.MATCH['HOME_ADVANTAGE'] for x in team_0_skills]
+            team_0_skills = [x * constants.MATCH['HOME_ADVANTAGE'] for x in team_0_skills]
 
         team_0_possession = team_0_skills[1]
         team_1_possession = team_1_skills[1]
 
         # Probability of team 0 having possession
-        team_0_attack_prob = helpers.min_max(helpers.balance(team_0_possession, team_1_possession), 1 - sfm_glob.MATCH['MAX_POSS'], sfm_glob.MATCH['MAX_POSS'])
+        team_0_attack_prob = helpers.min_max(helpers.balance(team_0_possession, team_1_possession), 1 - constants.MATCH['MAX_POSS'], constants.MATCH['MAX_POSS'])
 
         if random.random() <= team_0_attack_prob:
             # attack team 0
@@ -149,21 +149,21 @@ class Match(object):
             possession = 1
             SKILL_BAL = helpers.balance(team_1_skills[2], team_0_skills[0])
         
-        goal_prob = helpers.min_max(SKILL_BAL, sfm_glob.MATCH['MIN_SKILL_BALANCE'], 1) * sfm_glob.MATCH['MAX_GOAL_PROB_PER_POSS']
+        goal_prob = helpers.min_max(SKILL_BAL, constants.MATCH['MIN_SKILL_BALANCE'], 1) * constants.MATCH['MAX_GOAL_PROB_PER_POSS']
 
         if random.random() <= goal_prob:
             self.goal(team_id = possession)
         else:
             for team in self.teams:
                 if team.human:
-                    if random.random() <= sfm_glob.MATCH['INJURY_PROBABILITY_PER_MINUTE'] * (self.minutes / 90):
+                    if random.random() <= constants.MATCH['INJURY_PROBABILITY_PER_MINUTE'] * (self.minutes / 90):
                         self.injured_player_out = self.player_injured(team)
                         if self.injured_player_out is not None:
                             self.injured_player_out.set_injury()                        
 
         if self.teams[0].human:
             tits = [p for p in self.teams[0].players if p.playing_status == 0]
-            if len(tits) < sfm_glob.MATCH['MINIMUM_PLAYERS']:
+            if len(tits) < constants.MATCH['MINIMUM_PLAYERS']:
                 self.score[0] = 0
                 self.score[1] = max(3, self.score[1])
                 self.end()
@@ -171,7 +171,7 @@ class Match(object):
 
         if self.teams[1].human:
             tits = [p for p in self.teams[1].players if p.playing_status == 0]
-            if len(tits) < sfm_glob.MATCH['MINIMUM_PLAYERS']:
+            if len(tits) < constants.MATCH['MINIMUM_PLAYERS']:
                 self.score[1] = 0
                 self.score[0] = max(3, self.score[1])
                 self.end()
@@ -225,9 +225,9 @@ class Match(object):
             tits = [p for p in team.players if p.playing_status == 0]
             for player in tits:
                 if player.position == 0:
-                    probability = sfm_glob.PLAYER['INJURY_PROB_GK']
+                    probability = constants.PLAYER['INJURY_PROB_GK']
                 else:
-                    probability = sfm_glob.PLAYER['INJURY_PROB_NOT_GK']
+                    probability = constants.PLAYER['INJURY_PROB_NOT_GK']
                 choices.append((player, probability))
             return helpers.weighted_choice(choices)
         else:

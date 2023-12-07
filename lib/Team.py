@@ -41,7 +41,7 @@ class Team(object):
 
     # SQUAD INFORMATION
     def are_available_players_outside_of_bench(self):
-        if len([p for p in self.players if p.playing_status == 2 and p.match_available()]) > 0 and len([p for p in self.players if p.playing_status == 1]) < sfm_glob.TEAM['BENCH_PLAYERS']:
+        if len([p for p in self.players if p.playing_status == 2 and p.match_available()]) > 0 and len([p for p in self.players if p.playing_status == 1]) < constants.TEAM['BENCH_PLAYERS']:
             return True
         return False
 
@@ -80,14 +80,14 @@ class Team(object):
                 
                 total_skill[pos] += sum(players_in_position)
 
-                if sum([p.age >= (sfm_glob.PLAYER["RETIREMENT AGE"] - 2) for p in self.players if p.playing_status == 0 and p.position == pos]) > 0:
-                    total_skill[pos] *= sfm_glob.TEAM["EXPERIENCED_PLAYER_BONUS"] 
+                if sum([p.age >= (constants.PLAYER["RETIREMENT AGE"] - 2) for p in self.players if p.playing_status == 0 and p.position == pos]) > 0:
+                    total_skill[pos] *= constants.TEAM["EXPERIENCED_PLAYER_BONUS"] 
 
             else:
                 if pos == 0:
-                    total_skill[pos] = self.avg_skill - minutes * sfm_glob.PLAYER["SKILL_DROP_PER_MINUTE_AI"]
+                    total_skill[pos] = self.avg_skill - minutes * constants.PLAYER["SKILL_DROP_PER_MINUTE_AI"]
                 else:
-                    total_skill[pos] = self.avg_skill * self.current_tactic()[pos - 1] - minutes * sfm_glob.PLAYER["SKILL_DROP_PER_MINUTE_AI"]
+                    total_skill[pos] = self.avg_skill * self.current_tactic()[pos - 1] - minutes * constants.PLAYER["SKILL_DROP_PER_MINUTE_AI"]
 
         return total_skill
 
@@ -107,7 +107,7 @@ class Team(object):
         skill = self.tits_avg_skill(match, minutes)
         tactic = self.current_tactic()
 
-        for pos, position in enumerate(sfm_glob.TEAM['TACTICAL_PENALTIES']):
+        for pos, position in enumerate(constants.TEAM['TACTICAL_PENALTIES']):
             for penalty in position:
                 if getattr(operator, penalty[0])(tactic[pos], penalty[1]):
                     skill[pos + 1] *= penalty[2]
@@ -118,7 +118,7 @@ class Team(object):
             has_goalkeeper = True if len([p for p in self.players if p.position == 0 and p.playing_status == 0]) else False
 
         if has_goalkeeper:
-            skill[1] += skill[0] * sfm_glob.TEAM['GOALKEEPER BONUS']
+            skill[1] += skill[0] * constants.TEAM['GOALKEEPER BONUS']
         else:
             skill[1] *= 0.2
 
@@ -126,7 +126,7 @@ class Team(object):
 
     # MATCH INFORMATION
     def next_match(self, week):
-        if week < sfm_glob.COMPETITION['TOTAL GAMES']:
+        if week < constants.COMPETITION['TOTAL GAMES']:
             for match in self.division.matches[week]:
                 for team in match.teams:
                     if team == self:
@@ -218,7 +218,7 @@ class Team(object):
         if self.has_money_to_buy_player(player):
             if self.has_place_to_buy_player:
                 self.players.append(player)
-                player.contract = sfm_glob.COMPETITION['TOTAL GAMES']
+                player.contract = constants.COMPETITION['TOTAL GAMES']
                 player.playing_status = 2
                 player.team = self
                 self.change_finances('Bought Players', -player.current_value())
@@ -240,7 +240,7 @@ class Team(object):
             return False
 
     def has_place_to_buy_player(self):
-        if len(self.players) < sfm_glob.TEAM['MAX NUMBER OF PLAYERS']:
+        if len(self.players) < constants.TEAM['MAX NUMBER OF PLAYERS']:
             return True
         else:
             return False
@@ -275,19 +275,19 @@ class Team(object):
     def set_transfer_list(self):
         def _player_skill(team_avg_skill, division_avg_skill):
             max_skill_choices = {
-                sfm_glob.PLAYER['MAX_SKILL'] - 4: 5, 
-                sfm_glob.PLAYER['MAX_SKILL'] - 3: 4, 
-                sfm_glob.PLAYER['MAX_SKILL'] - 2: 3, 
-                sfm_glob.PLAYER['MAX_SKILL'] - 1: 2, 
-                sfm_glob.PLAYER['MAX_SKILL']: 1
+                constants.PLAYER['MAX_SKILL'] - 4: 5, 
+                constants.PLAYER['MAX_SKILL'] - 3: 4, 
+                constants.PLAYER['MAX_SKILL'] - 2: 3, 
+                constants.PLAYER['MAX_SKILL'] - 1: 2, 
+                constants.PLAYER['MAX_SKILL']: 1
             }
             max_skill_limit = random.choice([x for x in max_skill_choices for y in range(max_skill_choices[x])])
 
-            min_skill = min(max_skill_limit - sfm_glob.TRANSFERS["SKILL VARIATION ON TRANSFER LIST"], (team_avg_skill + division_avg_skill) * 0.5 - sfm_glob.TRANSFERS["SKILL VARIATION ON TRANSFER LIST"])
-            max_skill = min(max_skill_limit, (team_avg_skill + division_avg_skill) * 0.5 + sfm_glob.TRANSFERS["SKILL VARIATION ON TRANSFER LIST"])
+            min_skill = min(max_skill_limit - constants.TRANSFERS["SKILL VARIATION ON TRANSFER LIST"], (team_avg_skill + division_avg_skill) * 0.5 - constants.TRANSFERS["SKILL VARIATION ON TRANSFER LIST"])
+            max_skill = min(max_skill_limit, (team_avg_skill + division_avg_skill) * 0.5 + constants.TRANSFERS["SKILL VARIATION ON TRANSFER LIST"])
 
             skill_temp = random.uniform(min_skill, max_skill)
-            skill = int(round(helpers.min_max(skill_temp, sfm_glob.PLAYER['MIN_SKILL'], sfm_glob.PLAYER['MAX_SKILL']), 0))
+            skill = int(round(helpers.min_max(skill_temp, constants.PLAYER['MIN_SKILL'], constants.PLAYER['MAX_SKILL']), 0))
 
             return skill
 
@@ -305,13 +305,13 @@ class Team(object):
 
         player_list = []
 
-        amount_of_players_in_transfer_list = sfm_glob.TRANSFERS['AVERAGE PLAYERS PER TURN'] + random.randint(-sfm_glob.TRANSFERS['VARIATION OF AMOUNT OF PLAYERS PER TURN'], sfm_glob.TRANSFERS['VARIATION OF AMOUNT OF PLAYERS PER TURN'])
+        amount_of_players_in_transfer_list = constants.TRANSFERS['AVERAGE PLAYERS PER TURN'] + random.randint(-constants.TRANSFERS['VARIATION OF AMOUNT OF PLAYERS PER TURN'], constants.TRANSFERS['VARIATION OF AMOUNT OF PLAYERS PER TURN'])
 
         for p in range(amount_of_players_in_transfer_list):
             player = Player(country = _player_country(), skill = _player_skill(self.average_skill(), self.division.average_skill()))
-            player.salary *= sfm_glob.PLAYER['TRANSFER_LIST_SALARY_INCREASE']
+            player.salary *= constants.PLAYER['TRANSFER_LIST_SALARY_INCREASE']
 
-            while player.skill >= sfm_glob.PLAYER["MIN_SKILL"]:
+            while player.skill >= constants.PLAYER["MIN_SKILL"]:
                 if player.current_value() <= money_available:
                     player_list.append(player)
                     break
@@ -343,7 +343,7 @@ class Team(object):
                 player.contract -= 1
 
         def _player_asking_for_new_contract():
-            if random.random() <= sfm_glob.PLAYER['WEEKLY_PROBABILITY_OF_ASKING_FOR_NEW_CONTRACT']:
+            if random.random() <= constants.PLAYER['WEEKLY_PROBABILITY_OF_ASKING_FOR_NEW_CONTRACT']:
                 player_list = [p for p in self.players if p.contract <= 0 and not p.injured()]
                 if len(player_list):
                     player = random.choice(player_list)
@@ -353,7 +353,7 @@ class Team(object):
                     self.weekly_news.news.append(News('New contract', player.name))
 
         def _player_tired():
-            if random.random() <= sfm_glob.PLAYER['WEEKLY_PROBABILITY_OF_TIREDNESS']:
+            if random.random() <= constants.PLAYER['WEEKLY_PROBABILITY_OF_TIREDNESS']:
                 player_list = [p for p in self.players if not p.injured() and not p.wants_new_contract and p.match_minutes >= 75]
                 if len(player_list):
                     player = random.choice(player_list)
@@ -405,7 +405,7 @@ class Team(object):
         self.set_playing_tactic()
 
     def min_pos_per_season_points_per_week(self):
-        diff = sfm_glob.TEAM_GOALS['MAX_POINTS_PER_WEEK'] - sfm_glob.TEAM_GOALS['MIN_POINTS_PER_WEEK']
+        diff = constants.TEAM_GOALS['MAX_POINTS_PER_WEEK'] - constants.TEAM_GOALS['MIN_POINTS_PER_WEEK']
         pos = [
             13, 11, 9, 6, 3, 1
         ]
@@ -413,7 +413,7 @@ class Team(object):
         points = self.season_points_per_week
 
         for i in range(len(pos)):
-            if points <= sfm_glob.TEAM_GOALS['MIN_POINTS_PER_WEEK'] + (i + 1) * step:
+            if points <= constants.TEAM_GOALS['MIN_POINTS_PER_WEEK'] + (i + 1) * step:
                 return pos[i]
         return 1
 
@@ -425,11 +425,11 @@ class Team(object):
 
     def start_of_season(self):
         def _promote_player_from_youth_team():
-            min_skill = self.average_skill() - int(self.average_skill() / 5.0) - sfm_glob.PLAYER['SKILL_DROP_FROM_BEING_YOUTH_PLAYER']
+            min_skill = self.average_skill() - int(self.average_skill() / 5.0) - constants.PLAYER['SKILL_DROP_FROM_BEING_YOUTH_PLAYER']
             max_skill = self.average_skill() - int(self.average_skill() / 5.0)
-            skill = helpers.min_max(random.uniform(min_skill, max_skill), sfm_glob.PLAYER['MIN_SKILL'], sfm_glob.PLAYER['MAX_YOUTH_PLAYER_SKILL'])
+            skill = helpers.min_max(random.uniform(min_skill, max_skill), constants.PLAYER['MIN_SKILL'], constants.PLAYER['MAX_YOUTH_PLAYER_SKILL'])
             skill = int(round(skill, 0))
-            player = Player(country = self.country, skill = skill, age = random.choice([18, 19]), team = self, is_homegrown=True, contract=sfm_glob.COMPETITION['TOTAL GAMES'])
+            player = Player(country = self.country, skill = skill, age = random.choice([18, 19]), team = self, is_homegrown=True, contract=constants.COMPETITION['TOTAL GAMES'])
             self.weekly_news.news.append(News('Juniors', player.name))
             self.players.append(player)
 
@@ -445,16 +445,16 @@ class Team(object):
         _remove_retired_players()
 
         if not self.human:
-            self.tactic = random.choice(2 * sfm_glob.TEAM['BASE TACTICS'] + sfm_glob.TEAM['DEF TACTICS'] + sfm_glob.TEAM['ATK TACTICS'])
+            self.tactic = random.choice(2 * constants.TEAM['BASE TACTICS'] + constants.TEAM['DEF TACTICS'] + constants.TEAM['ATK TACTICS'])
         else:
             for player in self.players:
                 player.start_of_season()
 
             amount = int(round(random.uniform(
-                sfm_glob.TEAM['AVG_YOUTH_PLAYERS_PROMOTED_PER_YEAR'] - 1, sfm_glob.TEAM['AVG_YOUTH_PLAYERS_PROMOTED_PER_YEAR'] + 1
+                constants.TEAM['AVG_YOUTH_PLAYERS_PROMOTED_PER_YEAR'] - 1, constants.TEAM['AVG_YOUTH_PLAYERS_PROMOTED_PER_YEAR'] + 1
             ), 0))
 
-            places_left_in_team = sfm_glob.TEAM['MAX NUMBER OF PLAYERS'] - len(self.players)
+            places_left_in_team = constants.TEAM['MAX NUMBER OF PLAYERS'] - len(self.players)
 
             for juniors in range(min(places_left_in_team, amount)):
                 _promote_player_from_youth_team()
@@ -481,9 +481,9 @@ class Team(object):
     # LEAGUE STATS INFORMATION
     def end_of_season_promoted_or_demoted(self):
         pos = self.division.team_position(self)
-        if pos <= sfm_glob.COMPETITION['PROMOTED AND DEMOTED']:
+        if pos <= constants.COMPETITION['PROMOTED AND DEMOTED']:
             return 0
-        elif pos > len(self.division.teams) - sfm_glob.COMPETITION['PROMOTED AND DEMOTED']:
+        elif pos > len(self.division.teams) - constants.COMPETITION['PROMOTED AND DEMOTED']:
             return 2
         else:
             return 1
@@ -542,7 +542,7 @@ class Team(object):
         return total
 
     def list_of_allowed_tactics(self):
-        all_tactics = sfm_glob.TEAM['ATK TACTICS'] + sfm_glob.TEAM['BASE TACTICS'] + sfm_glob.TEAM['DEF TACTICS']
+        all_tactics = constants.TEAM['ATK TACTICS'] + constants.TEAM['BASE TACTICS'] + constants.TEAM['DEF TACTICS']
         allowed_tactics = []
         for tac in all_tactics:
             if self.allowed_tactic(tac):
@@ -610,7 +610,7 @@ class Team(object):
         for player in self.players:
             if player not in starting_players:
                 player.playing_status = 2
-                if player.match_available() and len(bench_players) < sfm_glob.TEAM["BENCH_PLAYERS"] and not player in bench_players:
+                if player.match_available() and len(bench_players) < constants.TEAM["BENCH_PLAYERS"] and not player in bench_players:
                     bench_players.append(player)
 
         for player in bench_players:
@@ -619,9 +619,9 @@ class Team(object):
         return True
 
     def fan_happiness_change_with_result(self, points):
-        multi = sfm_glob.TEAM_GOALS['POINT_PER_WEEK_DIFF_HAPPINESS_MULTI']
+        multi = constants.TEAM_GOALS['POINT_PER_WEEK_DIFF_HAPPINESS_MULTI']
         change = multi * (points - self.season_points_per_week)
-        self.fan_happiness = helpers.min_max(self.fan_happiness + change, sfm_glob.TEAM_GOALS["MIN_FAN_HAPPINESS"], sfm_glob.TEAM_GOALS["MAX_FAN_HAPPINESS"])
+        self.fan_happiness = helpers.min_max(self.fan_happiness + change, constants.TEAM_GOALS["MIN_FAN_HAPPINESS"], constants.TEAM_GOALS["MAX_FAN_HAPPINESS"])
         self.weekly_news.news.append(News('Fans', change))
 
     def __init__(self, name, country, color, manager = None, division = None, tactic = None, avg_skill = None, players = None, human = False, league_stats = None, players_to_buy = None, weekly_finances = None, yearly_finances = None, money = None, weekly_sponsorship = 0, fan_happiness = None, season_points_per_week = None, weekly_news = None):
@@ -635,7 +635,7 @@ class Team(object):
         self.manager = manager
 
         if tactic is None:
-            tactic = random.choice(2 * sfm_glob.TEAM['BASE TACTICS'] + sfm_glob.TEAM['DEF TACTICS'] + sfm_glob.TEAM['ATK TACTICS'])
+            tactic = random.choice(2 * constants.TEAM['BASE TACTICS'] + constants.TEAM['DEF TACTICS'] + constants.TEAM['ATK TACTICS'])
         self.tactic = tactic
 
         self.avg_skill = avg_skill
@@ -673,7 +673,7 @@ class Team(object):
         self.weekly_sponsorship = weekly_sponsorship
 
         if fan_happiness is None:
-            fan_happiness = (sfm_glob.TEAM_GOALS["MAX_FAN_HAPPINESS"] - sfm_glob.TEAM_GOALS["MIN_FAN_HAPPINESS"]) / 2.0
+            fan_happiness = (constants.TEAM_GOALS["MAX_FAN_HAPPINESS"] - constants.TEAM_GOALS["MIN_FAN_HAPPINESS"]) / 2.0
         self.fan_happiness = fan_happiness
 
         self.season_points_per_week = season_points_per_week

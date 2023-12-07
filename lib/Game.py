@@ -12,33 +12,33 @@ from .Manager import Manager
 
 class Game(object):
     def team_skill_per_division(self, division_id, team_id):
-        total_teams = sfm_glob.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] * sfm_glob.COMPETITION['TEAMS PER DIVISION']
-        step = (sfm_glob.TEAM['MAX_SKILL'] - sfm_glob.TEAM['MIN_DIV_SKILL']) / float(total_teams)
-        team_id_total = (division_id - 1) * sfm_glob.COMPETITION['TEAMS PER DIVISION'] + (team_id - 1)
-        return sfm_glob.TEAM['MAX_SKILL'] - team_id_total * step
+        total_teams = constants.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] * constants.COMPETITION['TEAMS PER DIVISION']
+        step = (constants.TEAM['MAX_SKILL'] - constants.TEAM['MIN_DIV_SKILL']) / float(total_teams)
+        team_id_total = (division_id - 1) * constants.COMPETITION['TEAMS PER DIVISION'] + (team_id - 1)
+        return constants.TEAM['MAX_SKILL'] - team_id_total * step
 
     # START OF GAME
     def start(self, human_team = None, manager = None):
         all_teams = db.TEAMS
         if human_team:
             if human_team['prev_div'] and human_team['prev_pos']:
-                human_team_index = (human_team['prev_div'] - 1) * sfm_glob.COMPETITION['TEAMS PER DIVISION'] + human_team['prev_pos'] - 1
+                human_team_index = (human_team['prev_div'] - 1) * constants.COMPETITION['TEAMS PER DIVISION'] + human_team['prev_pos'] - 1
                 all_teams.insert(human_team_index, human_team)
 
         # Create all teams
-        for division_id in range(sfm_glob.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] + 1):
+        for division_id in range(constants.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] + 1):
             # Create division and put teams in the division
             new_division = Division(name = "League " + str(division_id + 1), level = division_id)
-            teams_in_division = sfm_glob.COMPETITION['TEAMS PER DIVISION']
-            if division_id == sfm_glob.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS']:
-                teams_in_division = sfm_glob.COMPETITION['EXTRA_TEAMS']
+            teams_in_division = constants.COMPETITION['TEAMS PER DIVISION']
+            if division_id == constants.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS']:
+                teams_in_division = constants.COMPETITION['EXTRA_TEAMS']
                 new_division = Division(name = "Extra Teams", level = division_id, playable= False)
 
             teams = []
             for team_id in range(teams_in_division):
-                name = all_teams[division_id * sfm_glob.COMPETITION['TEAMS PER DIVISION'] + team_id]['name']
-                country = db.TEAMS[division_id * sfm_glob.COMPETITION['TEAMS PER DIVISION'] + team_id]['country']
-                color = db.TEAMS[division_id * sfm_glob.COMPETITION['TEAMS PER DIVISION'] + team_id]['color']
+                name = all_teams[division_id * constants.COMPETITION['TEAMS PER DIVISION'] + team_id]['name']
+                country = db.TEAMS[division_id * constants.COMPETITION['TEAMS PER DIVISION'] + team_id]['country']
+                color = db.TEAMS[division_id * constants.COMPETITION['TEAMS PER DIVISION'] + team_id]['color']
                 team = Team(name = name, country = country, color = color, avg_skill = self.team_skill_per_division(division_id + 1, team_id + 1), division = new_division)
                 teams.append(team)
 
@@ -63,7 +63,7 @@ class Game(object):
     # HUMAN TEAM
     def create_human_team(self, human_team, prev_div, prev_pos, manager):
         human_team.human = True
-        positions = sfm_glob.TEAM["STARTING_AMOUNT_OF_PLAYERS_PER_POS"]
+        positions = constants.TEAM["STARTING_AMOUNT_OF_PLAYERS_PER_POS"]
         positions[random.randint(1, 2)] -= 1
 
         # Create players for human team
@@ -97,7 +97,7 @@ class Game(object):
         self.managers.append(human_manager)
 
     def _create_ai_team(self, team, prev_div, prev_pos):
-        positions = sfm_glob.TEAM["STARTING_AMOUNT_OF_PLAYERS_PER_POS"]
+        positions = constants.TEAM["STARTING_AMOUNT_OF_PLAYERS_PER_POS"]
         team.players = []
 
         # Create players for human team
@@ -129,7 +129,7 @@ class Game(object):
 
     # END OF SEASON
     def is_season_over(self):
-        if self.week >= sfm_glob.COMPETITION['TOTAL GAMES']:
+        if self.week >= constants.COMPETITION['TOTAL GAMES']:
             return True
         return False
 
@@ -141,10 +141,10 @@ class Game(object):
             if div.playable:
                 div.order_table_by_position()
 
-                promoted[div.level] = div.teams[:sfm_glob.COMPETITION['PROMOTED AND DEMOTED']]
-                demoted[div.level] = div.teams[-sfm_glob.COMPETITION['PROMOTED AND DEMOTED']:]
+                promoted[div.level] = div.teams[:constants.COMPETITION['PROMOTED AND DEMOTED']]
+                demoted[div.level] = div.teams[-constants.COMPETITION['PROMOTED AND DEMOTED']:]
             else:
-                promoted[div.level] = self.divisions[-1].teams[:sfm_glob.COMPETITION['PROMOTED AND DEMOTED']]
+                promoted[div.level] = self.divisions[-1].teams[:constants.COMPETITION['PROMOTED AND DEMOTED']]
 
         return (promoted, demoted)
 
@@ -155,9 +155,9 @@ class Game(object):
             for div in self.divisions:
                 div.order_table_by_position()
                 if div.level != self.divisions[-1].level:
-                    div.teams = div.teams[:-sfm_glob.COMPETITION['PROMOTED AND DEMOTED']][sfm_glob.COMPETITION['PROMOTED AND DEMOTED']:]
+                    div.teams = div.teams[:-constants.COMPETITION['PROMOTED AND DEMOTED']][constants.COMPETITION['PROMOTED AND DEMOTED']:]
                 else:
-                    div.teams = div.teams[sfm_glob.COMPETITION['PROMOTED AND DEMOTED']:]
+                    div.teams = div.teams[constants.COMPETITION['PROMOTED AND DEMOTED']:]
 
             for div in self.divisions:
                 if div.level == 0:
@@ -198,8 +198,8 @@ class Game(object):
     # WEEKLY
     def next_week(self):
         def _is_game_over():
-            if human_team.fan_happiness < sfm_glob.TEAM_GOALS['MIN_FAN_HAPPINESS_FOR_FIRING']:
-                prob = 1 - helpers.value01(sfm_glob.TEAM_GOALS['MIN_FAN_HAPPINESS_FOR_FIRING'], sfm_glob.TEAM_GOALS["MIN_FAN_HAPPINESS"], sfm_glob.TEAM_GOALS["MAX_FAN_HAPPINESS"])
+            if human_team.fan_happiness < constants.TEAM_GOALS['MIN_FAN_HAPPINESS_FOR_FIRING']:
+                prob = 1 - helpers.value01(constants.TEAM_GOALS['MIN_FAN_HAPPINESS_FOR_FIRING'], constants.TEAM_GOALS["MIN_FAN_HAPPINESS"], constants.TEAM_GOALS["MAX_FAN_HAPPINESS"])
                 if random.uniform(0, 1) <= prob:
                     return True
                 return False
@@ -227,7 +227,7 @@ class Game(object):
 
     # INFORMATION
     def year(self):
-        return sfm_glob.GAME['STARTING YEAR'] + self.season - 1
+        return constants.GAME['STARTING YEAR'] + self.season - 1
 
     def __init__(self, name = None, week = None, season = None, divisions = None, human_teams = None, managers = None, career = None, last_screen = None, ended = False):
         self.name = name

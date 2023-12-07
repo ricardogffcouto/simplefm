@@ -100,13 +100,13 @@ class NewGameScreen(Screen):
         self.manager.current = APP.GAME.last_screen
 
     def on_pre_enter(self):
-        allowed_teams = lib.sfm_glob.COMPETITION['TEAMS PER DIVISION'] * lib.sfm_glob.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS']
+        allowed_teams = lib.constants.COMPETITION['TEAMS PER DIVISION'] * lib.constants.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS']
         self.ids['teams'].values = ['Create new team'] + [team['name'] for team in lib.db.TEAMS][:allowed_teams]
 
-        self.ids['new_team_prev_div'].values = [str(d) for d in range(1, lib.sfm_glob.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] + 1)]
+        self.ids['new_team_prev_div'].values = [str(d) for d in range(1, lib.constants.COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] + 1)]
         self.ids['new_team_prev_div'].text = self.ids['new_team_prev_div'].values[0]
 
-        self.ids['new_team_prev_pos'].values = [str(p) for p in range(1, lib.sfm_glob.COMPETITION['TEAMS PER DIVISION'] + 1)]
+        self.ids['new_team_prev_pos'].values = [str(p) for p in range(1, lib.constants.COMPETITION['TEAMS PER DIVISION'] + 1)]
         self.ids['new_team_prev_pos'].text = self.ids['new_team_prev_pos'].values[0]
 
         self.ids['new_team_color'].values = sorted([c['name'] for c in lib.db.COLORS])
