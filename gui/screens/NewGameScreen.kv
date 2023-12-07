@@ -1,4 +1,5 @@
 #:import help gui.helpers
+#:import constants gui.constants
 <NameTextInput>:
     multiline: False
     padding: [20, (self.height-self.line_height)/2.0]
@@ -13,77 +14,77 @@
         orientation: 'vertical'
         spacing: 1
         MainHeader:
-            text: "New Game"
+            text: constants.NEW_GAME
             size_hint_y: 0.1
         BoxLayout:
             size_hint_y: 0.1
             LightHeader:
                 size_hint_x: 0.25
-                text: "Game name"
+                text: constants.GAME_NAME
             NameTextInput:
                 size_hint_x: 0.75
-                hint_text: "Max 16 char, only letters and numbers"
-                id: game_name
+                hint_text: constants.MAX_CHAR_HINT
+                id: constants.IdNames.GAME_NAME.value
         BoxLayout:
             size_hint_y: 0.1
             LightHeader:
                 size_hint_x: 0.25
-                text: "Manager name"
+                text: constants.MANAGER_NAME
             NameTextInput:
                 size_hint_x: 0.75
-                hint_text: "Max 16 char, only letters and numbers"
-                id: manager_name
+                hint_text: constants.MAX_CHAR_HINT
+                id: constants.IdNames.MANAGER_NAME.value
         BoxLayout:
             size_hint_y: 0.1
             LightHeader:
                 size_hint_x: 0.25
-                text: "Team"
+                text: constants.TEAM
             Spinner:
                 size_hint_x: 0.75
-                id: teams
+                id: constants.IdNames.TEAMS.value
                 on_text: root.show_hide_create_new_team()
         BoxLayout:
             orientation: 'vertical'
-            id: new_team
+            id: constants.IdNames.NEW_TEAM.value
             size_hint_y: 0.4
             spacing: 1
             BoxLayout:
                 LightHeader:
-                    text: "Name"
+                    text: constants.NAME
                     size_hint_x: 0.25
                 NameTextInput:
                     hint_text: "Max 16 char, only letters and numbers"
-                    id: new_team_name
+                    id: constants.IdNames.NEW_TEAM_NAME.value
                     size_hint_x: 0.75
             BoxLayout:
                 LightHeader:
-                    text: "Color"
+                    text: constants.COLOR
                     size_hint_x: 0.25
                 Spinner:
-                    id: new_team_color
+                    id: constants.IdNames.NEW_TEAM_COLOR.value
                     on_text: self.background_color = help.color(self.text)
                     size_hint_x: 0.75
             BoxLayout:
                 LightHeader:
-                    text: "Country"
+                    text: constants.COUNTRY
                     size_hint_x: 0.25
                 Spinner:
-                    id: new_team_country
+                    id: constants.IdNames.NEW_TEAM_COUNTRY.value
                     size_hint_x: 0.75
             LightHeader:
-                text: "Division and position"
+                text: constants.DIVISION_AND_POSITION
             BoxLayout:
                 LightHeader:
-                    text: "Div"
+                    text: constants.DIV
                 Spinner:
-                    id: new_team_prev_div
+                    id: constants.IdNames.NEW_TEAM_PREV_DIV.value
                 LightHeader:
-                    text: "Pos"
+                    text: constants.POS
                 Spinner:
-                    id: new_team_prev_pos
+                    id: constants.IdNames.NEW_TEAM_PREV_POS.value
         Label:
             size_hint_y: 0.1
-            id: spacing
+            id: constants.IdNames.SPACING.value
         BoxLayout:
             size_hint_y: 0.1
             spacing: 10
@@ -91,6 +92,7 @@
                 on_release: root.manager.current = 'StartScreen'
                 size_hint_x: 0.25
             OKButton:
-                label_text: "Create Game"
+                label_text: constants.CREATE_GAME
                 on_release: root.can_start_new_game()
                 size_hint_x: 0.75
+
