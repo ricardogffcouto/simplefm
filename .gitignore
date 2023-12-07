@@ -2,3 +2,4 @@ bin/
 .buildozer/
 .tests
 Pipfile.lock
+.idea/
