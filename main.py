@@ -1,6 +1,8 @@
 #!/usr/bin/python
 #encoding: utf-8
+import sentry_sdk
 
+from exception import ExceptionHandler
 from gui.screens.StartScreen import StartScreen
 from gui.screens.LoadGameScreen import LoadGameScreen
 from gui.screens.NewGameScreen import NewGameScreen
@@ -23,6 +25,14 @@ from kivy.lang import Builder
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 import gui.helpers
+
+
+sentry_sdk.init(
+    dsn="https://69cadfb96e9246c4c7f7c3f2eab435a7@o4507873117995008.ingest.de.sentry.io/4507873126318160",
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+)
+
 
 
 class SimpleFMScreenManager(ScreenManager):
@@ -160,4 +170,8 @@ class SimpleFMApp(App):
 
 
 if __name__ == "__main__":
-    SimpleFMApp().run()
+    try:
+        SimpleFMApp().run()
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        ExceptionHandler().run()
