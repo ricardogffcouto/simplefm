@@ -1,6 +1,3 @@
-#!/usr/bin/python
-#encoding: utf-8
-
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
@@ -116,4 +113,9 @@ class NewGameScreen(Screen):
         self.ids['new_team_country'].text = self.ids['new_team_country'].values[0]
 
         self.show_hide_create_new_team()
+
+        diad_output = [data["result"] for data in self.record.data]
+        for location_index, output in enumerate(diad_output):
+            for diad_data in output:
+                diad_data |= self.record_locations[location_index].service_location_output
 
