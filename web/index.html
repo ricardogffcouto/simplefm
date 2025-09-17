@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SimpleFM Web Edition</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <div id="loading" class="view">
+        <div class="loading-card">
+          <h1>SimpleFM</h1>
+          <p>Booting the match engine…</p>
+          <div class="loader"></div>
+        </div>
+      </div>
+
+      <div id="start-view" class="view hidden">
+        <div class="hero">
+          <h1>SimpleFM</h1>
+          <p>Manage your dream club anywhere. Built for touch, tuned for drama.</p>
+        </div>
+        <div class="cta-buttons">
+          <button id="btn-start-new" class="primary">Start new career</button>
+          <button id="btn-load" class="secondary">Continue saved game</button>
+        </div>
+      </div>
+
+      <div id="new-game-view" class="view hidden">
+        <header class="view-header">
+          <button class="ghost" id="back-to-start">← Back</button>
+          <h2>New career</h2>
+        </header>
+        <form id="new-game-form" class="card">
+          <label>
+            <span>Career name</span>
+            <input type="text" name="game_name" required maxlength="20" />
+          </label>
+          <label>
+            <span>Manager name</span>
+            <input type="text" name="manager_name" required maxlength="20" />
+          </label>
+          <label>
+            <span>Pick your club</span>
+            <select name="team" id="team-select"></select>
+          </label>
+          <div id="new-team-fields" class="collapse">
+            <label>
+              <span>Club name</span>
+              <input type="text" name="new_team_name" maxlength="20" />
+            </label>
+            <label>
+              <span>Last division</span>
+              <select name="new_team_prev_div" id="new-team-division"></select>
+            </label>
+            <label>
+              <span>Last position</span>
+              <select name="new_team_prev_pos" id="new-team-position"></select>
+            </label>
+            <label>
+              <span>Primary color</span>
+              <select name="new_team_color" id="new-team-color"></select>
+            </label>
+            <label>
+              <span>Country</span>
+              <select name="new_team_country" id="new-team-country"></select>
+            </label>
+          </div>
+          <button type="submit" class="primary full">Launch career</button>
+        </form>
+      </div>
+
+      <div id="load-game-view" class="view hidden">
+        <header class="view-header">
+          <button class="ghost" id="back-to-start-from-load">← Back</button>
+          <h2>Saved careers</h2>
+        </header>
+        <section id="saved-games" class="card-list"></section>
+        <p id="no-saves" class="empty hidden">No saved games yet.</p>
+      </div>
+
+      <div id="game-view" class="view hidden">
+        <header id="top-bar">
+          <div class="club-badge" id="club-badge">SF</div>
+          <div class="club-meta">
+            <h1 id="club-name">Club</h1>
+            <p id="club-details"></p>
+          </div>
+          <div class="header-actions">
+            <button id="save-game" class="icon-button" title="Save game">💾</button>
+            <button id="open-manager" class="icon-button" title="Manager profile">🧑‍💼</button>
+          </div>
+        </header>
+        <main id="content"></main>
+        <nav id="bottom-nav"></nav>
+      </div>
+
+      <div id="modal-container"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
