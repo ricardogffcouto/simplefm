@@ -80,7 +80,9 @@ export function strToTactic(tactic: string): number[] | 'Top skill' {
   return 'Top skill';
 }
 
-export function trainingToStr(training: number): string {
+export type TrainingDelta = '++' | '+' | '-' | '--' | '';
+
+export function trainingToStr(training: number): TrainingDelta {
   if (training >= 0.03) {
     return '++';
   }
@@ -104,7 +106,7 @@ export function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export function randomChoice<T>(items: T[]): T {
+export function randomChoice<T>(items: readonly T[]): T {
   return items[Math.floor(Math.random() * items.length)];
 }
 

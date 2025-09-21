@@ -64,7 +64,9 @@ export class Team {
     this.manager = options.manager ?? null;
     this.division = options.division ?? null;
     this.tactic =
-      options.tactic ?? randomChoice([...TEAM['BASE TACTICS'], ...TEAM['DEF TACTICS'], ...TEAM['ATK TACTICS']]);
+      options.tactic ?? [
+        ...randomChoice([...TEAM['BASE TACTICS'], ...TEAM['DEF TACTICS'], ...TEAM['ATK TACTICS']])
+      ];
     this.avgSkill = options.avgSkill ?? TEAM['MIN_SKILL'];
     this.players = options.players ?? [];
     this.human = options.human ?? false;
@@ -541,12 +543,14 @@ export class Team {
     removeRetiredPlayers();
 
     if (!this.human) {
-      this.tactic = randomChoice([
-        ...TEAM['BASE TACTICS'],
-        ...TEAM['BASE TACTICS'],
-        ...TEAM['DEF TACTICS'],
-        ...TEAM['ATK TACTICS']
-      ]);
+      this.tactic = [
+        ...randomChoice([
+          ...TEAM['BASE TACTICS'],
+          ...TEAM['BASE TACTICS'],
+          ...TEAM['DEF TACTICS'],
+          ...TEAM['ATK TACTICS']
+        ])
+      ];
     } else {
       this.players.forEach((player) => player.startOfSeason());
       const amount = Math.round(
@@ -658,7 +662,11 @@ export class Team {
   }
 
   listOfAllowedTactics(): number[][] {
-    const allTactics = [...TEAM['ATK TACTICS'], ...TEAM['BASE TACTICS'], ...TEAM['DEF TACTICS']];
+    const allTactics = [
+      ...TEAM['ATK TACTICS'],
+      ...TEAM['BASE TACTICS'],
+      ...TEAM['DEF TACTICS']
+    ].map((tactic) => [...tactic]);
     return allTactics.filter((tactic) => this.allowedTactic(tactic));
   }
 
