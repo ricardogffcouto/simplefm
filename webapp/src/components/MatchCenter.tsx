@@ -131,7 +131,7 @@ export function MatchCenter({
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={handleStart}
-                disabled={!nextMatch || (liveMatch && !liveMatch.finished)}
+                disabled={!nextMatch || (!!liveMatch && !liveMatch.finished)}
                 className="rounded-full bg-accent/90 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-midnight transition disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/40"
               >
                 Start live match
@@ -246,7 +246,7 @@ export function MatchCenter({
               {timeline.length === 0 && <p>No notable events yet.</p>}
               {timeline.map((event, index) => (
                 <div key={`${event.type}-${event.minute}-${index}`} className="rounded-xl bg-white/5 px-3 py-2 text-white/80">
-                  <span className="font-semibold text-accent">{event.minute}' · {event.team}</span> — {event.description}
+                  <span className="font-semibold text-accent">{event.minute}&apos; · {event.team}</span> — {event.description}
                 </div>
               ))}
             </div>

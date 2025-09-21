@@ -306,7 +306,7 @@ export function GameDashboard({
               <h3 className="text-sm font-semibold text-accent">Long term outlook</h3>
               <p className="mt-2">
                 Keep your supporters engaged by averaging at least {humanTeam.seasonPointsPerWeek.toFixed(2)} points per week.
-                Avoid slipping below position {humanTeam.minPosPerSeasonPointsPerWeek()} to stay aligned with the board's plan.
+                Avoid slipping below position {humanTeam.minPosPerSeasonPointsPerWeek()} to stay aligned with the board&apos;s plan.
               </p>
             </div>
           </div>
