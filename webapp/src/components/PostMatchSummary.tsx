@@ -8,6 +8,7 @@ interface Props {
 }
 
 const trainingColors: Record<PostMatchSummary['training'][number]['label'], string> = {
+  '': 'text-subtle',
   '++': 'text-emerald-300',
   '+': 'text-emerald-200',
   '-': 'text-amber-200',

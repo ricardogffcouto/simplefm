@@ -73,19 +73,19 @@ export function createPostMatchSummary({
     : [];
 
   const training: TrainingHighlight[] = team.players
-    .map((player) => {
+    .reduce<TrainingHighlight[]>((acc, player) => {
       const label = trainingToStr(player.weeklyTraining);
       if (label === '') {
-        return null;
+        return acc;
       }
-      return {
+      acc.push({
         player: player.name,
         position: player.posToStr(),
         label,
         amount: Number(player.weeklyTraining.toFixed(3))
-      };
-    })
-    .filter((entry): entry is TrainingHighlight => entry !== null)
+      });
+      return acc;
+    }, [])
     .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount))
     .slice(0, 6);
 
