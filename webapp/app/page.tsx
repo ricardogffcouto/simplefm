@@ -14,11 +14,27 @@ export default function HomePage() {
     playCurrentMatch,
     advanceWeekWithoutMatch,
     currentMatch,
-    rosterByPosition,
     leagueTable,
     selectedTab,
     setSelectedTab,
-    weekNews
+    weekNews,
+    allowedTactics,
+    currentTactic,
+    setHumanTactic,
+    swapPlayerStatuses,
+    liveMatch,
+    isMatchLive,
+    matchTimeline,
+    autoPlaying,
+    startLiveMatch,
+    playLiveMinute,
+    toggleAutoPlay,
+    finishLiveMatch,
+    makeMatchSubstitution,
+    refreshTransferTargets,
+    buyPlayer,
+    sellPlayer,
+    renewContract
   } = useGameEngine();
 
   return (
@@ -49,13 +65,29 @@ export default function HomePage() {
           game={game}
           humanTeam={humanTeam}
           currentMatch={currentMatch}
-          rosterByPosition={rosterByPosition}
           leagueTable={leagueTable}
           weekNews={weekNews}
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
           onPlayMatch={playCurrentMatch}
           onSimulateWeek={advanceWeekWithoutMatch}
+          allowedTactics={allowedTactics}
+          currentTactic={currentTactic}
+          onSetTactic={setHumanTactic}
+          onSwapPlayers={swapPlayerStatuses}
+          liveMatch={liveMatch}
+          isMatchLive={isMatchLive}
+          matchTimeline={matchTimeline}
+          autoPlaying={autoPlaying}
+          onStartLiveMatch={startLiveMatch}
+          onPlayMinute={playLiveMinute}
+          onToggleAutoPlay={toggleAutoPlay}
+          onFinishLiveMatch={finishLiveMatch}
+          onMakeSubstitution={makeMatchSubstitution}
+          onRefreshTransferList={refreshTransferTargets}
+          onBuyPlayer={buyPlayer}
+          onSellPlayer={sellPlayer}
+          onRenewContract={renewContract}
         />
       )}
 
