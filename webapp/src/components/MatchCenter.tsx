@@ -55,8 +55,9 @@ export function MatchCenter({
   const nextOpponent = useMemo(() => team.nextOpponent(game.week), [team, game.week]);
 
   const matchInProgress = liveMatch && !liveMatch.finished;
+  const activeMatch = liveMatch ?? lastMatch;
 
-  const possession = liveMatch ? liveMatch.ballPossession() : [50, 50];
+  const possession = activeMatch ? activeMatch.ballPossession() : [50, 50];
 
   const starters = team.players
     .filter((player) => player.playingStatus === 0)
@@ -64,6 +65,21 @@ export function MatchCenter({
   const bench = team.players
     .filter((player) => player.playingStatus === 1)
     .sort((a, b) => b.skill - a.skill);
+
+  const renderedTimeline: MatchEvent[] = useMemo(() => {
+    if (liveMatch) {
+      return timeline;
+    }
+    if (!lastMatch) {
+      return [];
+    }
+    return lastMatch.goalscorers.map((goal) => ({
+      minute: goal.minute,
+      type: 'goal',
+      team: goal.team.name,
+      description: `${goal.team.name} goal! ${goal.player.name} scores.`
+    }));
+  }, [liveMatch, timeline, lastMatch]);
 
   const handleStart = () => {
     onFeedback(onStartLiveMatch());
@@ -151,82 +167,91 @@ export function MatchCenter({
             </div>
           </div>
 
-          {liveMatch && (
+          {activeMatch && (
             <div className="mt-4 space-y-3">
               <div className="rounded-2xl border border-white/10 bg-midnight/40 p-4 text-center text-white">
-                <div className="text-xs uppercase tracking-wide text-subtle">Scoreline</div>
+                <div className="text-xs uppercase tracking-wide text-subtle">
+                  {liveMatch ? `Minute ${liveMatch.minutes}` : 'Final score'}
+                </div>
                 <div className="mt-2 text-3xl font-semibold">
-                  {liveMatch.teams[0].name} {liveMatch.score[0]} - {liveMatch.score[1]} {liveMatch.teams[1].name}
+                  {activeMatch.teams[0].name} {activeMatch.score[0]} - {activeMatch.score[1]} {activeMatch.teams[1].name}
                 </div>
                 <div className="mt-2 text-xs text-subtle">
-                  Possession: {possession[0]}% · Shots: {liveMatch.goalscorers.length}
+                  Possession: {possession[0]}% · Goals: {activeMatch.goalscorers.length}
                 </div>
               </div>
-
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={handlePlayMinute}
-                  disabled={!matchInProgress}
-                  className="rounded-full bg-accent/80 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-midnight transition disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/40"
-                >
-                  Play minute
-                </button>
-                <button
-                  onClick={handleToggleAutoPlay}
-                  disabled={!matchInProgress && !autoPlaying}
-                  className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:border-white/10 disabled:text-white/40"
-                >
-                  {autoPlaying ? 'Pause auto-play' : 'Auto-play'}
-                </button>
-                <button
-                  onClick={handleFinishWeek}
-                  disabled={!liveMatch.finished}
-                  className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:border-white/10 disabled:text-white/40"
-                >
-                  Finish week
-                </button>
-              </div>
-
-              <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 sm:grid-cols-2">
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-wide text-subtle">Starters</div>
-                  <div className="mt-2 flex flex-col gap-2">
-                    {starters.map((player) => (
-                      <button
-                        key={`starter-${player.name}-${player.age}`}
-                        onClick={() => handleSubOutSelect(player)}
-                        className={`rounded-xl border px-3 py-2 text-left text-xs transition ${
-                          subOut === player
-                            ? 'border-accent bg-accent/20 text-white'
-                            : 'border-white/10 bg-white/5 text-subtle hover:border-accent hover:text-white'
-                        }`}
-                      >
-                        {player.name} · {player.posToStr()} · {player.skill.toFixed(1)}
-                      </button>
-                    ))}
-                    {starters.length === 0 && <p className="text-xs text-subtle">No active starters.</p>}
+              {liveMatch ? (
+                <>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={handlePlayMinute}
+                      disabled={!matchInProgress}
+                      className="rounded-full bg-accent/80 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-midnight transition disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/40"
+                    >
+                      Play minute
+                    </button>
+                    <button
+                      onClick={handleToggleAutoPlay}
+                      disabled={!matchInProgress && !autoPlaying}
+                      className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:border-white/10 disabled:text-white/40"
+                    >
+                      {autoPlaying ? 'Pause auto-play' : 'Auto-play'}
+                    </button>
+                    <button
+                      onClick={handleFinishWeek}
+                      disabled={!liveMatch.finished}
+                      className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:border-white/10 disabled:text-white/40"
+                    >
+                      Finish week
+                    </button>
                   </div>
-                </div>
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-wide text-subtle">Bench</div>
-                  <div className="mt-2 flex flex-col gap-2">
-                    {bench.map((player) => (
-                      <button
-                        key={`bench-${player.name}-${player.age}`}
-                        onClick={() => handleSubInSelect(player)}
-                        className={`rounded-xl border px-3 py-2 text-left text-xs transition ${
-                          subIn === player
-                            ? 'border-accent bg-accent/20 text-white'
-                            : 'border-white/10 bg-white/5 text-subtle hover:border-accent hover:text-white'
-                        }`}
-                      >
-                        {player.name} · {player.posToStr()} · {player.skill.toFixed(1)}
-                      </button>
-                    ))}
-                    {bench.length === 0 && <p className="text-xs text-subtle">Bench empty.</p>}
+
+                  <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 sm:grid-cols-2">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wide text-subtle">Starters</div>
+                      <div className="mt-2 flex flex-col gap-2">
+                        {starters.map((player) => (
+                          <button
+                            key={`starter-${player.name}-${player.age}`}
+                            onClick={() => handleSubOutSelect(player)}
+                            className={`rounded-xl border px-3 py-2 text-left text-xs transition ${
+                              subOut === player
+                                ? 'border-accent bg-accent/20 text-white'
+                                : 'border-white/10 bg-white/5 text-subtle hover:border-accent hover:text-white'
+                            }`}
+                          >
+                            {player.name} · {player.posToStr()} · {player.skill.toFixed(1)}
+                          </button>
+                        ))}
+                        {starters.length === 0 && <p className="text-xs text-subtle">No active starters.</p>}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wide text-subtle">Bench</div>
+                      <div className="mt-2 flex flex-col gap-2">
+                        {bench.map((player) => (
+                          <button
+                            key={`bench-${player.name}-${player.age}`}
+                            onClick={() => handleSubInSelect(player)}
+                            className={`rounded-xl border px-3 py-2 text-left text-xs transition ${
+                              subIn === player
+                                ? 'border-accent bg-accent/20 text-white'
+                                : 'border-white/10 bg-white/5 text-subtle hover:border-accent hover:text-white'
+                            }`}
+                          >
+                            {player.name} · {player.posToStr()} · {player.skill.toFixed(1)}
+                          </button>
+                        ))}
+                        {bench.length === 0 && <p className="text-xs text-subtle">Bench empty.</p>}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </>
+              ) : (
+                <p className="text-xs text-subtle">
+                  Start a live match to make substitutions and control the tempo minute by minute.
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -243,8 +268,8 @@ export function MatchCenter({
           <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
             <h3 className="text-sm font-semibold text-accent">Timeline</h3>
             <div className="mt-2 space-y-2 text-xs text-subtle">
-              {timeline.length === 0 && <p>No notable events yet.</p>}
-              {timeline.map((event, index) => (
+              {renderedTimeline.length === 0 && <p>No notable events yet.</p>}
+              {renderedTimeline.map((event, index) => (
                 <div key={`${event.type}-${event.minute}-${index}`} className="rounded-xl bg-white/5 px-3 py-2 text-white/80">
                   <span className="font-semibold text-accent">{event.minute}&apos; · {event.team}</span> — {event.description}
                 </div>

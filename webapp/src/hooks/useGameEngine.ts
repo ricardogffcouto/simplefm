@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { COMPETITION, Game, Match, Player, TEAMS } from '@/game';
+import { createPostMatchSummary, type PostMatchSummary } from './postMatchSummary';
 
 export type TabKey =
   | 'team'
@@ -53,6 +54,7 @@ export function useGameEngine() {
   const [matchTimeline, setMatchTimeline] = useState<MatchEvent[]>([]);
   const [isMatchLive, setIsMatchLive] = useState(false);
   const [autoPlaying, setAutoPlaying] = useState(false);
+  const [postMatchSummary, setPostMatchSummary] = useState<PostMatchSummary | null>(null);
 
   useEffect(() => {
     return () => {
@@ -124,6 +126,7 @@ export function useGameEngine() {
     setCurrentMatch(null);
     setSelectedTab('team');
     setWeekNews([]);
+    setPostMatchSummary(null);
   };
 
   const resetGame = () => {
@@ -135,14 +138,36 @@ export function useGameEngine() {
     setCurrentMatch(null);
     setWeekNews([]);
     setSelectedTab('team');
+    setPostMatchSummary(null);
   };
 
-  const refreshWeeklyState = () => {
+  const refreshWeeklyState = (): string[] => {
     if (!humanTeam) {
-      return;
+      return [];
     }
     humanTeam.setTransferList();
-    setWeekNews(humanTeam.weeklyNews.strList());
+    const updates = humanTeam.weeklyNews.strList();
+    setWeekNews(updates);
+    return updates;
+  };
+
+  const finalizeWeek = (match: Match | null) => {
+    const game = gameRef.current;
+    const team = humanTeam;
+    if (!game || !team) {
+      return;
+    }
+    game.nextWeek();
+    const updates = refreshWeeklyState();
+    const summary = createPostMatchSummary({
+      team,
+      match,
+      news: updates,
+      season: game.season,
+      week: game.week
+    });
+    setPostMatchSummary(summary);
+    setVersion((v) => v + 1);
   };
 
   const playCurrentMatch = () => {
@@ -158,6 +183,7 @@ export function useGameEngine() {
     liveMatchRef.current = null;
     stopAutoPlay();
     setMatchTimeline([]);
+    setPostMatchSummary(null);
 
     activeDivision.matches[week]
       .filter((m) => m !== match)
@@ -173,10 +199,7 @@ export function useGameEngine() {
 
     match.simulate();
     setCurrentMatch(match);
-
-    game.nextWeek();
-    refreshWeeklyState();
-    setVersion((v) => v + 1);
+    finalizeWeek(match);
   };
 
   const advanceWeekWithoutMatch = () => {
@@ -184,11 +207,10 @@ export function useGameEngine() {
       return;
     }
     const week = game.week;
+    setPostMatchSummary(null);
     game.divisions.forEach((division) => division.simulateWeeklyMatches(week));
-    game.nextWeek();
     setCurrentMatch(null);
-    refreshWeeklyState();
-    setVersion((v) => v + 1);
+    finalizeWeek(null);
   };
 
   const setHumanTactic = (tactic: number[]): OperationResult => {
@@ -243,6 +265,7 @@ export function useGameEngine() {
     setMatchTimeline([]);
     setCurrentMatch(null);
     setIsMatchLive(true);
+    setPostMatchSummary(null);
     setVersion((v) => v + 1);
     return { success: true, message: 'Kick-off! Manage the match minute by minute.' };
   };
@@ -332,12 +355,10 @@ export function useGameEngine() {
 
     stopAutoPlay();
     game.divisions.forEach((division) => division.simulateWeeklyMatches(game.week));
-    game.nextWeek();
     setCurrentMatch(match);
-    refreshWeeklyState();
     liveMatchRef.current = null;
     setIsMatchLive(false);
-    setVersion((v) => v + 1);
+    finalizeWeek(match);
     return { success: true, message: 'Week completed. Check the latest news and finances.' };
   };
 
@@ -485,6 +506,8 @@ export function useGameEngine() {
     refreshTransferTargets,
     buyPlayer,
     sellPlayer,
-    renewContract
+    renewContract,
+    postMatchSummary,
+    dismissPostMatchSummary: () => setPostMatchSummary(null)
   };
 }

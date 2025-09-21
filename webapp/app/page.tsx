@@ -34,7 +34,9 @@ export default function HomePage() {
     refreshTransferTargets,
     buyPlayer,
     sellPlayer,
-    renewContract
+    renewContract,
+    postMatchSummary,
+    dismissPostMatchSummary
   } = useGameEngine();
 
   return (
@@ -88,6 +90,8 @@ export default function HomePage() {
           onBuyPlayer={buyPlayer}
           onSellPlayer={sellPlayer}
           onRenewContract={renewContract}
+          postMatchSummary={postMatchSummary}
+          onDismissSummary={dismissPostMatchSummary}
         />
       )}
 

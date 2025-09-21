@@ -2,18 +2,20 @@
 
 import { useMemo } from 'react';
 import type { Team } from '@/game';
+import { trainingToStr, type TrainingDelta } from '@/game/helpers';
 
 interface TrainingPanelProps {
   team: Team;
 }
 
-function trainingLabel(value: number): string {
-  if (value > 0.5) return '++';
-  if (value > 0.1) return '+';
-  if (value < -0.5) return '--';
-  if (value < -0.1) return '-';
-  return '·';
-}
+const trainingColors: Record<TrainingDelta | '·', string> = {
+  '++': 'text-emerald-300',
+  '+': 'text-emerald-200',
+  '-': 'text-amber-200',
+  '--': 'text-red-300',
+  '': 'text-subtle',
+  '·': 'text-subtle'
+};
 
 export function TrainingPanel({ team }: TrainingPanelProps) {
   const players = useMemo(
@@ -53,7 +55,15 @@ export function TrainingPanel({ team }: TrainingPanelProps) {
                 <td className="px-3 py-2">{player.age}</td>
                 <td className="px-3 py-2">{player.skill.toFixed(1)}</td>
                 <td className="px-3 py-2">{player.weeklyTraining.toFixed(2)}</td>
-                <td className="px-3 py-2 text-accent">{trainingLabel(player.weeklyTraining)}</td>
+                {(() => {
+                  const label = trainingToStr(player.weeklyTraining);
+                  const token: TrainingDelta | '·' = label === '' ? '·' : label;
+                  return (
+                    <td className={`px-3 py-2 font-semibold ${trainingColors[token]}`}>
+                      {token}
+                    </td>
+                  );
+                })()}
               </tr>
             ))}
             {players.length === 0 && (

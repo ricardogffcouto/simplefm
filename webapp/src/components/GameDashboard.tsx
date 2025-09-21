@@ -3,10 +3,12 @@
 import { useMemo, useState } from 'react';
 import type { Game, Match, Player, Team } from '@/game';
 import type { MatchEvent, OperationResult, TabKey } from '@/hooks/useGameEngine';
+import type { PostMatchSummary } from '@/hooks/postMatchSummary';
 import { SquadBoard } from './SquadBoard';
 import { MatchCenter } from './MatchCenter';
 import { TransferHub } from './TransferHub';
 import { TrainingPanel } from './TrainingPanel';
+import { PostMatchSummaryModal } from './PostMatchSummary';
 
 interface Props {
   game: Game;
@@ -44,6 +46,8 @@ interface Props {
   onBuyPlayer: (player: Player) => OperationResult;
   onSellPlayer: (player: Player) => OperationResult;
   onRenewContract: (player: Player) => OperationResult;
+  postMatchSummary: PostMatchSummary | null;
+  onDismissSummary: () => void;
 }
 
 const tabs: Array<{ key: TabKey; label: string }> = [
@@ -82,7 +86,9 @@ export function GameDashboard({
   onRefreshTransferList,
   onBuyPlayer,
   onSellPlayer,
-  onRenewContract
+  onRenewContract,
+  postMatchSummary,
+  onDismissSummary
 }: Props) {
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
@@ -312,6 +318,10 @@ export function GameDashboard({
           </div>
         )}
       </div>
+
+      {postMatchSummary && (
+        <PostMatchSummaryModal summary={postMatchSummary} onClose={onDismissSummary} />
+      )}
     </section>
   );
 }
