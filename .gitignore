@@ -3,3 +3,5 @@ bin/
 .tests
 Pipfile.lock
 .idea/
+webapp/node_modules/
+webapp/.next/
