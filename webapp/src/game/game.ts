@@ -18,6 +18,12 @@ interface ManagerConfig {
   name: string;
 }
 
+type TeamSeed = {
+  name: string;
+  country: string;
+  color: string;
+};
+
 export class Game {
   divisions: Division[];
   humanTeams: TeamEntity[];
@@ -50,7 +56,11 @@ export class Game {
   }
 
   start(humanTeam?: HumanTeamConfig, managerConfig?: ManagerConfig): void {
-    const allTeams = [...DB_TEAMS];
+    const allTeams: TeamSeed[] = Array.from(DB_TEAMS, (team): TeamSeed => ({
+      name: team.name,
+      country: team.country,
+      color: team.color
+    }));
     let humanTeamEntry: HumanTeamConfig | null = humanTeam ?? null;
 
     if (humanTeamEntry && humanTeamEntry.prev_div && humanTeamEntry.prev_pos) {

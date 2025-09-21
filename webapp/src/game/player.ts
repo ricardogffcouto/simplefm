@@ -18,6 +18,13 @@ export interface PlayerLeagueStats {
   Goals: number;
 }
 
+const TRAINING_NEWS_MAP: Record<Exclude<ReturnType<typeof trainingToStr>, ''>, News['category']> = {
+  '++': 'Training ++',
+  '+': 'Training +',
+  '-': 'Training -',
+  '--': 'Training --'
+};
+
 export class Player {
   skill: number;
   team: Team | null;
@@ -206,8 +213,10 @@ export class Player {
       return [decrease, training];
     }
 
-    if (trainingToStr(training) !== '' && this.team) {
-      this.team.weeklyNews.news.push(new News(`Training ${trainingToStr(training)}`, this.name));
+    const trainingLabel = trainingToStr(training);
+    if (trainingLabel !== '' && this.team) {
+      const category = TRAINING_NEWS_MAP[trainingLabel];
+      this.team.weeklyNews.news.push(new News(category, this.name));
     }
 
     return [0, training];
@@ -249,8 +258,8 @@ export class Player {
   setRenewContractWantedSalary(asking = false): void {
     if (!this.wantedSalary) {
       const base = Math.max(this.salary, this.salaryForSkill());
-      let minIncrease = PLAYER['MIN_SALARY_INCREASE_NOT_ASKING'];
-      let maxIncrease = PLAYER['MAX_SALARY_INCREASE_NOT_ASKING'];
+      let minIncrease: number = PLAYER['MIN_SALARY_INCREASE_NOT_ASKING'];
+      let maxIncrease: number = PLAYER['MAX_SALARY_INCREASE_NOT_ASKING'];
       if (asking) {
         minIncrease = PLAYER['MIN_SALARY_INCREASE'];
         maxIncrease = PLAYER['MAX_SALARY_INCREASE'];

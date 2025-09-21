@@ -14,8 +14,8 @@ export function NewGameForm({ availableTeams, onStart }: Props) {
   const [managerName, setManagerName] = useState('Manager');
   const [selectedTeam, setSelectedTeam] = useState<string>(availableTeams[0] ?? '');
   const [customName, setCustomName] = useState('');
-  const [customCountry, setCustomCountry] = useState(COUNTRIES[0]?.id ?? 'Eng');
-  const [customColor, setCustomColor] = useState(COLORS[0]?.hex ?? '#485C96');
+  const [customCountry, setCustomCountry] = useState<string>(COUNTRIES[0]?.id ?? 'Eng');
+  const [customColor, setCustomColor] = useState<string>(COLORS[0]?.hex ?? '#485C96');
   const [customDivision, setCustomDivision] = useState(1);
   const [customPosition, setCustomPosition] = useState(1);
   const [error, setError] = useState<string | null>(null);
