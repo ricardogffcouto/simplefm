@@ -285,6 +285,27 @@ export class Team {
     return false;
   }
 
+  buyPlayer(player: Player): boolean {
+    if (!this.hasPlaceToBuyPlayer() || !this.hasMoneyToBuyPlayer(player)) {
+      return false;
+    }
+    this.players.push(player);
+    player.contract = COMPETITION['TOTAL GAMES'];
+    player.playingStatus = 2;
+    player.team = this;
+    this.changeFinances('Bought Players', -player.currentValue());
+    this.playersToBuy = this.playersToBuy.filter((candidate) => candidate !== player);
+    return true;
+  }
+
+  renewContract(player: Player): boolean {
+    if (player.contract > 0) {
+      return false;
+    }
+    player.renewContract();
+    return true;
+  }
+
   hasMoneyToBuyPlayer(player: Player): boolean {
     return player.currentValue() <= this.money;
   }

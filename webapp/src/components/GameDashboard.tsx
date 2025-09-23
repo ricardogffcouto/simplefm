@@ -1,14 +1,20 @@
 'use client';
 
-import { Fragment } from 'react';
-import type { Game, Match, Team, Player } from '@/game';
-import type { TabKey } from '@/hooks/useGameEngine';
+import { useMemo, useState } from 'react';
+import type { Game, Match, Player, Team } from '@/game';
+import type { MatchEvent, OperationResult, TabKey } from '@/hooks/useGameEngine';
+import type { PostMatchSummary } from '@/hooks/postMatchSummary';
+import { SquadBoard } from './SquadBoard';
+import { MatchCenter } from './MatchCenter';
+import { TransferHub } from './TransferHub';
+import { TrainingPanel } from './TrainingPanel';
+import { PostMatchSummaryModal } from './PostMatchSummary';
 
 interface Props {
   game: Game;
   humanTeam: Team;
   currentMatch: Match | null;
-  rosterByPosition: Array<{ label: string; players: Player[] }>;
+  weekNews: string[];
   leagueTable: Array<{
     position: number;
     name: string;
@@ -19,16 +25,36 @@ interface Props {
     goalsFor: number;
     goalsAgainst: number;
   }>;
-  weekNews: string[];
   selectedTab: TabKey;
   setSelectedTab: (tab: TabKey) => void;
   onPlayMatch: () => void;
   onSimulateWeek: () => void;
+  allowedTactics: number[][];
+  currentTactic: number[];
+  onSetTactic: (tactic: number[]) => OperationResult;
+  onSwapPlayers: (playerA: Player, playerB: Player) => OperationResult;
+  liveMatch: Match | null;
+  isMatchLive: boolean;
+  matchTimeline: MatchEvent[];
+  autoPlaying: boolean;
+  onStartLiveMatch: () => OperationResult;
+  onPlayMinute: () => OperationResult;
+  onToggleAutoPlay: () => OperationResult;
+  onFinishLiveMatch: () => OperationResult;
+  onMakeSubstitution: (playerOut: Player, playerIn: Player) => OperationResult;
+  onRefreshTransferList: () => OperationResult;
+  onBuyPlayer: (player: Player) => OperationResult;
+  onSellPlayer: (player: Player) => OperationResult;
+  onRenewContract: (player: Player) => OperationResult;
+  postMatchSummary: PostMatchSummary | null;
+  onDismissSummary: () => void;
 }
 
 const tabs: Array<{ key: TabKey; label: string }> = [
   { key: 'team', label: 'Squad' },
   { key: 'match', label: 'Matchday' },
+  { key: 'transfers', label: 'Transfers' },
+  { key: 'training', label: 'Training' },
   { key: 'league', label: 'League' },
   { key: 'finance', label: 'Finances' },
   { key: 'news', label: 'Weekly news' }
@@ -38,28 +64,59 @@ export function GameDashboard({
   game,
   humanTeam,
   currentMatch,
-  rosterByPosition,
-  leagueTable,
   weekNews,
+  leagueTable,
   selectedTab,
   setSelectedTab,
   onPlayMatch,
-  onSimulateWeek
+  onSimulateWeek,
+  allowedTactics,
+  currentTactic,
+  onSetTactic,
+  onSwapPlayers,
+  liveMatch,
+  isMatchLive,
+  matchTimeline,
+  autoPlaying,
+  onStartLiveMatch,
+  onPlayMinute,
+  onToggleAutoPlay,
+  onFinishLiveMatch,
+  onMakeSubstitution,
+  onRefreshTransferList,
+  onBuyPlayer,
+  onSellPlayer,
+  onRenewContract,
+  postMatchSummary,
+  onDismissSummary
 }: Props) {
-  const nextMatch = humanTeam.nextMatch(game.week);
-  const nextOpponent = nextMatch ? humanTeam.nextOpponent(game.week) : null;
-  const seasonHeader = `Season ${game.season + 1} · Week ${game.week + 1}`;
+  const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
-  const headerGradient = `linear-gradient(135deg, rgba(245,216,103,0.15), rgba(255,255,255,0.05))`;
+  const nextOpponent = useMemo(() => humanTeam.nextOpponent(game.week), [humanTeam, game.week]);
+
+  const showFeedback = (result: OperationResult | string, type: 'success' | 'error' | 'info' = 'info') => {
+    if (typeof result === 'string') {
+      setFeedback({ message: result, type });
+    } else {
+      setFeedback({ message: result.message, type: result.success ? 'success' : 'error' });
+    }
+  };
+
+  const handleQuickMatch = () => {
+    onPlayMatch();
+    showFeedback('Played the upcoming fixture using quick simulation. Check the news tab for details.');
+  };
+
+  const handleSimulateWeek = () => {
+    onSimulateWeek();
+    showFeedback('Advanced the season by one week.');
+  };
 
   return (
     <section className="flex w-full max-w-5xl flex-col gap-6">
       <header className="card-surface flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <div
-            className="h-16 w-16 rounded-2xl border border-white/20"
-            style={{ background: headerGradient }}
-          >
+          <div className="h-16 w-16 rounded-2xl border border-white/20" style={{ background: 'linear-gradient(135deg, rgba(245,216,103,0.15), rgba(255,255,255,0.05))' }}>
             <div
               className="h-full w-full rounded-2xl"
               style={{
@@ -70,33 +127,30 @@ export function GameDashboard({
           <div>
             <h1 className="text-2xl font-semibold text-white sm:text-3xl">{humanTeam.name}</h1>
             <p className="text-sm text-subtle">
-              {seasonHeader} · {humanTeam.division?.name ?? 'Friendly league'}
+              Season {game.season + 1} · Week {game.week + 1} · {humanTeam.division?.name ?? 'Friendly league'}
             </p>
             <p className="text-xs text-subtle">
               Fans morale: {Math.round(humanTeam.fanHappiness)} · Balance: €{humanTeam.money.toLocaleString()}
             </p>
+            <p className="text-xs text-subtle">
+              Next opponent: {nextOpponent ? nextOpponent.name : 'Season complete'}
+            </p>
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:text-right">
-          <span className="text-xs uppercase tracking-wide text-subtle">Next opponent</span>
-          {nextOpponent ? (
-            <div className="text-lg font-semibold text-accent">{nextOpponent.name}</div>
-          ) : (
-            <div className="text-lg font-semibold text-accent">Season complete</div>
-          )}
-          <div className="flex gap-2">
+          <span className="text-xs uppercase tracking-wide text-subtle">Fast actions</span>
+          <div className="flex flex-wrap gap-2">
             <button
-              onClick={onPlayMatch}
-              disabled={!nextMatch}
-              className="rounded-full bg-accent/90 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-midnight transition hover:bg-accent disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/40"
+              onClick={handleQuickMatch}
+              className="rounded-full bg-accent/90 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-midnight transition hover:bg-accent"
             >
-              Play week
+              Quick play week
             </button>
             <button
-              onClick={onSimulateWeek}
+              onClick={handleSimulateWeek}
               className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-accent hover:text-accent"
             >
-              Quick sim
+              Simulate all
             </button>
           </div>
         </div>
@@ -116,101 +170,64 @@ export function GameDashboard({
         ))}
       </nav>
 
+      {feedback && (
+        <div
+          className={`rounded-2xl border px-4 py-3 text-sm ${
+            feedback.type === 'success'
+              ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200'
+              : feedback.type === 'error'
+              ? 'border-red-400/30 bg-red-500/10 text-red-200'
+              : 'border-white/20 bg-white/5 text-subtle'
+          }`}
+        >
+          {feedback.message}
+        </div>
+      )}
+
       <div className="card-surface min-h-[320px] p-6">
         {selectedTab === 'team' && (
-          <div className="space-y-4">
-            {rosterByPosition.map(({ label, players }) => (
-              <div key={label} className="space-y-2">
-                <div className="flex items-center justify-between text-sm font-semibold text-accent">
-                  <span>{label}</span>
-                  <span>{players.length} players</span>
-                </div>
-                <div className="overflow-hidden rounded-2xl border border-white/10">
-                  <table className="min-w-full divide-y divide-white/10 text-sm">
-                    <thead className="bg-white/5 text-xs uppercase text-subtle">
-                      <tr>
-                        <th className="px-3 py-2 text-left">Name</th>
-                        <th className="px-3 py-2 text-left">Skill</th>
-                        <th className="px-3 py-2 text-left">Age</th>
-                        <th className="px-3 py-2 text-left">Status</th>
-                        <th className="px-3 py-2 text-left">Wage</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {players.map((player) => (
-                        <tr key={`${player.name}-${player.age}`} className="hover:bg-white/5">
-                          <td className="px-3 py-2 text-white">{player.name}</td>
-                          <td className="px-3 py-2 text-accent">{player.skill.toFixed(1)}</td>
-                          <td className="px-3 py-2 text-subtle">{player.age}</td>
-                          <td className="px-3 py-2 text-subtle">
-                            {player.playingStatus === 0 ? 'Starting XI' : player.playingStatus === 1 ? 'Bench' : 'Reserve'}
-                            {player.injured() ? ' · Injured' : ''}
-                          </td>
-                          <td className="px-3 py-2 text-subtle">€{player.salary.toLocaleString()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ))}
-          </div>
+          <SquadBoard
+            team={humanTeam}
+            allowedTactics={allowedTactics}
+            currentTactic={currentTactic}
+            onSetTactic={onSetTactic}
+            onSwapPlayers={onSwapPlayers}
+            onFeedback={showFeedback}
+          />
         )}
 
         {selectedTab === 'match' && (
-          <div className="space-y-4">
-            {currentMatch ? (
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <span className="text-xs uppercase tracking-wide text-subtle">Final score</span>
-                  <div className="flex items-center gap-4 text-3xl font-semibold text-white">
-                    <span>{currentMatch.teams[0].name}</span>
-                    <span className="rounded-full bg-accent/80 px-4 py-1 text-midnight">
-                      {currentMatch.score[0]} - {currentMatch.score[1]}
-                    </span>
-                    <span>{currentMatch.teams[1].name}</span>
-                  </div>
-                  <p className="text-xs text-subtle">
-                    Possession: {currentMatch.ballPossession()[0]}% · Shots: {currentMatch.goalscorers.length}
-                  </p>
-                </div>
-                <div className="mt-4 space-y-2">
-                  {currentMatch.goalscorers.map((goal, index) => (
-                    <div key={`${goal.player.name}-${index}`} className="flex items-center justify-between rounded-xl bg-white/5 px-4 py-2 text-sm text-white/80">
-                      <span>{goal.minute}&#39; · {goal.team.name}</span>
-                      <span>{goal.player.name}</span>
-                    </div>
-                  ))}
-                  {currentMatch.goalscorers.length === 0 && (
-                    <p className="text-center text-sm text-subtle">No goals scored this week.</p>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-center text-subtle">
-                <p className="text-sm">No match played yet. Use “Play week” to simulate the upcoming fixture.</p>
-              </div>
-            )}
-            {nextMatch && (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-4 text-left text-sm text-subtle">
-                  <div className="text-xs uppercase tracking-wide">Match preview</div>
-                  <div className="mt-2 text-lg font-semibold text-white">{humanTeam.name} vs {nextOpponent?.name}</div>
-                  <p className="mt-2">Home advantage: {nextMatch.teams[0] === humanTeam ? 'Yes' : 'No'}</p>
-                  <p>Suggested tactic: {humanTeam.currentTactic().join('-')}</p>
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-4 text-sm text-subtle">
-                  <div className="text-xs uppercase tracking-wide">Weekly objectives</div>
-                  <ul className="mt-2 space-y-1">
-                    <li>Maintain fan happiness above 50</li>
-                    <li>Keep wages under €{humanTeam.financesWeeklyExpense().toLocaleString()}</li>
-                    <li>Scout transfer list for upgrades</li>
-                  </ul>
-                </div>
-              </div>
-            )}
-          </div>
+          <MatchCenter
+            game={game}
+            team={humanTeam}
+            liveMatch={liveMatch}
+            lastMatch={currentMatch}
+            isMatchLive={isMatchLive}
+            autoPlaying={autoPlaying}
+            timeline={matchTimeline}
+            onStartLiveMatch={onStartLiveMatch}
+            onPlayMinute={onPlayMinute}
+            onToggleAutoPlay={onToggleAutoPlay}
+            onFinishLiveMatch={onFinishLiveMatch}
+            onMakeSubstitution={onMakeSubstitution}
+            onQuickMatch={handleQuickMatch}
+            onQuickWeek={handleSimulateWeek}
+            onFeedback={showFeedback}
+          />
         )}
+
+        {selectedTab === 'transfers' && (
+          <TransferHub
+            team={humanTeam}
+            onRefresh={onRefreshTransferList}
+            onBuy={onBuyPlayer}
+            onSell={onSellPlayer}
+            onRenew={onRenewContract}
+            onFeedback={showFeedback}
+          />
+        )}
+
+        {selectedTab === 'training' && <TrainingPanel team={humanTeam} />}
 
         {selectedTab === 'league' && (
           <div className="overflow-hidden rounded-2xl border border-white/10">
@@ -256,9 +273,7 @@ export function GameDashboard({
                 {Object.entries(humanTeam.weeklyFinances).map(([key, value]) => (
                   <li key={key} className="flex justify-between">
                     <span>{key}</span>
-                    <span className={value >= 0 ? 'text-emerald-300' : 'text-red-300'}>
-                      €{value.toLocaleString()}
-                    </span>
+                    <span className={value >= 0 ? 'text-emerald-300' : 'text-red-300'}>€{value.toLocaleString()}</span>
                   </li>
                 ))}
               </ul>
@@ -269,9 +284,7 @@ export function GameDashboard({
                 {Object.entries(humanTeam.yearlyFinances).map(([key, value]) => (
                   <li key={key} className="flex justify-between">
                     <span>{key}</span>
-                    <span className={value >= 0 ? 'text-emerald-300' : 'text-red-300'}>
-                      €{value.toLocaleString()}
-                    </span>
+                    <span className={value >= 0 ? 'text-emerald-300' : 'text-red-300'}>€{value.toLocaleString()}</span>
                   </li>
                 ))}
               </ul>
@@ -299,12 +312,16 @@ export function GameDashboard({
               <h3 className="text-sm font-semibold text-accent">Long term outlook</h3>
               <p className="mt-2">
                 Keep your supporters engaged by averaging at least {humanTeam.seasonPointsPerWeek.toFixed(2)} points per week.
-                Avoid slipping below position {humanTeam.minPosPerSeasonPointsPerWeek()} to stay aligned with the board&#39;s plan.
+                Avoid slipping below position {humanTeam.minPosPerSeasonPointsPerWeek()} to stay aligned with the board&apos;s plan.
               </p>
             </div>
           </div>
         )}
       </div>
+
+      {postMatchSummary && (
+        <PostMatchSummaryModal summary={postMatchSummary} onClose={onDismissSummary} />
+      )}
     </section>
   );
 }
