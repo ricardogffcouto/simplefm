@@ -1,8 +1,66 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type SVGProps } from 'react';
 import { COLORS, COMPETITION, COUNTRIES } from '@/game';
 import type { NewGamePayload } from '@/hooks/useGameEngine';
+
+const DEFAULT_TEAM_OPTION = 'Create new team';
+
+function BackIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false" {...props}>
+      <rect x="6" y="6" width="52" height="52" rx="8" fill="#f0f0f0" stroke="#1f1f1f" strokeWidth="4" />
+      <path
+        d="M30 19 16 32l14 13"
+        fill="none"
+        stroke="#1f1f1f"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M32 32h16"
+        fill="none"
+        stroke="#1f1f1f"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CheckIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false" {...props}>
+      <rect x="6" y="6" width="52" height="52" rx="12" fill="#d1eacd" stroke="#1f1f1f" strokeWidth="4" />
+      <path
+        d="M22 34.5 30.5 43 46 25"
+        fill="none"
+        stroke="#1f1f1f"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function getContrastColor(hexColor: string) {
+  const sanitized = hexColor.replace('#', '');
+  const expanded =
+    sanitized.length === 3
+      ? sanitized
+          .split('')
+          .map((char) => `${char}${char}`)
+          .join('')
+      : sanitized;
+  const red = parseInt(expanded.slice(0, 2), 16);
+  const green = parseInt(expanded.slice(2, 4), 16);
+  const blue = parseInt(expanded.slice(4, 6), 16);
+  const luminance = 0.299 * red + 0.587 * green + 0.114 * blue;
+  return luminance > 180 ? '#111111' : '#f6f6f6';
+}
 
 interface Props {
   availableTeams: string[];
@@ -11,11 +69,11 @@ interface Props {
 }
 
 export function NewGameForm({ availableTeams, onStart, onCancel }: Props) {
-  const teamOptions = useMemo(() => ['Create new team', ...availableTeams], [availableTeams]);
+  const teamOptions = useMemo(() => [DEFAULT_TEAM_OPTION, ...availableTeams], [availableTeams]);
 
   const [gameName, setGameName] = useState('');
   const [managerName, setManagerName] = useState('');
-  const [selectedTeam, setSelectedTeam] = useState<string>('Create new team');
+  const [selectedTeam, setSelectedTeam] = useState<string>(DEFAULT_TEAM_OPTION);
   const [customName, setCustomName] = useState('');
   const [customCountry, setCustomCountry] = useState<string>(COUNTRIES[0]?.id ?? 'Eng');
   const [customColor, setCustomColor] = useState<string>(COLORS[0]?.hex ?? '#485C96');
@@ -24,7 +82,8 @@ export function NewGameForm({ availableTeams, onStart, onCancel }: Props) {
   const [customPosition, setCustomPosition] = useState(1);
   const [error, setError] = useState<string | null>(null);
 
-  const useCustomTeam = selectedTeam === 'Create new team';
+  const useCustomTeam = selectedTeam === DEFAULT_TEAM_OPTION;
+  const customColorText = useMemo(() => getContrastColor(customColor), [customColor]);
 
   const resetError = () => setError(null);
 
@@ -69,78 +128,111 @@ export function NewGameForm({ availableTeams, onStart, onCancel }: Props) {
   };
 
   return (
-    <form onSubmit={submit} className="kivy-panel w-full max-w-4xl overflow-hidden">
-      <header className="kivy-header px-6 py-4 text-center text-lg font-semibold uppercase tracking-[0.35em]">
-        New Game
-      </header>
-      <div className="space-y-6 px-6 py-6">
-        <div className="grid gap-3 sm:grid-cols-[0.85fr_1.15fr] sm:items-center">
-          <label className="text-sm font-semibold uppercase tracking-wide">Game name</label>
-          <input
-            value={gameName}
-            onChange={(event) => {
-              resetError();
-              setGameName(event.target.value);
-            }}
-            placeholder="Max 16 characters"
-            maxLength={16}
-            className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
-          />
+    <form onSubmit={submit} className="kivy-new-game-form" aria-label="New game form">
+      <div className="kivy-new-game-panel">
+        <header className="kivy-main-header">New Game</header>
+
+        <div className="kivy-form-row">
+          <div className="kivy-light-header">Game name</div>
+          <div className="kivy-field">
+            <input
+              value={gameName}
+              onChange={(event) => {
+                resetError();
+                setGameName(event.target.value);
+              }}
+              placeholder="Max 16 char, only letters and numbers"
+              maxLength={16}
+              className="kivy-input"
+            />
+          </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-[0.85fr_1.15fr] sm:items-center">
-          <label className="text-sm font-semibold uppercase tracking-wide">Manager name</label>
-          <input
-            value={managerName}
-            onChange={(event) => {
-              resetError();
-              setManagerName(event.target.value);
-            }}
-            placeholder="Max 16 characters"
-            maxLength={16}
-            className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
-          />
+
+        <div className="kivy-form-row">
+          <div className="kivy-light-header">Manager name</div>
+          <div className="kivy-field">
+            <input
+              value={managerName}
+              onChange={(event) => {
+                resetError();
+                setManagerName(event.target.value);
+              }}
+              placeholder="Max 16 char, only letters and numbers"
+              maxLength={16}
+              className="kivy-input"
+            />
+          </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-[0.85fr_1.15fr] sm:items-center">
-          <label className="text-sm font-semibold uppercase tracking-wide">Team</label>
-          <select
-            value={selectedTeam}
-            onChange={(event) => {
-              setSelectedTeam(event.target.value);
-              resetError();
-            }}
-            className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
-          >
-            {teamOptions.map((team) => (
-              <option key={team} value={team}>
-                {team}
-              </option>
-            ))}
-          </select>
+
+        <div className="kivy-form-row">
+          <div className="kivy-light-header">Team</div>
+          <div className="kivy-field">
+            <select
+              value={selectedTeam}
+              onChange={(event) => {
+                setSelectedTeam(event.target.value);
+                resetError();
+              }}
+              className="kivy-select"
+            >
+              {teamOptions.map((team) => (
+                <option key={team} value={team}>
+                  {team}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {useCustomTeam && (
-          <div className="rounded-2xl border-2 border-black/10 bg-white/90 p-4">
-            <h3 className="text-base font-semibold uppercase tracking-wide">Create new team</h3>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-semibold uppercase tracking-wide">Name</span>
+          <div className="kivy-subpanel" aria-label="Create new team fields">
+            <div className="kivy-form-row">
+              <div className="kivy-light-header">Name</div>
+              <div className="kivy-field">
                 <input
                   value={customName}
                   onChange={(event) => {
                     setCustomName(event.target.value);
                     resetError();
                   }}
-                  placeholder="Max 16 characters"
+                  placeholder="Max 16 char, only letters and numbers"
                   maxLength={16}
-                  className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
+                  className="kivy-input"
                 />
-              </label>
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-semibold uppercase tracking-wide">Country</span>
+              </div>
+            </div>
+
+            <div className="kivy-form-row">
+              <div className="kivy-light-header">Color</div>
+              <div className="kivy-field">
+                <select
+                  value={customColorName}
+                  onChange={(event) => {
+                    const color = COLORS.find((entry) => entry.name === event.target.value);
+                    if (color) {
+                      setCustomColor(color.hex);
+                      setCustomColorName(color.name);
+                    }
+                  }}
+                  className="kivy-select"
+                  style={{ background: customColor, color: customColorText }}
+                >
+                  {COLORS.map((color) => (
+                    <option key={color.name} value={color.name}>
+                      {color.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="kivy-form-row">
+              <div className="kivy-light-header">Country</div>
+              <div className="kivy-field">
                 <select
                   value={customCountry}
                   onChange={(event) => setCustomCountry(event.target.value)}
-                  className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
+                  className="kivy-select"
                 >
                   {COUNTRIES.map((country) => (
                     <option key={country.id} value={country.id}>
@@ -148,13 +240,18 @@ export function NewGameForm({ availableTeams, onStart, onCancel }: Props) {
                     </option>
                   ))}
                 </select>
-              </label>
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-semibold uppercase tracking-wide">Division</span>
+              </div>
+            </div>
+
+            <div className="kivy-section-header">Division and position</div>
+
+            <div className="kivy-form-row kivy-form-row--split">
+              <div className="kivy-light-header">Div</div>
+              <div className="kivy-field">
                 <select
                   value={customDivision}
                   onChange={(event) => setCustomDivision(Number(event.target.value))}
-                  className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
+                  className="kivy-select"
                 >
                   {Array.from({ length: COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] }, (_, index) => index + 1).map((value) => (
                     <option key={value} value={value}>
@@ -162,13 +259,13 @@ export function NewGameForm({ availableTeams, onStart, onCancel }: Props) {
                     </option>
                   ))}
                 </select>
-              </label>
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-semibold uppercase tracking-wide">Position</span>
+              </div>
+              <div className="kivy-light-header">Pos</div>
+              <div className="kivy-field">
                 <select
                   value={customPosition}
                   onChange={(event) => setCustomPosition(Number(event.target.value))}
-                  className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
+                  className="kivy-select"
                 >
                   {Array.from({ length: COMPETITION['TEAMS PER DIVISION'] }, (_, index) => index + 1).map((value) => (
                     <option key={value} value={value}>
@@ -176,44 +273,26 @@ export function NewGameForm({ availableTeams, onStart, onCancel }: Props) {
                     </option>
                   ))}
                 </select>
-              </label>
-              <label className="flex flex-col gap-1 text-sm sm:col-span-2">
-                <span className="font-semibold uppercase tracking-wide">Team color</span>
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full border-2 border-black/15" style={{ background: customColor }} />
-                  <select
-                    value={customColorName}
-                    onChange={(event) => {
-                      const color = COLORS.find((entry) => entry.name === event.target.value);
-                      if (color) {
-                        setCustomColor(color.hex);
-                        setCustomColorName(color.name);
-                      }
-                    }}
-                    className="flex-1 rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
-                  >
-                    {COLORS.map((color) => (
-                      <option key={color.name} value={color.name}>
-                        {color.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </label>
+              </div>
             </div>
           </div>
         )}
 
-        {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
+        {error && <div className="kivy-error" role="alert">{error}</div>}
+
+        <div className="kivy-form-spacer" aria-hidden="true" />
+
+        <footer className="kivy-form-footer">
+          <button type="button" className="kivy-action-button kivy-action-button--back" onClick={onCancel}>
+            <BackIcon />
+            <span>Back</span>
+          </button>
+          <button type="submit" className="kivy-action-button kivy-action-button--primary">
+            <CheckIcon />
+            <span>Create Game</span>
+          </button>
+        </footer>
       </div>
-      <footer className="kivy-footer flex items-center justify-end gap-3 px-6 py-4">
-        <button type="button" className="kivy-button kivy-button--secondary" onClick={onCancel}>
-          Back
-        </button>
-        <button type="submit" className="kivy-button">
-          Create Game
-        </button>
-      </footer>
     </form>
   );
 }
