@@ -125,8 +125,8 @@ export function MatchCenter({
   const minuteLabel = liveMatch ? `Minute ${liveMatch.minutes}` : nextMatch ? `Week ${game.week + 1}` : 'Match finished';
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 px-4 py-6">
-      <div className="kivy-panel w-full max-w-5xl overflow-hidden">
+    <div className="fixed inset-0 z-40 overflow-y-auto bg-black/60 px-4 py-6">
+      <div className="kivy-panel mx-auto w-full max-w-5xl">
         <header className="kivy-header flex items-center justify-between px-6 py-4">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-[#f5d767]">Match screen</p>
