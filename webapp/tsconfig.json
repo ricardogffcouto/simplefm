@@ -30,6 +30,12 @@
       ],
       "@/hooks/*": [
         "src/hooks/*"
+      ],
+      "@/utils": [
+        "src/utils"
+      ],
+      "@/utils/*": [
+        "src/utils/*"
       ]
     },
     "types": [

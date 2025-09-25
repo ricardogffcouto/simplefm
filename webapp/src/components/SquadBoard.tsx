@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import type { Player, Team } from '@/game';
 import type { OperationResult } from '@/hooks/useGameEngine';
+import { displayRating } from '@/utils/ratings';
 
 interface SquadBoardProps {
   team: Team;
@@ -14,9 +15,9 @@ interface SquadBoardProps {
 }
 
 const STATUS_CONFIG: Array<{ label: string; status: number; description: string }> = [
-  { label: 'Starting XI', status: 0, description: 'Players on the pitch.' },
-  { label: 'Bench', status: 1, description: 'Available substitutes.' },
-  { label: 'Reserves', status: 2, description: 'Outside the matchday squad.' }
+  { label: 'Starting XI', status: 0, description: 'Players currently selected for the match.' },
+  { label: 'Bench', status: 1, description: 'Players available as substitutes.' },
+  { label: 'Reserves', status: 2, description: 'Players outside the matchday squad.' }
 ];
 
 function tacticLabel(tactic: number[]): string {
@@ -30,14 +31,7 @@ function positionLabel(position: number): string {
   return 'FW';
 }
 
-export function SquadBoard({
-  team,
-  allowedTactics,
-  currentTactic,
-  onSetTactic,
-  onSwapPlayers,
-  onFeedback
-}: SquadBoardProps) {
+export function SquadBoard({ team, allowedTactics, currentTactic, onSetTactic, onSwapPlayers, onFeedback }: SquadBoardProps) {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
   const tacticOptions = useMemo(() => {
@@ -48,8 +42,6 @@ export function SquadBoard({
     return Array.from(unique.entries()).map(([label, tactic]) => ({ label, tactic }));
   }, [allowedTactics]);
 
-  const currentTacticLabel = currentTactic.length > 0 ? tacticLabel(currentTactic) : 'Auto';
-
   const groupedPlayers = STATUS_CONFIG.map((config) => ({
     ...config,
     players: team.players
@@ -57,6 +49,23 @@ export function SquadBoard({
       .slice()
       .sort((a, b) => b.skill - a.skill)
   }));
+
+  const currentTacticLabel = useMemo(() => {
+    const label = tacticLabel(currentTactic);
+    if (tacticOptions.some((option) => option.label === label)) {
+      return label;
+    }
+    return tacticOptions[0]?.label ?? '';
+  }, [currentTactic, tacticOptions]);
+
+  const handleTacticChange = (label: string) => {
+    const entry = tacticOptions.find((option) => option.label === label);
+    if (!entry) {
+      return;
+    }
+    const result = onSetTactic(entry.tactic);
+    onFeedback(result);
+  };
 
   const handleSelect = (player: Player) => {
     if (!selectedPlayer) {
@@ -72,48 +81,40 @@ export function SquadBoard({
     setSelectedPlayer(null);
   };
 
-  const handleTacticClick = (tactic: number[]) => {
-    const result = onSetTactic(tactic);
-    onFeedback(result);
-    setSelectedPlayer(null);
-  };
-
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 rounded-3xl border border-white/10 bg-white/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4">
+      <div className="kivy-list flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-subtle">Formation</h3>
-          <p className="text-lg font-semibold text-white">Current: {currentTacticLabel}</p>
+          <h3 className="text-base font-semibold uppercase tracking-wide">Formation</h3>
+          <p className="kivy-subtle text-sm">Select a tactic to organise your matchday squad.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {tacticOptions.map(({ label, tactic }) => {
-            const active = label === currentTacticLabel;
-            return (
-              <button
-                key={label}
-                onClick={() => handleTacticClick(tactic)}
-                className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${
-                  active ? 'bg-accent/90 text-midnight' : 'border border-white/20 text-subtle hover:border-accent hover:text-white'
-                }`}
-              >
+        <div className="flex items-center gap-3">
+          <label className="text-xs font-semibold uppercase tracking-wide">Tactic</label>
+          <select
+            value={currentTacticLabel}
+            onChange={(event) => handleTacticChange(event.target.value)}
+            className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
+          >
+            {tacticOptions.map(({ label }) => (
+              <option key={label} value={label}>
                 {label}
-              </button>
-            );
-          })}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         {groupedPlayers.map((group) => (
-          <div key={group.label} className="rounded-3xl border border-white/10 bg-white/5 p-4">
+          <div key={group.label} className="kivy-list p-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-accent">{group.label}</h3>
-                <p className="text-xs text-subtle">{group.description}</p>
+                <h4 className="text-base font-semibold uppercase tracking-wide">{group.label}</h4>
+                <p className="kivy-subtle text-xs">{group.description}</p>
               </div>
-              <span className="text-xs text-subtle">{group.players.length} players</span>
+              <span className="text-xs font-semibold text-black/60">{group.players.length}</span>
             </div>
-            <div className="mt-3 flex flex-col gap-2">
+            <div className="kivy-scroll mt-3 max-h-72 space-y-2 overflow-y-auto">
               {group.players.map((player) => {
                 const isSelected = selectedPlayer === player;
                 const unavailable = !player.matchAvailable();
@@ -121,36 +122,28 @@ export function SquadBoard({
                   <button
                     key={`${player.name}-${player.age}-${player.position}`}
                     onClick={() => handleSelect(player)}
-                    className={`flex w-full items-center justify-between rounded-2xl border px-3 py-2 text-left transition ${
-                      isSelected
-                        ? 'border-accent bg-accent/20 text-white'
-                        : 'border-white/10 bg-white/5 text-subtle hover:border-accent hover:text-white'
+                    className={`w-full rounded-lg border px-3 py-2 text-left text-sm ${
+                      isSelected ? 'border-[#f5d767] bg-[#f5d767]/40' : 'border-black/15 bg-white hover:border-[#f5d767]'
                     } ${unavailable ? 'opacity-60' : ''}`}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="rounded-full bg-midnight/70 px-2 py-1 text-xs font-semibold text-accent">
-                        {positionLabel(player.position)}
-                      </span>
-                      <div>
-                        <p className="text-sm font-semibold text-white">{player.name}</p>
-                        <p className="text-xs text-subtle">
-                          Skill {player.skill.toFixed(1)} · Age {player.age} · Wage €{player.salary.toLocaleString()}
-                        </p>
-                      </div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold">{player.name}</span>
+                      <span>{positionLabel(player.position)}</span>
                     </div>
-                    <div className="text-xs text-subtle">
+                    <p className="kivy-subtle text-xs">
+                      Skill {displayRating(player.skill)} · Age {player.age} · Wage €{player.salary.toLocaleString()}
+                    </p>
+                    <p className="text-[0.7rem] text-black/60">
                       {player.injured() ? 'Injured' : player.matchAvailable() ? 'Available' : 'Unavailable'}
-                    </div>
+                    </p>
                   </button>
                 );
               })}
               {group.players.length === 0 && (
-                <p className="rounded-2xl border border-dashed border-white/10 px-3 py-6 text-center text-xs text-subtle">
-                  No players in this group.
-                </p>
+                <p className="kivy-subtle text-sm">No players in this group.</p>
               )}
             </div>
-            <p className="mt-3 text-[0.7rem] text-subtle">
+            <p className="kivy-subtle mt-3 text-xs">
               Tap once to select a player, then tap another player to swap their match status.
             </p>
           </div>

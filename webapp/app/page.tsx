@@ -1,6 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { StartScreen } from '@/components/StartScreen';
 import { NewGameForm } from '@/components/NewGameForm';
+import { LoadGameScreen } from '@/components/LoadGameScreen';
 import { GameDashboard } from '@/components/GameDashboard';
 import { useGameEngine } from '@/hooks/useGameEngine';
 
@@ -11,7 +14,6 @@ export default function HomePage() {
     availableTeams,
     startNewGame,
     resetGame,
-    playCurrentMatch,
     advanceWeekWithoutMatch,
     currentMatch,
     leagueTable,
@@ -27,7 +29,6 @@ export default function HomePage() {
     matchTimeline,
     autoPlaying,
     startLiveMatch,
-    playLiveMinute,
     toggleAutoPlay,
     finishLiveMatch,
     makeMatchSubstitution,
@@ -36,33 +37,46 @@ export default function HomePage() {
     sellPlayer,
     renewContract,
     postMatchSummary,
-    dismissPostMatchSummary
+    dismissPostMatchSummary,
+    matchPopup,
+    acknowledgeMatchPopup
   } = useGameEngine();
 
+  type Screen = 'start' | 'new-game' | 'load-game' | 'career';
+  const [screen, setScreen] = useState<Screen>('start');
+
+  useEffect(() => {
+    if (game && screen !== 'career') {
+      setScreen('career');
+    }
+    if (!game && screen === 'career') {
+      setScreen('start');
+    }
+  }, [game, screen]);
+
+  const handleStartGame = (payload: Parameters<typeof startNewGame>[0]) => {
+    startNewGame(payload);
+    setScreen('career');
+  };
+
+  const handleReset = () => {
+    resetGame();
+    setScreen('start');
+  };
+
   return (
-    <div className="flex w-full max-w-6xl flex-col gap-8 py-6">
-      {!game && (
-        <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
-          <div className="card-surface pitch-gradient flex flex-col justify-between p-8 text-white">
-            <div className="space-y-4">
-              <span className="text-xs uppercase tracking-[0.4em] text-accent">SimpleFM web edition</span>
-              <h1 className="text-3xl font-bold sm:text-4xl">
-                Command every transfer, tactic and fixture from any device.
-              </h1>
-              <p className="text-subtle text-sm sm:text-base">
-                We reimagined the original Kivy prototype as a responsive experience inspired by hattrick.org. Manage your
-                academy, negotiate wages and climb the pyramid with the same simulation depth.
-              </p>
-            </div>
-            <p className="text-xs text-subtle">
-              Powered by the original SimpleFM engine · Optimised for touch devices · Deployed on Vercel
-            </p>
-          </div>
-          <NewGameForm availableTeams={availableTeams} onStart={startNewGame} />
-        </div>
+    <div className="flex w-full max-w-5xl flex-col items-center gap-8">
+      {screen === 'start' && (
+        <StartScreen onNewGame={() => setScreen('new-game')} onLoadGame={() => setScreen('load-game')} />
       )}
 
-      {game && humanTeam && (
+      {screen === 'new-game' && (
+        <NewGameForm availableTeams={availableTeams} onStart={handleStartGame} onCancel={() => setScreen('start')} />
+      )}
+
+      {screen === 'load-game' && <LoadGameScreen onBack={() => setScreen('start')} />}
+
+      {screen === 'career' && game && humanTeam && (
         <GameDashboard
           game={game}
           humanTeam={humanTeam}
@@ -71,7 +85,6 @@ export default function HomePage() {
           weekNews={weekNews}
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
-          onPlayMatch={playCurrentMatch}
           onSimulateWeek={advanceWeekWithoutMatch}
           allowedTactics={allowedTactics}
           currentTactic={currentTactic}
@@ -82,7 +95,6 @@ export default function HomePage() {
           matchTimeline={matchTimeline}
           autoPlaying={autoPlaying}
           onStartLiveMatch={startLiveMatch}
-          onPlayMinute={playLiveMinute}
           onToggleAutoPlay={toggleAutoPlay}
           onFinishLiveMatch={finishLiveMatch}
           onMakeSubstitution={makeMatchSubstitution}
@@ -90,18 +102,12 @@ export default function HomePage() {
           onBuyPlayer={buyPlayer}
           onSellPlayer={sellPlayer}
           onRenewContract={renewContract}
+          onResetCareer={handleReset}
           postMatchSummary={postMatchSummary}
           onDismissSummary={dismissPostMatchSummary}
+          matchPopup={matchPopup}
+          onAcknowledgePopup={acknowledgeMatchPopup}
         />
-      )}
-
-      {game && (
-        <button
-          onClick={resetGame}
-          className="mx-auto mt-4 w-fit rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-wide text-subtle transition hover:border-accent hover:text-accent"
-        >
-          Start another career
-        </button>
       )}
     </div>
   );

@@ -1,17 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { COMPETITION, Game, Match, Player, TEAMS } from '@/game';
 import { createPostMatchSummary, type PostMatchSummary } from './postMatchSummary';
+import { clearGameState, loadGameState, persistGameState } from './gamePersistence';
 
-export type TabKey =
-  | 'team'
-  | 'match'
-  | 'league'
-  | 'finance'
-  | 'news'
-  | 'transfers'
-  | 'training';
+export type TabKey = 'team' | 'training' | 'transfers' | 'info' | 'league';
 
 export interface MatchEvent {
   minute: number;
@@ -19,6 +13,18 @@ export interface MatchEvent {
   team: string;
   description: string;
 }
+
+export interface MatchPopup {
+  id: number;
+  type: 'goal' | 'halftime';
+  title: string;
+  message?: string;
+  team?: string;
+  scorer?: string;
+  minute?: number;
+}
+
+export type StoredMatchPopup = Omit<MatchPopup, 'id'>;
 
 export interface OperationResult {
   success: boolean;
@@ -46,8 +52,14 @@ export function useGameEngine() {
   const gameRef = useRef<Game | null>(null);
   const liveMatchRef = useRef<Match | null>(null);
   const autoPlayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const popupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resumeAutoAfterPopupRef = useRef(false);
+  const halftimeShownRef = useRef(false);
+  const popupIdRef = useRef(0);
+  const popupDismissRef = useRef<(() => void) | null>(null);
+  const pendingHalfTimeRef = useRef<Match | null>(null);
 
-  const [, setVersion] = useState(0);
+  const [version, setVersion] = useState(0);
   const [currentMatch, setCurrentMatch] = useState<Match | null>(null);
   const [selectedTab, setSelectedTab] = useState<TabKey>('team');
   const [weekNews, setWeekNews] = useState<string[]>([]);
@@ -55,6 +67,8 @@ export function useGameEngine() {
   const [isMatchLive, setIsMatchLive] = useState(false);
   const [autoPlaying, setAutoPlaying] = useState(false);
   const [postMatchSummary, setPostMatchSummary] = useState<PostMatchSummary | null>(null);
+  const [matchPopup, setMatchPopup] = useState<MatchPopup | null>(null);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -62,16 +76,178 @@ export function useGameEngine() {
         clearInterval(autoPlayTimerRef.current);
         autoPlayTimerRef.current = null;
       }
+      if (popupTimeoutRef.current) {
+        clearTimeout(popupTimeoutRef.current);
+        popupTimeoutRef.current = null;
+      }
     };
   }, []);
 
-  const stopAutoPlay = () => {
+  const clearPopupTimeout = () => {
+    if (popupTimeoutRef.current) {
+      clearTimeout(popupTimeoutRef.current);
+      popupTimeoutRef.current = null;
+    }
+  };
+
+  const stopAutoPlay = (preserveIntent = false) => {
     if (autoPlayTimerRef.current) {
       clearInterval(autoPlayTimerRef.current);
       autoPlayTimerRef.current = null;
     }
     setAutoPlaying(false);
+    if (!preserveIntent) {
+      resumeAutoAfterPopupRef.current = false;
+    }
   };
+
+  const engageAutoPlay = () => {
+    const match = liveMatchRef.current;
+    if (!match || match.finished) {
+      return false;
+    }
+    if (autoPlayTimerRef.current) {
+      clearInterval(autoPlayTimerRef.current);
+    }
+    autoPlayTimerRef.current = setInterval(() => {
+      const result = playLiveMinute();
+      if (!result.success || liveMatchRef.current?.finished) {
+        stopAutoPlay();
+      }
+    }, 600);
+    setAutoPlaying(true);
+    return true;
+  };
+
+  const showMatchPopup = (
+    popup: Omit<MatchPopup, 'id'>,
+    options: { duration?: number; resumeAfter?: boolean; onDismiss?: () => void } = {}
+  ) => {
+    clearPopupTimeout();
+    popupIdRef.current += 1;
+    const id = popupIdRef.current;
+    resumeAutoAfterPopupRef.current = options.resumeAfter ?? false;
+    popupDismissRef.current = options.onDismiss ?? null;
+    setMatchPopup({ ...popup, id });
+    if (options.duration) {
+      popupTimeoutRef.current = setTimeout(() => {
+        setMatchPopup((current) => {
+          if (current && current.id === id) {
+            return null;
+          }
+          return current;
+        });
+        popupTimeoutRef.current = null;
+        const dismiss = popupDismissRef.current;
+        popupDismissRef.current = null;
+        const shouldResume = resumeAutoAfterPopupRef.current;
+        resumeAutoAfterPopupRef.current = false;
+        if (dismiss) {
+          dismiss();
+        }
+        if (shouldResume) {
+          engageAutoPlay();
+        }
+      }, options.duration);
+    }
+  };
+
+  const hardResetMatchPopup = useCallback(() => {
+    clearPopupTimeout();
+    resumeAutoAfterPopupRef.current = false;
+    popupDismissRef.current = null;
+    pendingHalfTimeRef.current = null;
+    setMatchPopup(null);
+  }, []);
+
+  const acknowledgeMatchPopup = () => {
+    const dismiss = popupDismissRef.current;
+    popupDismissRef.current = null;
+    clearPopupTimeout();
+    const shouldResume = resumeAutoAfterPopupRef.current;
+    resumeAutoAfterPopupRef.current = false;
+    setMatchPopup(null);
+    if (dismiss) {
+      dismiss();
+    } else {
+      pendingHalfTimeRef.current = null;
+    }
+    if (shouldResume) {
+      engageAutoPlay();
+    }
+  };
+
+  const presentHalfTimePopup = (match: Match) => {
+    pendingHalfTimeRef.current = null;
+    stopAutoPlay();
+    showMatchPopup({
+      type: 'halftime',
+      title: 'Half-time',
+      message: `${match.teams[0].name} ${match.score[0]} - ${match.score[1]} ${match.teams[1].name}`,
+      minute: 45
+    });
+  };
+
+  const reducePopupForStorage = (popup: MatchPopup | null): StoredMatchPopup | null => {
+    if (!popup) {
+      return null;
+    }
+    const { id: _id, ...rest } = popup;
+    return rest;
+  };
+
+  useEffect(() => {
+    const saved = loadGameState();
+    if (saved && saved.game) {
+      gameRef.current = saved.game;
+      liveMatchRef.current = saved.liveMatch;
+      stopAutoPlay();
+      hardResetMatchPopup();
+      setCurrentMatch(saved.currentMatch);
+      setSelectedTab(saved.selectedTab ?? 'team');
+      setWeekNews(saved.weekNews ?? []);
+      setMatchTimeline(saved.matchTimeline ?? []);
+      setIsMatchLive(saved.isMatchLive);
+      setAutoPlaying(false);
+      setPostMatchSummary(saved.postMatchSummary);
+      if (saved.matchPopup) {
+        popupIdRef.current += 1;
+        setMatchPopup({ id: popupIdRef.current, ...saved.matchPopup });
+      }
+      halftimeShownRef.current = Boolean(saved.liveMatch && saved.liveMatch.minutes >= 45);
+      setVersion((v) => v + 1);
+    }
+    setHydrated(true);
+  }, [hardResetMatchPopup]);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+    persistGameState({
+      game: gameRef.current,
+      currentMatch,
+      liveMatch: liveMatchRef.current,
+      selectedTab,
+      weekNews,
+      matchTimeline,
+      isMatchLive,
+      autoPlaying,
+      postMatchSummary,
+      matchPopup: reducePopupForStorage(matchPopup)
+    });
+  }, [
+    hydrated,
+    version,
+    currentMatch,
+    selectedTab,
+    weekNews,
+    matchTimeline,
+    isMatchLive,
+    autoPlaying,
+    postMatchSummary,
+    matchPopup
+  ]);
 
   const game = gameRef.current;
   const humanTeam = game?.humanTeams[0] ?? null;
@@ -121,24 +297,31 @@ export function useGameEngine() {
     gameRef.current = gameInstance;
     liveMatchRef.current = null;
     stopAutoPlay();
+    hardResetMatchPopup();
+    halftimeShownRef.current = false;
     setMatchTimeline([]);
     setVersion((v) => v + 1);
     setCurrentMatch(null);
     setSelectedTab('team');
     setWeekNews([]);
     setPostMatchSummary(null);
+    setIsMatchLive(false);
   };
 
   const resetGame = () => {
     gameRef.current = null;
     liveMatchRef.current = null;
     stopAutoPlay();
+    hardResetMatchPopup();
+    halftimeShownRef.current = false;
     setMatchTimeline([]);
     setVersion((v) => v + 1);
     setCurrentMatch(null);
     setWeekNews([]);
     setSelectedTab('team');
     setPostMatchSummary(null);
+    setIsMatchLive(false);
+    clearGameState();
   };
 
   const refreshWeeklyState = (): string[] => {
@@ -182,6 +365,8 @@ export function useGameEngine() {
 
     liveMatchRef.current = null;
     stopAutoPlay();
+    hardResetMatchPopup();
+    halftimeShownRef.current = false;
     setMatchTimeline([]);
     setPostMatchSummary(null);
 
@@ -208,6 +393,7 @@ export function useGameEngine() {
     }
     const week = game.week;
     setPostMatchSummary(null);
+    hardResetMatchPopup();
     game.divisions.forEach((division) => division.simulateWeeklyMatches(week));
     setCurrentMatch(null);
     finalizeWeek(null);
@@ -262,11 +448,14 @@ export function useGameEngine() {
 
     liveMatchRef.current = match;
     stopAutoPlay();
+    hardResetMatchPopup();
+    halftimeShownRef.current = false;
     setMatchTimeline([]);
     setCurrentMatch(null);
     setIsMatchLive(true);
     setPostMatchSummary(null);
     setVersion((v) => v + 1);
+    engageAutoPlay();
     return { success: true, message: 'Kick-off! Manage the match minute by minute.' };
   };
 
@@ -296,6 +485,45 @@ export function useGameEngine() {
       });
     });
 
+    const halftimeReached = match.minutes >= 45 && !match.finished && !halftimeShownRef.current;
+    if (halftimeReached) {
+      halftimeShownRef.current = true;
+      pendingHalfTimeRef.current = match;
+    }
+
+    if (latestGoals.length > 0) {
+      const lastGoal = latestGoals[latestGoals.length - 1];
+      const shouldDeferHalfTime = Boolean(pendingHalfTimeRef.current && halftimeReached);
+      const wasAutoPlaying = autoPlaying;
+      stopAutoPlay(true);
+      showMatchPopup(
+        {
+          type: 'goal',
+          title: `${lastGoal.team.name} goal!`,
+          message: `${lastGoal.player.name} ${lastGoal.minute}'`,
+          team: lastGoal.team.name,
+          scorer: lastGoal.player.name,
+          minute: lastGoal.minute
+        },
+        {
+          duration: 2000,
+          resumeAfter: !shouldDeferHalfTime && wasAutoPlaying,
+          onDismiss: shouldDeferHalfTime
+            ? () => {
+                const pending = pendingHalfTimeRef.current;
+                if (pending) {
+                  presentHalfTimePopup(pending);
+                }
+              }
+            : undefined
+        }
+      );
+    } else if (halftimeReached && pendingHalfTimeRef.current) {
+      presentHalfTimePopup(pendingHalfTimeRef.current);
+    } else if (!halftimeReached) {
+      pendingHalfTimeRef.current = null;
+    }
+
     if (match.injuredPlayerOut) {
       const player = match.injuredPlayerOut;
       newEvents.push({
@@ -313,6 +541,7 @@ export function useGameEngine() {
     if (match.finished) {
       stopAutoPlay();
       setIsMatchLive(false);
+      pendingHalfTimeRef.current = null;
     }
 
     setVersion((v) => v + 1);
@@ -328,16 +557,10 @@ export function useGameEngine() {
       stopAutoPlay();
       return { success: true, message: 'Auto-play paused.' };
     }
-    autoPlayTimerRef.current = setInterval(() => {
-      const result = playLiveMinute();
-      if (!result.success) {
-        stopAutoPlay();
-      }
-      if (liveMatchRef.current?.finished) {
-        stopAutoPlay();
-      }
-    }, 600);
-    setAutoPlaying(true);
+    const engaged = engageAutoPlay();
+    if (!engaged) {
+      return { success: false, message: 'Unable to start auto-play for this fixture.' };
+    }
     return { success: true, message: 'Auto-play engaged.' };
   };
 
@@ -354,6 +577,7 @@ export function useGameEngine() {
     }
 
     stopAutoPlay();
+    hardResetMatchPopup();
     game.divisions.forEach((division) => division.simulateWeeklyMatches(game.week));
     setCurrentMatch(match);
     liveMatchRef.current = null;
@@ -499,7 +723,6 @@ export function useGameEngine() {
     matchTimeline,
     autoPlaying,
     startLiveMatch,
-    playLiveMinute,
     toggleAutoPlay,
     finishLiveMatch,
     makeMatchSubstitution,
@@ -508,6 +731,8 @@ export function useGameEngine() {
     sellPlayer,
     renewContract,
     postMatchSummary,
+    matchPopup,
+    acknowledgeMatchPopup,
     dismissPostMatchSummary: () => setPostMatchSummary(null)
   };
 }

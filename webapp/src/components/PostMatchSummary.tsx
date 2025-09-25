@@ -1,124 +1,113 @@
 'use client';
 
 import type { PostMatchSummary } from '@/hooks/postMatchSummary';
+import { getTrainingIndicator } from '@/utils/training';
 
 interface Props {
   summary: PostMatchSummary;
   onClose: () => void;
 }
 
-const trainingColors: Record<PostMatchSummary['training'][number]['label'], string> = {
-  '': 'text-subtle',
-  '++': 'text-emerald-300',
-  '+': 'text-emerald-200',
-  '-': 'text-amber-200',
-  '--': 'text-red-300'
-};
-
 export function PostMatchSummaryModal({ summary, onClose }: Props) {
   const { match, training, finances, news, table } = summary;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-midnight/80 px-4 py-6">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-white/10 bg-[#0b1220] p-6 shadow-xl">
-        <div className="flex flex-col gap-5">
-          <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-white">Week {summary.week} summary</h2>
-              <p className="text-xs text-subtle">
-                Season {summary.season} · Fan happiness {Math.round(summary.fanHappiness)} · Balance €
-                {summary.balance.toLocaleString()}
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="rounded-full bg-accent/90 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-midnight transition hover:bg-accent"
-            >
-              Continue
-            </button>
-          </header>
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 px-4 py-6">
+      <div className="kivy-panel mx-auto w-full max-w-4xl overflow-hidden">
+        <header className="kivy-header flex items-center justify-between px-6 py-4">
+          <div>
+            <h2 className="text-lg font-semibold uppercase tracking-[0.3em]">Week {summary.week} summary</h2>
+            <p className="text-xs text-white/80">
+              Season {summary.season} · Fan happiness {Math.round(summary.fanHappiness)} · Balance €
+              {summary.balance.toLocaleString()}
+            </p>
+          </div>
+          <button type="button" className="kivy-button px-6 py-2 text-xs" onClick={onClose}>
+            Continue
+          </button>
+        </header>
 
-          {match ? (
-            <section className="rounded-3xl border border-white/10 bg-white/5 p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="grid gap-4 px-6 py-6 md:grid-cols-2">
+          <section className="kivy-list p-4 md:col-span-2">
+            <h3 className="text-base font-semibold uppercase tracking-wide">Match</h3>
+            {match ? (
+              <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-subtle">Result</p>
-                  <p className="text-lg font-semibold text-white">
-                    {match.home} {match.score[0]} - {match.score[1]} {match.away}
-                  </p>
-                  <p className="text-xs text-subtle">
+                  <p className="text-xl font-semibold text-black">{match.home} {match.score[0]} - {match.score[1]} {match.away}</p>
+                  <p className="kivy-subtle text-sm">
                     {match.venue} · {match.result}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-midnight/60 px-3 py-2 text-xs text-subtle">
-                  <p>Goals</p>
+                <div className="kivy-list kivy-panel--flat border border-black/10 bg-white px-3 py-2 text-sm">
+                  <p className="font-semibold">Goals</p>
                   {match.scorers.length === 0 ? (
-                    <p className="mt-1 text-white/70">No goals recorded.</p>
+                    <p className="kivy-subtle text-xs">No goals recorded.</p>
                   ) : (
-                    <ul className="mt-1 space-y-1 text-white/80">
+                    <ul className="mt-2 space-y-1 text-xs">
                       {match.scorers.map((goal, index) => (
                         <li key={`${goal.minute}-${goal.team}-${index}`}>
-                          <span className="text-accent">{goal.minute}&apos;</span> {goal.scorer} ({goal.team})
+                          <span className="font-semibold text-black/80">{goal.minute}&apos;</span> {goal.scorer} ({goal.team})
                         </li>
                       ))}
                     </ul>
                   )}
                 </div>
               </div>
-            </section>
-          ) : (
-            <section className="rounded-3xl border border-white/10 bg-white/5 p-5 text-sm text-subtle">
-              No fixture took place this week. Your staff still processed contracts, finances and training.
-            </section>
-          )}
-
-          <section className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-              <h3 className="text-sm font-semibold text-accent">Training highlights</h3>
-              {training.length === 0 ? (
-                <p className="mt-3 text-xs text-subtle">No notable training changes this week.</p>
-              ) : (
-                <ul className="mt-3 space-y-2 text-xs text-subtle">
-                  {training.map((item) => (
-                    <li
-                      key={`${item.player}-${item.position}-${item.amount}`}
-                      className="flex items-center justify-between rounded-2xl border border-white/10 bg-midnight/60 px-3 py-2"
-                    >
-                      <span className="text-white">
-                        {item.player} · {item.position}
-                      </span>
-                      <span className={`${trainingColors[item.label]} font-semibold`}>
-                        {item.label} ({item.amount.toFixed(2)})
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-              <h3 className="text-sm font-semibold text-accent">Finances</h3>
-              {finances.length === 0 ? (
-                <p className="mt-3 text-xs text-subtle">No financial movement recorded this week.</p>
-              ) : (
-                <ul className="mt-3 space-y-2 text-xs text-subtle">
-                  {finances.map((line) => (
-                    <li key={line.label} className="flex items-center justify-between rounded-2xl bg-midnight/60 px-3 py-2">
-                      <span className="text-white">{line.label}</span>
-                      <span className={line.amount >= 0 ? 'text-emerald-300' : 'text-red-300'}>
-                        €{line.amount.toLocaleString()}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            ) : (
+              <p className="kivy-subtle mt-3 text-sm">No fixture took place this week. Staff still processed finances and training.</p>
+            )}
           </section>
 
-          <section className="rounded-3xl border border-white/10 bg-white/5 p-4">
-            <h3 className="text-sm font-semibold text-accent">League table</h3>
-            <div className="mt-3 overflow-hidden rounded-2xl border border-white/10">
-              <table className="min-w-full divide-y divide-white/10 text-left text-xs text-subtle">
-                <thead className="bg-white/5 uppercase">
+          <section className="kivy-list p-4">
+            <h3 className="text-base font-semibold uppercase tracking-wide">Training highlights</h3>
+            {training.length === 0 ? (
+              <p className="kivy-subtle mt-2 text-sm">No notable training changes this week.</p>
+            ) : (
+              <ul className="kivy-scroll mt-3 max-h-40 space-y-2 overflow-y-auto text-sm">
+                {training.map((item) => (
+                  <li
+                    key={`${item.player}-${item.position}-${item.amount}`}
+                    className="flex items-center justify-between rounded-lg border border-black/15 bg-white px-3 py-2"
+                  >
+                    <span>{item.player} · {item.position}</span>
+                    {(() => {
+                      const indicator = getTrainingIndicator(item.label);
+                      return (
+                        <span className={`${indicator.className} font-semibold`}>
+                          <span aria-hidden="true">{indicator.icon}</span>
+                          <span className="sr-only">{indicator.description}</span>
+                        </span>
+                      );
+                    })()}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="kivy-list p-4">
+            <h3 className="text-base font-semibold uppercase tracking-wide">Finances</h3>
+            {finances.length === 0 ? (
+              <p className="kivy-subtle mt-2 text-sm">No financial movement recorded this week.</p>
+            ) : (
+              <ul className="kivy-scroll mt-3 max-h-40 space-y-2 overflow-y-auto text-sm">
+                {finances.map((line) => (
+                  <li key={line.label} className="rounded-lg border border-black/15 bg-white px-3 py-2 flex items-center justify-between">
+                    <span>{line.label}</span>
+                    <span className={line.amount >= 0 ? 'text-emerald-700 font-semibold' : 'text-red-600 font-semibold'}>
+                      €{line.amount.toLocaleString()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="kivy-list p-4">
+            <h3 className="text-base font-semibold uppercase tracking-wide">League table</h3>
+            <div className="kivy-scroll mt-3 max-h-48 overflow-y-auto">
+              <table className="min-w-full border-separate border-spacing-y-1 text-left text-xs">
+                <thead className="bg-white/80 uppercase">
                   <tr>
                     <th className="px-3 py-2">Pos</th>
                     <th className="px-3 py-2">Club</th>
@@ -126,13 +115,10 @@ export function PostMatchSummaryModal({ summary, onClose }: Props) {
                     <th className="px-3 py-2">GD</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/10">
+                <tbody>
                   {table.map((row) => (
-                    <tr
-                      key={`${row.position}-${row.name}`}
-                      className={row.highlight ? 'bg-accent/20 text-white' : 'text-subtle hover:bg-white/5'}
-                    >
-                      <td className="px-3 py-2 font-semibold text-accent">{row.position}</td>
+                    <tr key={`${row.position}-${row.name}`} className={row.highlight ? 'bg-[#f5d767]/60 font-semibold' : 'bg-white/95'}>
+                      <td className="px-3 py-2">{row.position}</td>
                       <td className="px-3 py-2">{row.name}</td>
                       <td className="px-3 py-2">{row.points}</td>
                       <td className="px-3 py-2">{row.goalDifference}</td>
@@ -140,7 +126,7 @@ export function PostMatchSummaryModal({ summary, onClose }: Props) {
                   ))}
                   {table.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-3 py-4 text-center text-subtle">
+                      <td colSpan={4} className="px-3 py-4 text-center text-sm">
                         League standings unavailable this week.
                       </td>
                     </tr>
@@ -150,14 +136,14 @@ export function PostMatchSummaryModal({ summary, onClose }: Props) {
             </div>
           </section>
 
-          <section className="rounded-3xl border border-white/10 bg-white/5 p-4">
-            <h3 className="text-sm font-semibold text-accent">Club news</h3>
+          <section className="kivy-list p-4 md:col-span-2">
+            <h3 className="text-base font-semibold uppercase tracking-wide">Club news</h3>
             {news.length === 0 ? (
-              <p className="mt-3 text-xs text-subtle">The press office had nothing to report.</p>
+              <p className="kivy-subtle mt-2 text-sm">The press office had nothing to report.</p>
             ) : (
-              <ul className="mt-3 space-y-2 text-xs text-subtle">
+              <ul className="kivy-scroll mt-3 max-h-40 space-y-2 overflow-y-auto text-sm">
                 {news.map((item, index) => (
-                  <li key={`${item}-${index}`} className="rounded-2xl bg-midnight/60 px-3 py-2 text-white/80">
+                  <li key={`${item}-${index}`} className="rounded-lg border border-black/15 bg-white px-3 py-2">
                     {item}
                   </li>
                 ))}
