@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { Game, Match, Player, Team } from '@/game';
-import type { MatchEvent, OperationResult, TabKey } from '@/hooks/useGameEngine';
+import type { MatchEvent, MatchPopup, OperationResult, TabKey } from '@/hooks/useGameEngine';
 import type { PostMatchSummary } from '@/hooks/postMatchSummary';
 import { SquadBoard } from './SquadBoard';
 import { TrainingPanel } from './TrainingPanel';
@@ -38,7 +38,6 @@ interface Props {
   matchTimeline: MatchEvent[];
   autoPlaying: boolean;
   onStartLiveMatch: () => OperationResult;
-  onPlayMinute: () => OperationResult;
   onToggleAutoPlay: () => OperationResult;
   onFinishLiveMatch: () => OperationResult;
   onMakeSubstitution: (playerOut: Player, playerIn: Player) => OperationResult;
@@ -49,6 +48,8 @@ interface Props {
   onResetCareer: () => void;
   postMatchSummary: PostMatchSummary | null;
   onDismissSummary: () => void;
+  matchPopup: MatchPopup | null;
+  onAcknowledgePopup: () => void;
 }
 
 const tabs: Array<{ key: TabKey; label: string }> = [
@@ -77,7 +78,6 @@ export function GameDashboard({
   matchTimeline,
   autoPlaying,
   onStartLiveMatch,
-  onPlayMinute,
   onToggleAutoPlay,
   onFinishLiveMatch,
   onMakeSubstitution,
@@ -87,7 +87,9 @@ export function GameDashboard({
   onRenewContract,
   onResetCareer,
   postMatchSummary,
-  onDismissSummary
+  onDismissSummary,
+  matchPopup,
+  onAcknowledgePopup
 }: Props) {
   const [feedback, setFeedback] = useState<{ message: string; tone: 'success' | 'error' | 'info' } | null>(null);
   const [showMatchScreen, setShowMatchScreen] = useState(false);
@@ -370,12 +372,12 @@ export function GameDashboard({
           autoPlaying={autoPlaying}
           timeline={matchTimeline}
           onStartLiveMatch={onStartLiveMatch}
-          onPlayMinute={onPlayMinute}
           onToggleAutoPlay={onToggleAutoPlay}
           onFinishLiveMatch={onFinishLiveMatch}
           onMakeSubstitution={onMakeSubstitution}
           onFeedback={showFeedback}
-          onClose={() => setShowMatchScreen(false)}
+          matchPopup={matchPopup}
+          onAcknowledgePopup={onAcknowledgePopup}
         />
       )}
 

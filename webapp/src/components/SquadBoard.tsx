@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import type { Player, Team } from '@/game';
 import type { OperationResult } from '@/hooks/useGameEngine';
+import { displayRating } from '@/utils/ratings';
 
 interface SquadBoardProps {
   team: Team;
@@ -130,7 +131,7 @@ export function SquadBoard({ team, allowedTactics, currentTactic, onSetTactic, o
                       <span>{positionLabel(player.position)}</span>
                     </div>
                     <p className="kivy-subtle text-xs">
-                      Skill {player.skill.toFixed(1)} · Age {player.age} · Wage €{player.salary.toLocaleString()}
+                      Skill {displayRating(player.skill)} · Age {player.age} · Wage €{player.salary.toLocaleString()}
                     </p>
                     <p className="text-[0.7rem] text-black/60">
                       {player.injured() ? 'Injured' : player.matchAvailable() ? 'Available' : 'Unavailable'}

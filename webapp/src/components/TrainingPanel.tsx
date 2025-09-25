@@ -2,20 +2,13 @@
 
 import { useMemo } from 'react';
 import type { Team } from '@/game';
-import { trainingToStr, type TrainingDelta } from '@/game/helpers';
+import { trainingToStr } from '@/game/helpers';
+import { displayRating } from '@/utils/ratings';
+import { getTrainingIndicator } from '@/utils/training';
 
 interface TrainingPanelProps {
   team: Team;
 }
-
-const trainingColors: Record<TrainingDelta | '·', string> = {
-  '++': 'text-emerald-700',
-  '+': 'text-emerald-600',
-  '-': 'text-amber-600',
-  '--': 'text-red-600',
-  '': 'text-black/60',
-  '·': 'text-black/60'
-};
 
 export function TrainingPanel({ team }: TrainingPanelProps) {
   const players = useMemo(
@@ -43,7 +36,6 @@ export function TrainingPanel({ team }: TrainingPanelProps) {
               <th className="px-3 py-2">Name</th>
               <th className="px-3 py-2">Age</th>
               <th className="px-3 py-2">Skill</th>
-              <th className="px-3 py-2">Training</th>
               <th className="px-3 py-2">Trend</th>
             </tr>
           </thead>
@@ -53,14 +45,14 @@ export function TrainingPanel({ team }: TrainingPanelProps) {
                 <td className="px-3 py-2 font-semibold text-black/80">{player.posToStr()}</td>
                 <td className="px-3 py-2 font-semibold text-black/80">{player.name}</td>
                 <td className="px-3 py-2 text-black/70">{player.age}</td>
-                <td className="px-3 py-2 text-black/70">{player.skill.toFixed(1)}</td>
-                <td className="px-3 py-2 text-black/70">{player.weeklyTraining.toFixed(2)}</td>
+                <td className="px-3 py-2 text-black/70">{displayRating(player.skill)}</td>
                 {(() => {
                   const label = trainingToStr(player.weeklyTraining);
-                  const token: TrainingDelta | '·' = label === '' ? '·' : label;
+                  const indicator = getTrainingIndicator(label);
                   return (
-                    <td className={`px-3 py-2 font-semibold ${trainingColors[token]}`}>
-                      {token}
+                    <td className={`px-3 py-2 font-semibold ${indicator.className}`}>
+                      <span aria-hidden="true">{indicator.icon}</span>
+                      <span className="sr-only">{indicator.description}</span>
                     </td>
                   );
                 })()}
@@ -68,7 +60,7 @@ export function TrainingPanel({ team }: TrainingPanelProps) {
             ))}
             {players.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-sm">
+                <td colSpan={5} className="px-3 py-6 text-center text-sm">
                   No training data recorded this week.
                 </td>
               </tr>

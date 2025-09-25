@@ -29,7 +29,6 @@ export default function HomePage() {
     matchTimeline,
     autoPlaying,
     startLiveMatch,
-    playLiveMinute,
     toggleAutoPlay,
     finishLiveMatch,
     makeMatchSubstitution,
@@ -38,7 +37,9 @@ export default function HomePage() {
     sellPlayer,
     renewContract,
     postMatchSummary,
-    dismissPostMatchSummary
+    dismissPostMatchSummary,
+    matchPopup,
+    acknowledgeMatchPopup
   } = useGameEngine();
 
   type Screen = 'start' | 'new-game' | 'load-game' | 'career';
@@ -94,7 +95,6 @@ export default function HomePage() {
           matchTimeline={matchTimeline}
           autoPlaying={autoPlaying}
           onStartLiveMatch={startLiveMatch}
-          onPlayMinute={playLiveMinute}
           onToggleAutoPlay={toggleAutoPlay}
           onFinishLiveMatch={finishLiveMatch}
           onMakeSubstitution={makeMatchSubstitution}
@@ -105,6 +105,8 @@ export default function HomePage() {
           onResetCareer={handleReset}
           postMatchSummary={postMatchSummary}
           onDismissSummary={dismissPostMatchSummary}
+          matchPopup={matchPopup}
+          onAcknowledgePopup={acknowledgeMatchPopup}
         />
       )}
     </div>

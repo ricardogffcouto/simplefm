@@ -12,7 +12,7 @@ import {
 } from '@/game';
 import { News, NewsList, type NewsCategory } from '@/game/news';
 import type { Finances, LeagueStats } from '@/game/team';
-import type { MatchEvent, TabKey } from './useGameEngine';
+import type { MatchEvent, StoredMatchPopup, TabKey } from './useGameEngine';
 import type { PostMatchSummary } from './postMatchSummary';
 
 const STORAGE_KEY = 'simplefm:career-state';
@@ -133,6 +133,7 @@ interface PersistedPayload {
   isMatchLive: boolean;
   autoPlaying: boolean;
   postMatchSummary: PostMatchSummary | null;
+  matchPopup: StoredMatchPopup | null;
 }
 
 interface PersistInput {
@@ -145,6 +146,7 @@ interface PersistInput {
   isMatchLive: boolean;
   autoPlaying: boolean;
   postMatchSummary: PostMatchSummary | null;
+  matchPopup: StoredMatchPopup | null;
 }
 
 interface RehydratedState {
@@ -167,6 +169,7 @@ interface LoadedState {
   isMatchLive: boolean;
   autoPlaying: boolean;
   postMatchSummary: PostMatchSummary | null;
+  matchPopup: StoredMatchPopup | null;
 }
 
 function cloneLeagueStats(stats: LeagueStats): LeagueStats {
@@ -657,7 +660,8 @@ export function persistGameState({
     matchTimeline,
     isMatchLive,
     autoPlaying,
-    postMatchSummary
+    postMatchSummary,
+    matchPopup
   };
 
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -732,7 +736,8 @@ export function loadGameState(): LoadedState | null {
       matchTimeline: payload.matchTimeline ?? [],
       isMatchLive: payload.isMatchLive && Boolean(liveMatch),
       autoPlaying: false,
-      postMatchSummary: payload.postMatchSummary ?? null
+      postMatchSummary: payload.postMatchSummary ?? null,
+      matchPopup: payload.matchPopup ?? null
     };
   } catch (error) {
     console.error('Failed to load saved game state', error);

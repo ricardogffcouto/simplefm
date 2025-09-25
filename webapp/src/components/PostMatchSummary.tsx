@@ -1,26 +1,19 @@
 'use client';
 
 import type { PostMatchSummary } from '@/hooks/postMatchSummary';
+import { getTrainingIndicator } from '@/utils/training';
 
 interface Props {
   summary: PostMatchSummary;
   onClose: () => void;
 }
 
-const trainingColors: Record<PostMatchSummary['training'][number]['label'], string> = {
-  '': 'text-black/70',
-  '++': 'text-emerald-700',
-  '+': 'text-emerald-600',
-  '-': 'text-amber-600',
-  '--': 'text-red-600'
-};
-
 export function PostMatchSummaryModal({ summary, onClose }: Props) {
   const { match, training, finances, news, table } = summary;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6">
-      <div className="kivy-panel w-full max-w-4xl overflow-hidden">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 px-4 py-6">
+      <div className="kivy-panel mx-auto w-full max-w-4xl overflow-hidden">
         <header className="kivy-header flex items-center justify-between px-6 py-4">
           <div>
             <h2 className="text-lg font-semibold uppercase tracking-[0.3em]">Week {summary.week} summary</h2>
@@ -74,12 +67,18 @@ export function PostMatchSummaryModal({ summary, onClose }: Props) {
                 {training.map((item) => (
                   <li
                     key={`${item.player}-${item.position}-${item.amount}`}
-                    className="rounded-lg border border-black/15 bg-white px-3 py-2 flex items-center justify-between"
+                    className="flex items-center justify-between rounded-lg border border-black/15 bg-white px-3 py-2"
                   >
                     <span>{item.player} · {item.position}</span>
-                    <span className={`${trainingColors[item.label]} font-semibold`}>
-                      {item.label} ({item.amount.toFixed(2)})
-                    </span>
+                    {(() => {
+                      const indicator = getTrainingIndicator(item.label);
+                      return (
+                        <span className={`${indicator.className} font-semibold`}>
+                          <span aria-hidden="true">{indicator.icon}</span>
+                          <span className="sr-only">{indicator.description}</span>
+                        </span>
+                      );
+                    })()}
                   </li>
                 ))}
               </ul>

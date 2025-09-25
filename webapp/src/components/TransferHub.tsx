@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import type { Player, Team } from '@/game';
 import type { OperationResult } from '@/hooks/useGameEngine';
+import { displayRating } from '@/utils/ratings';
 
 interface TransferHubProps {
   team: Team;
@@ -96,7 +97,7 @@ export function TransferHub({ team, onRefresh, onBuy, onSell, onRenew, onFeedbac
                     <div>
                       <p className="font-semibold">{player.name}</p>
                       <p className="kivy-subtle text-xs">
-                        {player.posToStr()} · Skill {player.skill.toFixed(0)} · Wage {formatMoney(player.salary)}
+                        {player.posToStr()} · Skill {displayRating(player.skill)} · Wage {formatMoney(player.salary)}
                       </p>
                     </div>
                     <span className="text-sm font-semibold text-black/70">{formatMoney(player.currentValue())}</span>
@@ -153,7 +154,7 @@ export function TransferHub({ team, onRefresh, onBuy, onSell, onRenew, onFeedbac
                     <div>
                       <p className="font-semibold">{player.name}</p>
                       <p className="kivy-subtle text-xs">
-                        {player.posToStr()} · Skill {player.skill.toFixed(0)} · Value {formatMoney(player.currentValue())}
+                        {player.posToStr()} · Skill {displayRating(player.skill)} · Value {formatMoney(player.currentValue())}
                       </p>
                       <p className="kivy-subtle text-xs">Contract: {contractLabel}</p>
                     </div>
