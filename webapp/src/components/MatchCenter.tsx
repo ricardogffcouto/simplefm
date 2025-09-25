@@ -17,18 +17,15 @@ interface MatchCenterProps {
   onToggleAutoPlay: () => OperationResult;
   onFinishLiveMatch: () => OperationResult;
   onMakeSubstitution: (playerOut: Player, playerIn: Player) => OperationResult;
-  onQuickMatch: () => void;
-  onQuickWeek: () => void;
   onFeedback: (result: OperationResult) => void;
+  onClose: () => void;
 }
 
-function formatScore(match: Match | null, club: Team): string {
+function formatScore(match: Match | null): string {
   if (!match) {
     return '—';
   }
-  const [home, away] = match.score;
-  const homeClub = match.teams[0];
-  return homeClub === club ? `${home} - ${away}` : `${away} - ${home}`;
+  return `${match.teams[0].name} ${match.score[0]} - ${match.score[1]} ${match.teams[1].name}`;
 }
 
 export function MatchCenter({
@@ -44,27 +41,22 @@ export function MatchCenter({
   onToggleAutoPlay,
   onFinishLiveMatch,
   onMakeSubstitution,
-  onQuickMatch,
-  onQuickWeek,
-  onFeedback
+  onFeedback,
+  onClose
 }: MatchCenterProps) {
   const [subOut, setSubOut] = useState<Player | null>(null);
   const [subIn, setSubIn] = useState<Player | null>(null);
 
   const nextMatch = useMemo(() => team.nextMatch(game.week), [team, game.week]);
-  const nextOpponent = useMemo(() => team.nextOpponent(game.week), [team, game.week]);
-
-  const matchInProgress = liveMatch && !liveMatch.finished;
-  const activeMatch = liveMatch ?? lastMatch;
-
-  const possession = activeMatch ? activeMatch.ballPossession() : [50, 50];
+  const activeMatch = liveMatch ?? lastMatch ?? nextMatch;
+  const matchInProgress = !!liveMatch && !liveMatch.finished;
 
   const starters = team.players
     .filter((player) => player.playingStatus === 0)
-    .sort((a, b) => b.skill - a.skill);
+    .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name));
   const bench = team.players
     .filter((player) => player.playingStatus === 1)
-    .sort((a, b) => b.skill - a.skill);
+    .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name));
 
   const renderedTimeline: MatchEvent[] = useMemo(() => {
     if (liveMatch) {
@@ -77,7 +69,7 @@ export function MatchCenter({
       minute: goal.minute,
       type: 'goal',
       team: goal.team.name,
-      description: `${goal.team.name} goal! ${goal.player.name} scores.`
+      description: `${goal.team.name} goal! ${goal.player.name}`
     }));
   }, [liveMatch, timeline, lastMatch]);
 
@@ -93,22 +85,22 @@ export function MatchCenter({
     onFeedback(onToggleAutoPlay());
   };
 
-  const handleFinishWeek = () => {
+  const handleFinish = () => {
     onFeedback(onFinishLiveMatch());
-    setSubIn(null);
     setSubOut(null);
+    setSubIn(null);
   };
 
   const commitSubstitution = (playerOut: Player, playerIn: Player) => {
     const result = onMakeSubstitution(playerOut, playerIn);
     onFeedback(result);
     if (result.success) {
-      setSubIn(null);
       setSubOut(null);
+      setSubIn(null);
     }
   };
 
-  const handleSubOutSelect = (player: Player) => {
+  const selectOut = (player: Player) => {
     if (subOut === player) {
       setSubOut(null);
       return;
@@ -119,7 +111,7 @@ export function MatchCenter({
     }
   };
 
-  const handleSubInSelect = (player: Player) => {
+  const selectIn = (player: Player) => {
     if (subIn === player) {
       setSubIn(null);
       return;
@@ -130,152 +122,126 @@ export function MatchCenter({
     }
   };
 
+  const minuteLabel = liveMatch ? `Minute ${liveMatch.minutes}` : nextMatch ? `Week ${game.week + 1}` : 'Match finished';
+
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-subtle">Match centre</h3>
-              <p className="text-lg font-semibold text-white">
-                {liveMatch ? `Minute ${liveMatch.minutes}` : `Season ${game.season + 1} · Week ${game.week + 1}`}
-              </p>
-              <p className="text-xs text-subtle">
-                {nextOpponent ? `Next opponent: ${nextOpponent.name}` : 'Season complete'}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={handleStart}
-                disabled={!nextMatch || (!!liveMatch && !liveMatch.finished)}
-                className="rounded-full bg-accent/90 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-midnight transition disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/40"
-              >
-                Start live match
-              </button>
-              <button
-                onClick={onQuickMatch}
-                className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-accent hover:text-accent"
-              >
-                Quick play week
-              </button>
-              <button
-                onClick={onQuickWeek}
-                className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-accent hover:text-accent"
-              >
-                Simulate all
-              </button>
-            </div>
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 px-4 py-6">
+      <div className="kivy-panel w-full max-w-5xl overflow-hidden">
+        <header className="kivy-header flex items-center justify-between px-6 py-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-[#f5d767]">Match screen</p>
+            <p className="text-lg font-semibold text-white">{formatScore(activeMatch)}</p>
+            <p className="text-xs text-white/80">{minuteLabel}</p>
           </div>
-
-          {activeMatch && (
-            <div className="mt-4 space-y-3">
-              <div className="rounded-2xl border border-white/10 bg-midnight/40 p-4 text-center text-white">
-                <div className="text-xs uppercase tracking-wide text-subtle">
-                  {liveMatch ? `Minute ${liveMatch.minutes}` : 'Final score'}
-                </div>
-                <div className="mt-2 text-3xl font-semibold">
-                  {activeMatch.teams[0].name} {activeMatch.score[0]} - {activeMatch.score[1]} {activeMatch.teams[1].name}
-                </div>
-                <div className="mt-2 text-xs text-subtle">
-                  Possession: {possession[0]}% · Goals: {activeMatch.goalscorers.length}
-                </div>
-              </div>
-              {liveMatch ? (
-                <>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={handlePlayMinute}
-                      disabled={!matchInProgress}
-                      className="rounded-full bg-accent/80 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-midnight transition disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/40"
-                    >
-                      Play minute
-                    </button>
-                    <button
-                      onClick={handleToggleAutoPlay}
-                      disabled={!matchInProgress && !autoPlaying}
-                      className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:border-white/10 disabled:text-white/40"
-                    >
-                      {autoPlaying ? 'Pause auto-play' : 'Auto-play'}
-                    </button>
-                    <button
-                      onClick={handleFinishWeek}
-                      disabled={!liveMatch.finished}
-                      className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:border-white/10 disabled:text-white/40"
-                    >
-                      Finish week
-                    </button>
-                  </div>
-
-                  <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 sm:grid-cols-2">
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-wide text-subtle">Starters</div>
-                      <div className="mt-2 flex flex-col gap-2">
-                        {starters.map((player) => (
-                          <button
-                            key={`starter-${player.name}-${player.age}`}
-                            onClick={() => handleSubOutSelect(player)}
-                            className={`rounded-xl border px-3 py-2 text-left text-xs transition ${
-                              subOut === player
-                                ? 'border-accent bg-accent/20 text-white'
-                                : 'border-white/10 bg-white/5 text-subtle hover:border-accent hover:text-white'
-                            }`}
-                          >
-                            {player.name} · {player.posToStr()} · {player.skill.toFixed(1)}
-                          </button>
-                        ))}
-                        {starters.length === 0 && <p className="text-xs text-subtle">No active starters.</p>}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-wide text-subtle">Bench</div>
-                      <div className="mt-2 flex flex-col gap-2">
-                        {bench.map((player) => (
-                          <button
-                            key={`bench-${player.name}-${player.age}`}
-                            onClick={() => handleSubInSelect(player)}
-                            className={`rounded-xl border px-3 py-2 text-left text-xs transition ${
-                              subIn === player
-                                ? 'border-accent bg-accent/20 text-white'
-                                : 'border-white/10 bg-white/5 text-subtle hover:border-accent hover:text-white'
-                            }`}
-                          >
-                            {player.name} · {player.posToStr()} · {player.skill.toFixed(1)}
-                          </button>
-                        ))}
-                        {bench.length === 0 && <p className="text-xs text-subtle">Bench empty.</p>}
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <p className="text-xs text-subtle">
-                  Start a live match to make substitutions and control the tempo minute by minute.
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-            <h3 className="text-sm font-semibold text-accent">Latest fixture</h3>
-            <p className="mt-2 text-sm text-subtle">
-              {lastMatch
-                ? `${lastMatch.teams[0].name} vs ${lastMatch.teams[1].name} · ${formatScore(lastMatch, team)}`
-                : 'No matches played yet.'}
-            </p>
+          <div className="flex gap-2">
+            <button type="button" className="kivy-button kivy-button--secondary px-4 py-2 text-xs" onClick={onClose}>
+              Close
+            </button>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-            <h3 className="text-sm font-semibold text-accent">Timeline</h3>
-            <div className="mt-2 space-y-2 text-xs text-subtle">
-              {renderedTimeline.length === 0 && <p>No notable events yet.</p>}
+        </header>
+
+        <div className="grid gap-4 px-6 py-6 lg:grid-cols-[2fr_1fr]">
+          <section className="kivy-list p-4">
+            <h3 className="text-base font-semibold uppercase tracking-wide">Timeline</h3>
+            <div className="kivy-scroll mt-3 max-h-64 space-y-2 overflow-y-auto">
+              {renderedTimeline.length === 0 && <p className="kivy-subtle text-sm">No notable events yet.</p>}
               {renderedTimeline.map((event, index) => (
-                <div key={`${event.type}-${event.minute}-${index}`} className="rounded-xl bg-white/5 px-3 py-2 text-white/80">
-                  <span className="font-semibold text-accent">{event.minute}&apos; · {event.team}</span> — {event.description}
+                <div key={`${event.minute}-${event.team}-${index}`} className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm">
+                  <span className="font-semibold">{event.minute}&apos;</span> {event.description}
                 </div>
               ))}
             </div>
-          </div>
+          </section>
+
+          <section className="kivy-list flex flex-col gap-3 p-4 text-sm">
+            <h3 className="text-base font-semibold uppercase tracking-wide">Controls</h3>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                className="kivy-button px-4 py-2 text-xs disabled:opacity-50"
+                onClick={handleStart}
+                disabled={!nextMatch || isMatchLive}
+              >
+                Kick-off
+              </button>
+              <button
+                type="button"
+                className="kivy-button kivy-button--secondary px-4 py-2 text-xs disabled:opacity-50"
+                onClick={handlePlayMinute}
+                disabled={!matchInProgress}
+              >
+                Play minute
+              </button>
+              <button
+                type="button"
+                className="kivy-button kivy-button--secondary px-4 py-2 text-xs disabled:opacity-50"
+                onClick={handleToggleAutoPlay}
+                disabled={!matchInProgress && !autoPlaying}
+              >
+                {autoPlaying ? 'Pause auto-play' : 'Auto-play'}
+              </button>
+              <button
+                type="button"
+                className="kivy-button kivy-button--secondary px-4 py-2 text-xs disabled:opacity-50"
+                onClick={handleFinish}
+                disabled={!isMatchLive}
+              >
+                Finish match
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <div className="grid gap-4 px-6 pb-6 lg:grid-cols-2">
+          <section className="kivy-list p-4">
+            <h3 className="text-base font-semibold uppercase tracking-wide">On the pitch</h3>
+            <div className="mt-3 grid gap-2 md:grid-cols-2">
+              {starters.map((player) => {
+                const selected = subOut === player;
+                return (
+                  <button
+                    key={`starter-${player.name}-${player.age}`}
+                    onClick={() => selectOut(player)}
+                    className={`rounded-lg border px-3 py-2 text-left text-sm ${
+                      selected ? 'border-[#f5d767] bg-[#f5d767]/40' : 'border-black/15 bg-white hover:border-[#f5d767]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold">{player.name}</span>
+                      <span>{player.posToStr()}</span>
+                    </div>
+                    <p className="kivy-subtle">Skill {player.skill.toFixed(1)} · Age {player.age}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="kivy-list p-4">
+            <h3 className="text-base font-semibold uppercase tracking-wide">Bench</h3>
+            <div className="mt-3 grid gap-2 md:grid-cols-2">
+              {bench.map((player) => {
+                const selected = subIn === player;
+                return (
+                  <button
+                    key={`bench-${player.name}-${player.age}`}
+                    onClick={() => selectIn(player)}
+                    className={`rounded-lg border px-3 py-2 text-left text-sm ${
+                      selected ? 'border-[#f5d767] bg-[#f5d767]/40' : 'border-black/15 bg-white hover:border-[#f5d767]'
+                    } ${player.injured() ? 'opacity-60' : ''}`}
+                    disabled={player.injured()}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold">{player.name}</span>
+                      <span>{player.posToStr()}</span>
+                    </div>
+                    <p className="kivy-subtle">Skill {player.skill.toFixed(1)} · Contract {player.contract} weeks</p>
+                  </button>
+                );
+              })}
+              {bench.length === 0 && <p className="kivy-subtle text-sm">No substitutes available.</p>}
+            </div>
+          </section>
         </div>
       </div>
     </div>

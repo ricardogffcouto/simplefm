@@ -7,25 +7,26 @@ import type { NewGamePayload } from '@/hooks/useGameEngine';
 interface Props {
   availableTeams: string[];
   onStart: (payload: NewGamePayload) => void;
+  onCancel: () => void;
 }
 
-export function NewGameForm({ availableTeams, onStart }: Props) {
-  const [gameName, setGameName] = useState('My Federation');
-  const [managerName, setManagerName] = useState('Manager');
-  const [selectedTeam, setSelectedTeam] = useState<string>(availableTeams[0] ?? '');
+export function NewGameForm({ availableTeams, onStart, onCancel }: Props) {
+  const teamOptions = useMemo(() => ['Create new team', ...availableTeams], [availableTeams]);
+
+  const [gameName, setGameName] = useState('');
+  const [managerName, setManagerName] = useState('');
+  const [selectedTeam, setSelectedTeam] = useState<string>('Create new team');
   const [customName, setCustomName] = useState('');
   const [customCountry, setCustomCountry] = useState<string>(COUNTRIES[0]?.id ?? 'Eng');
   const [customColor, setCustomColor] = useState<string>(COLORS[0]?.hex ?? '#485C96');
+  const [customColorName, setCustomColorName] = useState<string>(COLORS[0]?.name ?? 'Blue');
   const [customDivision, setCustomDivision] = useState(1);
   const [customPosition, setCustomPosition] = useState(1);
   const [error, setError] = useState<string | null>(null);
 
-  const useCustomTeam = selectedTeam === 'Create custom club';
+  const useCustomTeam = selectedTeam === 'Create new team';
 
-  const teamOptions = useMemo(
-    () => ['Create custom club', ...availableTeams],
-    [availableTeams]
-  );
+  const resetError = () => setError(null);
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -40,7 +41,7 @@ export function NewGameForm({ availableTeams, onStart }: Props) {
 
     if (useCustomTeam) {
       if (!customName.trim()) {
-        setError('Custom club requires a name.');
+        setError('Please set a name for your new team.');
         return;
       }
       onStart({
@@ -68,136 +69,151 @@ export function NewGameForm({ availableTeams, onStart }: Props) {
   };
 
   return (
-    <form onSubmit={submit} className="card-surface w-full max-w-xl space-y-6 p-6 sm:p-10">
-      <div className="space-y-1">
-        <h2 className="text-2xl font-semibold text-accent">Take over a club</h2>
-        <p className="text-subtle text-sm">
-          Craft your legacy with a modern experience inspired by the golden age of online football managers.
-        </p>
-      </div>
-      <div className="grid gap-4">
-        <label className="flex flex-col gap-1">
-          <span className="text-xs uppercase tracking-wide text-subtle">Game name</span>
+    <form onSubmit={submit} className="kivy-panel w-full max-w-4xl overflow-hidden">
+      <header className="kivy-header px-6 py-4 text-center text-lg font-semibold uppercase tracking-[0.35em]">
+        New Game
+      </header>
+      <div className="space-y-6 px-6 py-6">
+        <div className="grid gap-3 sm:grid-cols-[0.85fr_1.15fr] sm:items-center">
+          <label className="text-sm font-semibold uppercase tracking-wide">Game name</label>
           <input
             value={gameName}
-            onChange={(event) => setGameName(event.target.value)}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-accent focus:outline-none"
-            placeholder="Weekend Warriors"
+            onChange={(event) => {
+              resetError();
+              setGameName(event.target.value);
+            }}
+            placeholder="Max 16 characters"
+            maxLength={16}
+            className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
           />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-xs uppercase tracking-wide text-subtle">Manager name</span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-[0.85fr_1.15fr] sm:items-center">
+          <label className="text-sm font-semibold uppercase tracking-wide">Manager name</label>
           <input
             value={managerName}
-            onChange={(event) => setManagerName(event.target.value)}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-accent focus:outline-none"
-            placeholder="Alex F."
+            onChange={(event) => {
+              resetError();
+              setManagerName(event.target.value);
+            }}
+            placeholder="Max 16 characters"
+            maxLength={16}
+            className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
           />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-xs uppercase tracking-wide text-subtle">Select club</span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-[0.85fr_1.15fr] sm:items-center">
+          <label className="text-sm font-semibold uppercase tracking-wide">Team</label>
           <select
             value={selectedTeam}
-            onChange={(event) => setSelectedTeam(event.target.value)}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-accent focus:outline-none"
+            onChange={(event) => {
+              setSelectedTeam(event.target.value);
+              resetError();
+            }}
+            className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
           >
             {teamOptions.map((team) => (
-              <option key={team} value={team} className="bg-midnight">
+              <option key={team} value={team}>
                 {team}
               </option>
             ))}
           </select>
-        </label>
-      </div>
+        </div>
 
-      {useCustomTeam && (
-        <div className="rounded-2xl border border-white/5 bg-white/5 p-4 backdrop-blur">
-          <h3 className="text-lg font-semibold text-accent">Custom club</h3>
-          <p className="text-xs text-subtle">Choose your identity, formation placement and home colors.</p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <label className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-subtle">Club name</span>
-              <input
-                value={customName}
-                onChange={(event) => setCustomName(event.target.value)}
-                className="rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-sm text-white focus:border-accent focus:outline-none"
-                placeholder="Greendale Rovers"
-              />
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-subtle">Country</span>
-              <select
-                value={customCountry}
-                onChange={(event) => setCustomCountry(event.target.value)}
-                className="rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-sm text-white focus:border-accent focus:outline-none"
-              >
-                {COUNTRIES.map((country) => (
-                  <option key={country.id} value={country.id} className="bg-midnight">
-                    {country.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-subtle">Division</span>
-              <select
-                value={customDivision}
-                onChange={(event) => setCustomDivision(Number(event.target.value))}
-                className="rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-sm text-white focus:border-accent focus:outline-none"
-              >
-                {Array.from({ length: COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] }, (_, index) => index + 1).map((value) => (
-                  <option key={value} value={value} className="bg-midnight">
-                    League {value}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-wide text-subtle">Previous position</span>
-              <select
-                value={customPosition}
-                onChange={(event) => setCustomPosition(Number(event.target.value))}
-                className="rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-sm text-white focus:border-accent focus:outline-none"
-              >
-                {Array.from({ length: COMPETITION['TEAMS PER DIVISION'] }, (_, index) => index + 1).map((value) => (
-                  <option key={value} value={value} className="bg-midnight">
-                    {value}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 sm:col-span-2">
-              <span className="text-xs uppercase tracking-wide text-subtle">Primary color</span>
-              <div className="flex items-center gap-3">
-                <div
-                  className="h-9 w-9 rounded-full border border-white/20"
-                  style={{ background: customColor }}
+        {useCustomTeam && (
+          <div className="rounded-2xl border-2 border-black/10 bg-white/90 p-4">
+            <h3 className="text-base font-semibold uppercase tracking-wide">Create new team</h3>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-semibold uppercase tracking-wide">Name</span>
+                <input
+                  value={customName}
+                  onChange={(event) => {
+                    setCustomName(event.target.value);
+                    resetError();
+                  }}
+                  placeholder="Max 16 characters"
+                  maxLength={16}
+                  className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
                 />
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-semibold uppercase tracking-wide">Country</span>
                 <select
-                  value={customColor}
-                  onChange={(event) => setCustomColor(event.target.value)}
-                  className="flex-1 rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-sm text-white focus:border-accent focus:outline-none"
+                  value={customCountry}
+                  onChange={(event) => setCustomCountry(event.target.value)}
+                  className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
                 >
-                  {COLORS.map((color) => (
-                    <option key={color.name} value={color.hex} className="bg-midnight">
-                      {color.name}
+                  {COUNTRIES.map((country) => (
+                    <option key={country.id} value={country.id}>
+                      {country.name}
                     </option>
                   ))}
                 </select>
-              </div>
-            </label>
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-semibold uppercase tracking-wide">Division</span>
+                <select
+                  value={customDivision}
+                  onChange={(event) => setCustomDivision(Number(event.target.value))}
+                  className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
+                >
+                  {Array.from({ length: COMPETITION['TOTAL_NUMBER_OF_DIVISIONS'] }, (_, index) => index + 1).map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-semibold uppercase tracking-wide">Position</span>
+                <select
+                  value={customPosition}
+                  onChange={(event) => setCustomPosition(Number(event.target.value))}
+                  className="rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
+                >
+                  {Array.from({ length: COMPETITION['TEAMS PER DIVISION'] }, (_, index) => index + 1).map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+                <span className="font-semibold uppercase tracking-wide">Team color</span>
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-full border-2 border-black/15" style={{ background: customColor }} />
+                  <select
+                    value={customColorName}
+                    onChange={(event) => {
+                      const color = COLORS.find((entry) => entry.name === event.target.value);
+                      if (color) {
+                        setCustomColor(color.hex);
+                        setCustomColorName(color.name);
+                      }
+                    }}
+                    className="flex-1 rounded-lg border-2 border-black/15 bg-white px-3 py-2 text-sm"
+                  >
+                    {COLORS.map((color) => (
+                      <option key={color.name} value={color.name}>
+                        {color.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </label>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {error && <p className="text-sm font-medium text-red-400">{error}</p>}
-
-      <button
-        type="submit"
-        className="w-full rounded-full bg-accent/90 py-3 text-sm font-semibold uppercase tracking-wider text-midnight transition hover:bg-accent"
-      >
-        Start my journey
-      </button>
+        {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
+      </div>
+      <footer className="kivy-footer flex items-center justify-end gap-3 px-6 py-4">
+        <button type="button" className="kivy-button kivy-button--secondary" onClick={onCancel}>
+          Back
+        </button>
+        <button type="submit" className="kivy-button">
+          Create Game
+        </button>
+      </footer>
     </form>
   );
 }

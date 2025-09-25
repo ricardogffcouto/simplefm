@@ -1,20 +1,20 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Game, Match, Player, Team } from '@/game';
 import type { MatchEvent, OperationResult, TabKey } from '@/hooks/useGameEngine';
 import type { PostMatchSummary } from '@/hooks/postMatchSummary';
 import { SquadBoard } from './SquadBoard';
-import { MatchCenter } from './MatchCenter';
-import { TransferHub } from './TransferHub';
 import { TrainingPanel } from './TrainingPanel';
+import { TransferHub } from './TransferHub';
+import { MatchCenter } from './MatchCenter';
+import { ManagerStatsPanel } from './ManagerStatsPanel';
 import { PostMatchSummaryModal } from './PostMatchSummary';
 
 interface Props {
   game: Game;
   humanTeam: Team;
   currentMatch: Match | null;
-  weekNews: string[];
   leagueTable: Array<{
     position: number;
     name: string;
@@ -25,9 +25,9 @@ interface Props {
     goalsFor: number;
     goalsAgainst: number;
   }>;
+  weekNews: string[];
   selectedTab: TabKey;
   setSelectedTab: (tab: TabKey) => void;
-  onPlayMatch: () => void;
   onSimulateWeek: () => void;
   allowedTactics: number[][];
   currentTactic: number[];
@@ -46,29 +46,27 @@ interface Props {
   onBuyPlayer: (player: Player) => OperationResult;
   onSellPlayer: (player: Player) => OperationResult;
   onRenewContract: (player: Player) => OperationResult;
+  onResetCareer: () => void;
   postMatchSummary: PostMatchSummary | null;
   onDismissSummary: () => void;
 }
 
 const tabs: Array<{ key: TabKey; label: string }> = [
-  { key: 'team', label: 'Squad' },
-  { key: 'match', label: 'Matchday' },
-  { key: 'transfers', label: 'Transfers' },
+  { key: 'team', label: 'Team' },
   { key: 'training', label: 'Training' },
-  { key: 'league', label: 'League' },
-  { key: 'finance', label: 'Finances' },
-  { key: 'news', label: 'Weekly news' }
+  { key: 'transfers', label: 'Transfers' },
+  { key: 'info', label: 'Information' },
+  { key: 'league', label: 'League' }
 ];
 
 export function GameDashboard({
   game,
   humanTeam,
   currentMatch,
-  weekNews,
   leagueTable,
+  weekNews,
   selectedTab,
   setSelectedTab,
-  onPlayMatch,
   onSimulateWeek,
   allowedTactics,
   currentTactic,
@@ -87,241 +85,301 @@ export function GameDashboard({
   onBuyPlayer,
   onSellPlayer,
   onRenewContract,
+  onResetCareer,
   postMatchSummary,
   onDismissSummary
 }: Props) {
-  const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [feedback, setFeedback] = useState<{ message: string; tone: 'success' | 'error' | 'info' } | null>(null);
+  const [showMatchScreen, setShowMatchScreen] = useState(false);
+  const [showManagerStats, setShowManagerStats] = useState(false);
 
   const nextOpponent = useMemo(() => humanTeam.nextOpponent(game.week), [humanTeam, game.week]);
 
-  const showFeedback = (result: OperationResult | string, type: 'success' | 'error' | 'info' = 'info') => {
+  useEffect(() => {
+    if (postMatchSummary) {
+      setShowMatchScreen(false);
+      setSelectedTab('info');
+    }
+  }, [postMatchSummary, setSelectedTab]);
+
+  const showFeedback = (result: OperationResult | string | void, fallbackTone: 'success' | 'error' | 'info' = 'info') => {
+    if (!result) {
+      return;
+    }
     if (typeof result === 'string') {
-      setFeedback({ message: result, type });
-    } else {
-      setFeedback({ message: result.message, type: result.success ? 'success' : 'error' });
+      setFeedback({ message: result, tone: fallbackTone });
+      return;
+    }
+    setFeedback({ message: result.message, tone: result.success ? 'success' : 'error' });
+  };
+
+  const footerButtonClass = (active: boolean) =>
+    `rounded-full border-2 border-black/20 px-3 py-2 text-sm font-semibold uppercase tracking-wide transition ${
+      active ? 'bg-[#f5d767] text-black' : 'bg-white text-black hover:bg-[#f7e48f]'
+    }`;
+
+  const renderTeamScreen = () => (
+    <div className="flex h-full flex-col gap-4">
+      <SquadBoard
+        team={humanTeam}
+        allowedTactics={allowedTactics}
+        currentTactic={currentTactic}
+        onSetTactic={(tactic) => {
+          const result = onSetTactic(tactic);
+          showFeedback(result);
+          return result;
+        }}
+        onSwapPlayers={(a, b) => {
+          const result = onSwapPlayers(a, b);
+          showFeedback(result);
+          return result;
+        }}
+        onFeedback={showFeedback}
+      />
+      <div className="flex flex-col gap-2 rounded-2xl border-2 border-black/15 bg-white/95 px-4 py-3 text-sm md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="font-semibold">Next opponent</p>
+          <p className="kivy-subtle">
+            {nextOpponent ? `${nextOpponent.name} · Week ${game.week + 1}` : 'Season complete'}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="kivy-button px-6 py-2 text-xs"
+            onClick={() => setShowMatchScreen(true)}
+          >
+            Go to match screen
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderInfoScreen = () => (
+    <div className="flex h-full flex-col gap-4 text-sm">
+      <section className="kivy-list p-4">
+        <h3 className="text-base font-semibold uppercase tracking-wide">Finances</h3>
+        <div className="mt-3 grid gap-4 md:grid-cols-2">
+          <div>
+            <h4 className="font-semibold">Weekly balance</h4>
+            <ul className="mt-2 space-y-1">
+              {Object.entries(humanTeam.weeklyFinances).map(([label, value]) => (
+                <li key={label} className="flex items-center justify-between rounded-lg border border-black/10 bg-white px-3 py-1">
+                  <span>{label}</span>
+                  <span className={value >= 0 ? 'text-emerald-600' : 'text-red-600'}>€{value.toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold">Season finances</h4>
+            <ul className="mt-2 space-y-1">
+              {Object.entries(humanTeam.yearlyFinances).map(([label, value]) => (
+                <li key={label} className="flex items-center justify-between rounded-lg border border-black/10 bg-white px-3 py-1">
+                  <span>{label}</span>
+                  <span className={value >= 0 ? 'text-emerald-600' : 'text-red-600'}>€{value.toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="kivy-list p-4">
+        <h3 className="text-base font-semibold uppercase tracking-wide">Weekly news</h3>
+        {weekNews.length === 0 ? (
+          <p className="kivy-subtle mt-2">No press updates were recorded this week.</p>
+        ) : (
+          <ul className="mt-2 space-y-2">
+            {weekNews.map((item, index) => (
+              <li key={`${item}-${index}`} className="rounded-lg border border-black/10 bg-white px-3 py-2">
+                {item}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="kivy-list p-4">
+        <h3 className="text-base font-semibold uppercase tracking-wide">Board expectations</h3>
+        <p className="kivy-subtle mt-2">
+          Maintain an average of {humanTeam.seasonPointsPerWeek.toFixed(2)} points per week. Stay above position{' '}
+          {humanTeam.minPosPerSeasonPointsPerWeek()} to keep the board satisfied.
+        </p>
+        <div className="mt-4 flex flex-wrap justify-end gap-3">
+          <button type="button" className="kivy-button" onClick={onSimulateWeek}>
+            Continue week
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+
+  const renderLeagueScreen = () => (
+    <div className="kivy-list overflow-hidden">
+      <table className="min-w-full text-left text-sm">
+        <thead className="bg-white/80 text-xs uppercase">
+          <tr>
+            <th className="px-3 py-2">Pos</th>
+            <th className="px-3 py-2">Club</th>
+            <th className="px-3 py-2">Pts</th>
+            <th className="px-3 py-2">W</th>
+            <th className="px-3 py-2">D</th>
+            <th className="px-3 py-2">L</th>
+            <th className="px-3 py-2">GF</th>
+            <th className="px-3 py-2">GA</th>
+          </tr>
+        </thead>
+        <tbody>
+          {leagueTable.map((row) => (
+            <tr key={row.name} className={row.name === humanTeam.name ? 'bg-[#f5d767]/60 font-semibold' : 'bg-white/90'}>
+              <td className="px-3 py-2">{row.position}</td>
+              <td className="px-3 py-2">{row.name}</td>
+              <td className="px-3 py-2">{row.points}</td>
+              <td className="px-3 py-2">{row.wins}</td>
+              <td className="px-3 py-2">{row.draws}</td>
+              <td className="px-3 py-2">{row.losses}</td>
+              <td className="px-3 py-2">{row.goalsFor}</td>
+              <td className="px-3 py-2">{row.goalsAgainst}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const renderContent = () => {
+    if (showManagerStats) {
+      return <ManagerStatsPanel manager={humanTeam.manager} onClose={() => setShowManagerStats(false)} />;
+    }
+
+    switch (selectedTab) {
+      case 'team':
+        return renderTeamScreen();
+      case 'training':
+        return <TrainingPanel team={humanTeam} />;
+      case 'transfers':
+        return (
+          <TransferHub
+            team={humanTeam}
+            onRefresh={() => {
+              const result = onRefreshTransferList();
+              showFeedback(result);
+              return result;
+            }}
+            onBuy={(player) => {
+              const result = onBuyPlayer(player);
+              showFeedback(result);
+              return result;
+            }}
+            onSell={(player) => {
+              const result = onSellPlayer(player);
+              showFeedback(result);
+              return result;
+            }}
+            onRenew={(player) => {
+              const result = onRenewContract(player);
+              showFeedback(result);
+              return result;
+            }}
+            onFeedback={showFeedback}
+          />
+        );
+      case 'info':
+        return renderInfoScreen();
+      case 'league':
+        return renderLeagueScreen();
+      default:
+        return null;
     }
   };
 
-  const handleQuickMatch = () => {
-    onPlayMatch();
-    showFeedback('Played the upcoming fixture using quick simulation. Check the news tab for details.');
-  };
-
-  const handleSimulateWeek = () => {
-    onSimulateWeek();
-    showFeedback('Advanced the season by one week.');
-  };
-
   return (
-    <section className="flex w-full max-w-5xl flex-col gap-6">
-      <header className="card-surface flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-2xl border border-white/20" style={{ background: 'linear-gradient(135deg, rgba(245,216,103,0.15), rgba(255,255,255,0.05))' }}>
-            <div
-              className="h-full w-full rounded-2xl"
-              style={{
-                background: typeof humanTeam.color === 'string' ? humanTeam.color : '#1a5c2b'
-              }}
-            />
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold text-white sm:text-3xl">{humanTeam.name}</h1>
-            <p className="text-sm text-subtle">
-              Season {game.season + 1} · Week {game.week + 1} · {humanTeam.division?.name ?? 'Friendly league'}
-            </p>
-            <p className="text-xs text-subtle">
-              Fans morale: {Math.round(humanTeam.fanHappiness)} · Balance: €{humanTeam.money.toLocaleString()}
-            </p>
-            <p className="text-xs text-subtle">
-              Next opponent: {nextOpponent ? nextOpponent.name : 'Season complete'}
-            </p>
-          </div>
+    <section className="kivy-panel flex w-full flex-col overflow-hidden">
+      <header className="kivy-header flex items-center gap-4 px-5 py-4">
+        <button
+          type="button"
+          className="kivy-button kivy-button--secondary px-6 py-2 text-xs"
+          onClick={() => setShowManagerStats((value) => !value)}
+        >
+          {showManagerStats ? 'Back to club' : 'Manager stats'}
+        </button>
+        <div className="flex flex-1 flex-col items-center">
+          <span className="text-xs uppercase tracking-[0.35em] text-[#f5d767]">{game.name}</span>
+          <span className="text-lg font-semibold text-white">{humanTeam.name}</span>
+          <span className="text-xs text-white/80">
+            Season {game.season + 1} · Week {game.week + 1}
+          </span>
         </div>
-        <div className="flex flex-col gap-2 sm:text-right">
-          <span className="text-xs uppercase tracking-wide text-subtle">Fast actions</span>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={handleQuickMatch}
-              className="rounded-full bg-accent/90 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-midnight transition hover:bg-accent"
-            >
-              Quick play week
-            </button>
-            <button
-              onClick={handleSimulateWeek}
-              className="rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/80 transition hover:border-accent hover:text-accent"
-            >
-              Simulate all
-            </button>
-          </div>
+        <div className="text-right text-xs text-white">
+          <p>Fans: {Math.round(humanTeam.fanHappiness)}</p>
+          <p>Balance: €{humanTeam.money.toLocaleString()}</p>
         </div>
       </header>
 
-      <nav className="card-surface nav-glow flex items-center justify-between rounded-full px-4 py-2 text-xs uppercase text-subtle">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setSelectedTab(tab.key)}
-            className={`rounded-full px-3 py-2 font-semibold transition ${
-              tab.key === selectedTab ? 'bg-accent/80 text-midnight' : 'hover:text-white'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
-
       {feedback && (
         <div
-          className={`rounded-2xl border px-4 py-3 text-sm ${
-            feedback.type === 'success'
-              ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200'
-              : feedback.type === 'error'
-              ? 'border-red-400/30 bg-red-500/10 text-red-200'
-              : 'border-white/20 bg-white/5 text-subtle'
+          className={`px-5 py-3 text-sm ${
+            feedback.tone === 'success'
+              ? 'text-emerald-700'
+              : feedback.tone === 'error'
+              ? 'text-red-700'
+              : 'text-[#2b2b2b]'
           }`}
         >
           {feedback.message}
         </div>
       )}
 
-      <div className="card-surface min-h-[320px] p-6">
-        {selectedTab === 'team' && (
-          <SquadBoard
-            team={humanTeam}
-            allowedTactics={allowedTactics}
-            currentTactic={currentTactic}
-            onSetTactic={onSetTactic}
-            onSwapPlayers={onSwapPlayers}
-            onFeedback={showFeedback}
-          />
-        )}
+      <div className="flex flex-1 flex-col gap-4 px-5 py-5">
+        <div className="flex-1 overflow-y-auto kivy-scroll">
+          {renderContent()}
+        </div>
 
-        {selectedTab === 'match' && (
-          <MatchCenter
-            game={game}
-            team={humanTeam}
-            liveMatch={liveMatch}
-            lastMatch={currentMatch}
-            isMatchLive={isMatchLive}
-            autoPlaying={autoPlaying}
-            timeline={matchTimeline}
-            onStartLiveMatch={onStartLiveMatch}
-            onPlayMinute={onPlayMinute}
-            onToggleAutoPlay={onToggleAutoPlay}
-            onFinishLiveMatch={onFinishLiveMatch}
-            onMakeSubstitution={onMakeSubstitution}
-            onQuickMatch={handleQuickMatch}
-            onQuickWeek={handleSimulateWeek}
-            onFeedback={showFeedback}
-          />
-        )}
-
-        {selectedTab === 'transfers' && (
-          <TransferHub
-            team={humanTeam}
-            onRefresh={onRefreshTransferList}
-            onBuy={onBuyPlayer}
-            onSell={onSellPlayer}
-            onRenew={onRenewContract}
-            onFeedback={showFeedback}
-          />
-        )}
-
-        {selectedTab === 'training' && <TrainingPanel team={humanTeam} />}
-
-        {selectedTab === 'league' && (
-          <div className="overflow-hidden rounded-2xl border border-white/10">
-            <table className="min-w-full divide-y divide-white/10 text-sm">
-              <thead className="bg-white/5 text-xs uppercase text-subtle">
-                <tr>
-                  <th className="px-3 py-2 text-left">Pos</th>
-                  <th className="px-3 py-2 text-left">Club</th>
-                  <th className="px-3 py-2 text-left">Pts</th>
-                  <th className="px-3 py-2 text-left">W</th>
-                  <th className="px-3 py-2 text-left">D</th>
-                  <th className="px-3 py-2 text-left">L</th>
-                  <th className="px-3 py-2 text-left">GF</th>
-                  <th className="px-3 py-2 text-left">GA</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {leagueTable.map((row) => (
-                  <tr
-                    key={row.name}
-                    className={`${row.name === humanTeam.name ? 'bg-accent/10 text-white' : 'text-subtle'} hover:bg-white/5`}
-                  >
-                    <td className="px-3 py-2 font-semibold text-accent">{row.position}</td>
-                    <td className="px-3 py-2">{row.name}</td>
-                    <td className="px-3 py-2">{row.points}</td>
-                    <td className="px-3 py-2">{row.wins}</td>
-                    <td className="px-3 py-2">{row.draws}</td>
-                    <td className="px-3 py-2">{row.losses}</td>
-                    <td className="px-3 py-2">{row.goalsFor}</td>
-                    <td className="px-3 py-2">{row.goalsAgainst}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {selectedTab === 'finance' && (
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-              <h3 className="text-sm font-semibold text-accent">Weekly balance</h3>
-              <ul className="mt-3 space-y-2 text-sm text-subtle">
-                {Object.entries(humanTeam.weeklyFinances).map(([key, value]) => (
-                  <li key={key} className="flex justify-between">
-                    <span>{key}</span>
-                    <span className={value >= 0 ? 'text-emerald-300' : 'text-red-300'}>€{value.toLocaleString()}</span>
-                  </li>
-                ))}
-              </ul>
+        {!showManagerStats && (
+          <>
+            <footer className="kivy-footer grid grid-cols-2 gap-3 rounded-2xl px-4 py-3 sm:grid-cols-5">
+              {tabs.map((tab) => (
+                <button
+                  type="button"
+                  key={tab.key}
+                  onClick={() => setSelectedTab(tab.key)}
+                  className={footerButtonClass(tab.key === selectedTab)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </footer>
+            <div className="px-4 pb-4 text-right">
+              <button type="button" className="text-xs font-semibold uppercase tracking-wide text-black/60" onClick={onResetCareer}>
+                Quit to menu
+              </button>
             </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-              <h3 className="text-sm font-semibold text-accent">Season finances</h3>
-              <ul className="mt-3 space-y-2 text-sm text-subtle">
-                {Object.entries(humanTeam.yearlyFinances).map(([key, value]) => (
-                  <li key={key} className="flex justify-between">
-                    <span>{key}</span>
-                    <span className={value >= 0 ? 'text-emerald-300' : 'text-red-300'}>€{value.toLocaleString()}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
-
-        {selectedTab === 'news' && (
-          <div className="space-y-3">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-4 text-sm text-subtle">
-              <h3 className="text-sm font-semibold text-accent">Weekly briefing</h3>
-              {weekNews.length ? (
-                <ul className="mt-2 space-y-1">
-                  {weekNews.map((item, index) => (
-                    <li key={`${item}-${index}`} className="rounded-xl bg-white/5 px-3 py-2 text-white/80">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="mt-2">No new updates from the press office yet.</p>
-              )}
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-4 text-sm text-subtle">
-              <h3 className="text-sm font-semibold text-accent">Long term outlook</h3>
-              <p className="mt-2">
-                Keep your supporters engaged by averaging at least {humanTeam.seasonPointsPerWeek.toFixed(2)} points per week.
-                Avoid slipping below position {humanTeam.minPosPerSeasonPointsPerWeek()} to stay aligned with the board&apos;s plan.
-              </p>
-            </div>
-          </div>
+          </>
         )}
       </div>
 
-      {postMatchSummary && (
-        <PostMatchSummaryModal summary={postMatchSummary} onClose={onDismissSummary} />
+      {showMatchScreen && (
+        <MatchCenter
+          game={game}
+          team={humanTeam}
+          liveMatch={liveMatch}
+          lastMatch={currentMatch}
+          isMatchLive={isMatchLive}
+          autoPlaying={autoPlaying}
+          timeline={matchTimeline}
+          onStartLiveMatch={onStartLiveMatch}
+          onPlayMinute={onPlayMinute}
+          onToggleAutoPlay={onToggleAutoPlay}
+          onFinishLiveMatch={onFinishLiveMatch}
+          onMakeSubstitution={onMakeSubstitution}
+          onFeedback={showFeedback}
+          onClose={() => setShowMatchScreen(false)}
+        />
       )}
+
+      {postMatchSummary && <PostMatchSummaryModal summary={postMatchSummary} onClose={onDismissSummary} />}
     </section>
   );
 }

@@ -4,14 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { COMPETITION, Game, Match, Player, TEAMS } from '@/game';
 import { createPostMatchSummary, type PostMatchSummary } from './postMatchSummary';
 
-export type TabKey =
-  | 'team'
-  | 'match'
-  | 'league'
-  | 'finance'
-  | 'news'
-  | 'transfers'
-  | 'training';
+export type TabKey = 'team' | 'training' | 'transfers' | 'info' | 'league';
 
 export interface MatchEvent {
   minute: number;
