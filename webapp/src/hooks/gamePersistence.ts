@@ -635,7 +635,8 @@ export function persistGameState({
   matchTimeline,
   isMatchLive,
   autoPlaying,
-  postMatchSummary
+  postMatchSummary,
+  matchPopup
 }: PersistInput): void {
   if (typeof window === 'undefined') {
     return;

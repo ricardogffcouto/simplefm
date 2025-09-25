@@ -1,7 +1,7 @@
 import type { TrainingDelta } from '@/game/helpers';
 
-type Indicator = TrainingDelta | '';
-type IndicatorToken = TrainingDelta | '·';
+type Indicator = TrainingDelta;
+type IndicatorToken = Exclude<TrainingDelta, ''> | '·';
 
 const iconMap: Record<IndicatorToken, string> = {
   '++': '▲▲',
