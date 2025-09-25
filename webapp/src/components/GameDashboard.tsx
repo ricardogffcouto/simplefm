@@ -28,7 +28,6 @@ interface Props {
   weekNews: string[];
   selectedTab: TabKey;
   setSelectedTab: (tab: TabKey) => void;
-  onSimulateWeek: () => void;
   allowedTactics: number[][];
   currentTactic: number[];
   onSetTactic: (tactic: number[]) => OperationResult;
@@ -68,7 +67,6 @@ export function GameDashboard({
   weekNews,
   selectedTab,
   setSelectedTab,
-  onSimulateWeek,
   allowedTactics,
   currentTactic,
   onSetTactic,
@@ -209,11 +207,6 @@ export function GameDashboard({
           Maintain an average of {humanTeam.seasonPointsPerWeek.toFixed(2)} points per week. Stay above position{' '}
           {humanTeam.minPosPerSeasonPointsPerWeek()} to keep the board satisfied.
         </p>
-        <div className="mt-4 flex flex-wrap justify-end gap-3">
-          <button type="button" className="kivy-button" onClick={onSimulateWeek}>
-            Continue week
-          </button>
-        </div>
       </section>
     </div>
   );

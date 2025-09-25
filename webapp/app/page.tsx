@@ -14,7 +14,6 @@ export default function HomePage() {
     availableTeams,
     startNewGame,
     resetGame,
-    advanceWeekWithoutMatch,
     currentMatch,
     leagueTable,
     selectedTab,
@@ -85,7 +84,6 @@ export default function HomePage() {
           weekNews={weekNews}
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
-          onSimulateWeek={advanceWeekWithoutMatch}
           allowedTactics={allowedTactics}
           currentTactic={currentTactic}
           onSetTactic={setHumanTactic}
