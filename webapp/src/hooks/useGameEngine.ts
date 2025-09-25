@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { COMPETITION, Game, Match, Player, TEAMS } from '@/game';
 import { createPostMatchSummary, type PostMatchSummary } from './postMatchSummary';
+import { clearGameState, loadGameState, persistGameState } from './gamePersistence';
 
 export type TabKey = 'team' | 'training' | 'transfers' | 'info' | 'league';
 
@@ -40,7 +41,7 @@ export function useGameEngine() {
   const liveMatchRef = useRef<Match | null>(null);
   const autoPlayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const [, setVersion] = useState(0);
+  const [version, setVersion] = useState(0);
   const [currentMatch, setCurrentMatch] = useState<Match | null>(null);
   const [selectedTab, setSelectedTab] = useState<TabKey>('team');
   const [weekNews, setWeekNews] = useState<string[]>([]);
@@ -48,6 +49,7 @@ export function useGameEngine() {
   const [isMatchLive, setIsMatchLive] = useState(false);
   const [autoPlaying, setAutoPlaying] = useState(false);
   const [postMatchSummary, setPostMatchSummary] = useState<PostMatchSummary | null>(null);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -65,6 +67,41 @@ export function useGameEngine() {
     }
     setAutoPlaying(false);
   };
+
+  useEffect(() => {
+    const saved = loadGameState();
+    if (saved && saved.game) {
+      gameRef.current = saved.game;
+      liveMatchRef.current = saved.liveMatch;
+      stopAutoPlay();
+      setCurrentMatch(saved.currentMatch);
+      setSelectedTab(saved.selectedTab ?? 'team');
+      setWeekNews(saved.weekNews ?? []);
+      setMatchTimeline(saved.matchTimeline ?? []);
+      setIsMatchLive(saved.isMatchLive);
+      setAutoPlaying(false);
+      setPostMatchSummary(saved.postMatchSummary);
+      setVersion((v) => v + 1);
+    }
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+    persistGameState({
+      game: gameRef.current,
+      currentMatch,
+      liveMatch: liveMatchRef.current,
+      selectedTab,
+      weekNews,
+      matchTimeline,
+      isMatchLive,
+      autoPlaying,
+      postMatchSummary
+    });
+  }, [hydrated, version, currentMatch, selectedTab, weekNews, matchTimeline, isMatchLive, autoPlaying, postMatchSummary]);
 
   const game = gameRef.current;
   const humanTeam = game?.humanTeams[0] ?? null;
@@ -120,6 +157,7 @@ export function useGameEngine() {
     setSelectedTab('team');
     setWeekNews([]);
     setPostMatchSummary(null);
+    setIsMatchLive(false);
   };
 
   const resetGame = () => {
@@ -132,6 +170,8 @@ export function useGameEngine() {
     setWeekNews([]);
     setSelectedTab('team');
     setPostMatchSummary(null);
+    setIsMatchLive(false);
+    clearGameState();
   };
 
   const refreshWeeklyState = (): string[] => {

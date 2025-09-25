@@ -184,7 +184,7 @@ export function MatchCenter({
                 type="button"
                 className="kivy-button kivy-button--secondary px-4 py-2 text-xs disabled:opacity-50"
                 onClick={handleFinish}
-                disabled={!isMatchLive}
+                disabled={!liveMatch || !liveMatch.finished}
               >
                 Finish match
               </button>
