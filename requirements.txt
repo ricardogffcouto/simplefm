@@ -16,3 +16,4 @@ sh==2.0.6
 urllib3==2.1.0
 virtualenv==20.25.0
 sentry-sdk==2.13.0
+textual==0.47.1

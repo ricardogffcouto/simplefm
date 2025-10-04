@@ -1,0 +1,93 @@
+Screen {
+    background: #0b1523;
+    color: #fce300;
+}
+
+#start-layout {
+    align: center middle;
+    padding: 2 4;
+    border: tall #fce300;
+    background: #10243b;
+    gap: 1;
+    width: 60%;
+}
+
+#title {
+    align: center middle;
+    padding: 1 0;
+}
+
+Button {
+    background: #133c55;
+    border: tall #fce300;
+    text-style: bold;
+}
+
+Button.-success {
+    background: #1f6f50;
+}
+
+Button.-warning {
+    background: #7f5400;
+}
+
+Button.-error {
+    background: #8c1c13;
+}
+
+#form-layout,
+#load-layout,
+#manager-layout,
+#summary-layout,
+#match-layout,
+#main-layout {
+    padding: 1 2;
+    gap: 1;
+}
+
+#main-layout #content,
+#match-layout,
+#manager-layout,
+#summary-layout,
+#form-layout,
+#load-layout {
+    border: tall #fce300;
+    background: #10243b;
+}
+
+#nav Button {
+    width: 1fr;
+    margin: 0 1;
+}
+
+.list-title {
+    text-style: bold;
+    color: #f9f871;
+}
+
+ListView {
+    height: 1fr;
+    border: round #fce300;
+    background: #0d1b2a;
+}
+
+#team-lists,
+#match-lists,
+#transfers-layout {
+    gap: 2;
+}
+
+#match-controls {
+    gap: 1;
+    width: 24;
+}
+
+#manager-header,
+#game-header,
+#scoreboard,
+#possession,
+#finance-summary,
+#match-summary {
+    text-style: bold;
+}
+
